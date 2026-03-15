@@ -153,6 +153,7 @@ check_dependencies() {
   if ! cargo install --list | grep -q "^tauri-cli"; then
     log_warning "tauri-cli not found - installing..."
     cargo install tauri-cli
+    rm -rf /tmp/cargo-install* 2>/dev/null || true
   fi
 
   if [ "$SIGN" = true ]; then
