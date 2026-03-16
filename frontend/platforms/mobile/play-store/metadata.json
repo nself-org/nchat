@@ -1,0 +1,47 @@
+{
+  "app": {
+    "packageName": "com.nself.chat",
+    "defaultLanguage": "en-US",
+    "name": "ɳChat — Self-Hosted Messenger",
+    "shortDescription": "Open-source, self-hosted chat. Your data, your server.",
+    "category": "SOCIAL",
+    "contentRating": "Everyone",
+    "privacyPolicyUrl": "https://nself.org/privacy",
+    "websiteUrl": "https://chat.nself.org",
+    "emailAddress": "support@nself.org",
+    "phoneNumber": ""
+  },
+  "description": {
+    "en-US": "ɳChat is a fully open-source, self-hosted messaging app you deploy on your own server in minutes.\n\nConnect to your own ɳChat server — no data goes to third-party clouds, no ads, no account required from us.\n\n🔥 FEATURES\n\n• Public and private channels, DMs, and group chats\n• Message threads, replies, reactions, @mentions, @everyone\n• Rich text editor: markdown, code blocks, links\n• File sharing, images, and link previews\n• Message search and pinned messages\n• Read receipts, typing indicators, and online presence\n• Emoji shortcuts (:smile: style)\n\n🔒 PRIVACY\n\n• Host on YOUR server — you own all data\n• No third-party analytics or tracking\n• End-to-end encryption available (E2EE, requires nself Pro)\n\n📞 CALLS (requires nself Pro)\n\n• Voice and video calls via LiveKit\n• Screen sharing and call recording\n• Incoming call notifications even when app is backgrounded\n\n🛠️ SELF-HOSTED\n\nɳChat requires a backend server. Install nself on any Linux VPS, run 'nself start', and connect the app to your API endpoint.\n\nTry it free: connect to community.nself.org on first launch.\n\n📖 OPEN SOURCE\n\nAll client code is MIT licensed. github.com/nself-org/chat"
+  },
+  "keywords": ["chat", "messaging", "self-hosted", "open source", "private", "secure", "team", "community"],
+  "changelogs": {
+    "en-US": "• Improved call notifications on Android\n• Rich text editor with @mentions and #channels\n• Faster message loading\n• Bug fixes and stability improvements"
+  },
+  "screenshots": {
+    "phone": [
+      "01-channels-list.png",
+      "02-channel-chat.png",
+      "03-direct-messages.png",
+      "04-message-thread.png",
+      "05-incoming-call.png",
+      "06-dark-mode.png"
+    ],
+    "tablet": [
+      "01-channels-list.png",
+      "02-channel-chat.png",
+      "03-direct-messages.png"
+    ]
+  },
+  "contentRatingAnswers": {
+    "violence": false,
+    "gambling": false,
+    "userGeneratedContent": true,
+    "personalInformation": false
+  },
+  "dataDisclosure": {
+    "dataCollected": false,
+    "dataShared": false,
+    "securityPracticesNote": "All user data is stored on the user's own self-hosted server. The app does not collect or share any data with nself or third parties."
+  }
+}

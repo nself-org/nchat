@@ -106,22 +106,23 @@ jobs:
       - name: Build web app
         run: |
           pnpm build
-          mkdir -p platforms/capacitor/out
-          cp -r .next/standalone/* platforms/capacitor/out/
-          cp -r .next/static platforms/capacitor/out/.next/static
-          cp -r public platforms/capacitor/out/public
+          mkdir -p platforms/mobile/out
+          cp -r .next/standalone/* platforms/mobile/out/
+          cp -r .next/static platforms/mobile/out/.next/static
+          cp -r public platforms/mobile/out/public
         env:
           NODE_ENV: production
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
 
       - name: Setup Capacitor
-        working-directory: frontend/platforms/capacitor
+        working-directory: frontend/platforms/mobile
         run: |
           pnpm install
+          npx cap add android 2>/dev/null || true
           npx cap sync android
 
       - name: Update version
-        working-directory: frontend/platforms/capacitor/android
+        working-directory: frontend/platforms/mobile/android
         run: |
           VERSION=$(node -p "require('../../../package.json').version")
           VERSION_CODE=$(date +%Y%m%d%H%M)
@@ -134,7 +135,7 @@ jobs:
 
       - name: Configure signing (Release)
         if: github.event.inputs.build_type == 'release' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/android
+        working-directory: frontend/platforms/mobile/android
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -155,22 +156,22 @@ jobs:
 
       - name: Build Debug APK
         if: github.event.inputs.build_type == 'debug' || github.event_name == 'pull_request'
-        working-directory: frontend/platforms/capacitor/android
+        working-directory: frontend/platforms/mobile/android
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Build Release AAB
         if: github.event.inputs.build_type == 'release' && github.event.inputs.output_format == 'aab' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/android
+        working-directory: frontend/platforms/mobile/android
         run: ./gradlew bundleRelease --stacktrace
 
       - name: Build Release APK
         if: github.event.inputs.build_type == 'release' && github.event.inputs.output_format == 'apk' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/android
+        working-directory: frontend/platforms/mobile/android
         run: ./gradlew assembleRelease --stacktrace
 
       - name: Sign APK
         if: github.event.inputs.build_type == 'release' && github.event.inputs.output_format == 'apk' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/android
+        working-directory: frontend/platforms/mobile/android
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -190,17 +191,17 @@ jobs:
 
       - name: Copy outputs
         run: |
-          mkdir -p platforms/capacitor/dist
+          mkdir -p platforms/mobile/dist
 
           if [ "${{ github.event.inputs.build_type }}" == "debug" ] || [ "${{ github.event_name }}" == "pull_request" ]; then
-            cp platforms/capacitor/android/app/build/outputs/apk/debug/app-debug.apk \
-               platforms/capacitor/dist/nchat-debug.apk
+            cp platforms/mobile/android/app/build/outputs/apk/debug/app-debug.apk \
+               platforms/mobile/dist/nchat-debug.apk
           elif [ "${{ github.event.inputs.output_format }}" == "aab" ]; then
-            cp platforms/capacitor/android/app/build/outputs/bundle/release/app-release.aab \
-               platforms/capacitor/dist/nchat-release.aab
+            cp platforms/mobile/android/app/build/outputs/bundle/release/app-release.aab \
+               platforms/mobile/dist/nchat-release.aab
           else
-            cp platforms/capacitor/android/app/build/outputs/apk/release/app-release.apk \
-               platforms/capacitor/dist/nchat-release.apk
+            cp platforms/mobile/android/app/build/outputs/apk/release/app-release.apk \
+               platforms/mobile/dist/nchat-release.apk
           fi
 
       - name: Upload Debug APK artifact
@@ -208,7 +209,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nchat-android-debug-${{ env.VERSION }}-${{ env.VERSION_CODE }}
-          path: frontend/platforms/capacitor/dist/nchat-debug.apk
+          path: frontend/platforms/mobile/dist/nchat-debug.apk
           retention-days: 7
 
       - name: Upload Release AAB artifact
@@ -216,7 +217,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nchat-android-release-${{ env.VERSION }}-${{ env.VERSION_CODE }}
-          path: frontend/platforms/capacitor/dist/nchat-release.aab
+          path: frontend/platforms/mobile/dist/nchat-release.aab
           retention-days: 30
 
       - name: Upload Release APK artifact
@@ -224,7 +225,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nchat-android-release-${{ env.VERSION }}-${{ env.VERSION_CODE }}
-          path: frontend/platforms/capacitor/dist/nchat-release.apk
+          path: frontend/platforms/mobile/dist/nchat-release.apk
           retention-days: 30
 
       - name: Deploy to Play Store
@@ -240,7 +241,7 @@ jobs:
           chmod +x scripts/deploy-playstore.sh
           scripts/deploy-playstore.sh \
             --track ${{ github.event.inputs.playstore_track || 'internal' }} \
-            --aab frontend/platforms/capacitor/dist/nchat-release.aab
+            --aab frontend/platforms/mobile/dist/nchat-release.aab
 
       - name: Build summary
         if: always()
