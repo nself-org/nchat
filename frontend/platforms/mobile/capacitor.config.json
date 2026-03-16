@@ -1,11 +1,20 @@
 {
   "appId": "com.nself.chat",
-  "appName": "nself-chat",
+  "appName": "ɳChat",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
     "androidScheme": "https",
     "iosScheme": "https"
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#0F0F1A",
+    "limitsNavigationsToAppBoundDomains": true
+  },
+  "android": {
+    "backgroundColor": "#0F0F1A",
+    "allowMixedContent": false
   },
   "plugins": {
     "SplashScreen": {
@@ -33,6 +42,7 @@
       "allowEditing": true,
       "resultType": "uri",
       "saveToGallery": false
-    }
+    },
+    "Haptics": {}
   }
 }

@@ -1,0 +1,63 @@
+{
+  "app": {
+    "bundleId": "com.nself.chat",
+    "name": "ɳChat — Self-Hosted Messenger",
+    "subtitle": "Your data. Your server. Your chat.",
+    "category": "SOCIAL_NETWORKING",
+    "secondaryCategory": "PRODUCTIVITY",
+    "contentRating": "4+",
+    "privacyPolicyUrl": "https://nself.org/privacy",
+    "supportUrl": "https://nself.org/support",
+    "marketingUrl": "https://chat.nself.org"
+  },
+  "description": {
+    "en-US": "ɳChat is a fully open-source, self-hosted messaging app you deploy on your own server in minutes.\n\nConnect to your own ɳChat server — no data goes to third-party clouds, no ads, no account required from us.\n\nFEATURES:\n• Channels, DMs, and group conversations\n• Threads, replies, reactions, @mentions\n• Voice and video calls (with nself Pro plugin)\n• End-to-end encryption (E2EE)\n• File sharing and image previews\n• Message search and pinned messages\n• Typing indicators, read receipts, and online presence\n• Rich text with markdown and code blocks\n• Bot framework with slash commands\n• Role-based permissions (owner, admin, moderator, member, guest)\n• White-label — your branding, your domain\n\nSELF-HOSTED:\nɳChat requires a backend server you control. Install nself on any Linux VPS, run `nself start`, and connect the app to your own API endpoint.\n\nDon't have a server? The nself team runs community.nself.org — create a free account and try it out.\n\nOPEN SOURCE:\nAll client app code is MIT licensed. Deploy it, modify it, make it yours. github.com/nself-org/chat"
+  },
+  "keywords": {
+    "en-US": "chat,messaging,self-hosted,open source,nself,private,secure,team,community,slack alternative,discord alternative"
+  },
+  "whatsnew": {
+    "en-US": "• Rich text editor with @mentions, #channels, and emoji shortcuts\n• Improved CallKit integration for voice and video calls\n• Faster message loading and smoother animations\n• Bug fixes and stability improvements"
+  },
+  "screenshots": {
+    "iphone-6-7": [
+      "01-channels-list.png",
+      "02-channel-chat.png",
+      "03-direct-messages.png",
+      "04-message-thread.png",
+      "05-voice-call.png",
+      "06-dark-mode.png"
+    ],
+    "iphone-6-5": [
+      "01-channels-list.png",
+      "02-channel-chat.png",
+      "03-direct-messages.png",
+      "04-message-thread.png",
+      "05-voice-call.png",
+      "06-dark-mode.png"
+    ],
+    "ipad-pro-12-9": [
+      "01-channels-list.png",
+      "02-channel-chat.png",
+      "03-direct-messages.png"
+    ]
+  },
+  "ageRating": {
+    "unrestricted_web_access": false,
+    "gambling": false,
+    "contests": false,
+    "violence_rare": false,
+    "sexual_content": false,
+    "profanity": false,
+    "mature_suggestive": false,
+    "horror": false,
+    "medical_treatment": false,
+    "gambling_simulated": false
+  },
+  "review": {
+    "demoAccountRequired": true,
+    "demoAccountName": "reviewer@nself.org",
+    "demoAccountPassword": "ReviewerAccount2026!",
+    "notes": "This app requires a backend server URL. For review, use: https://community.nself.org\n\nEnter this URL on the server setup screen that appears on first launch.\n\nTest accounts:\n- owner@nself.org / ReviewerAccount2026! (owner permissions)\n- member@nself.org / ReviewerAccount2026! (member permissions)\n\nAll features are accessible with the owner account including voice/video calls (tap the phone icon in any channel)."
+  }
+}

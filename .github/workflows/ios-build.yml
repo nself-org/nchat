@@ -67,10 +67,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            frontend/platforms/capacitor/ios/Pods
+            frontend/platforms/mobile/ios/Pods
             ~/Library/Caches/CocoaPods
             ~/.cocoapods
-          key: ${{ runner.os }}-pods-${{ hashFiles('frontend/platforms/capacitor/ios/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-${{ hashFiles('frontend/platforms/mobile/ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
 
@@ -80,18 +80,19 @@ jobs:
       - name: Build web app
         run: |
           pnpm build
-          mkdir -p platforms/capacitor/out
-          cp -r .next/standalone/* platforms/capacitor/out/
-          cp -r .next/static platforms/capacitor/out/.next/static
-          cp -r public platforms/capacitor/out/public
+          mkdir -p platforms/mobile/out
+          cp -r .next/standalone/* platforms/mobile/out/
+          cp -r .next/static platforms/mobile/out/.next/static
+          cp -r public platforms/mobile/out/public
         env:
           NODE_ENV: production
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
 
       - name: Setup Capacitor
-        working-directory: frontend/platforms/capacitor
+        working-directory: frontend/platforms/mobile
         run: |
           pnpm install
+          npx cap add ios 2>/dev/null || true
           npx cap sync ios
 
       - name: Setup Xcode
@@ -101,11 +102,11 @@ jobs:
 
       - name: Install CocoaPods
         run: |
-          cd platforms/capacitor/ios/App
+          cd platforms/mobile/ios/App
           pod install --repo-update
 
       - name: Update version
-        working-directory: frontend/platforms/capacitor/ios/App
+        working-directory: frontend/platforms/mobile/ios/App
         run: |
           VERSION=$(node -p "require('../../../../package.json').version")
           BUILD_NUMBER=$(date +%Y%m%d%H%M)
@@ -118,14 +119,14 @@ jobs:
 
       - name: Configure signing (Debug)
         if: github.event.inputs.build_type == 'debug' || github.event_name == 'pull_request'
-        working-directory: frontend/platforms/capacitor/ios/App
+        working-directory: frontend/platforms/mobile/ios/App
         run: |
           # Use automatic signing for debug builds
           sed -i '' 's/CODE_SIGN_STYLE = Manual/CODE_SIGN_STYLE = Automatic/' App.xcodeproj/project.pbxproj
 
       - name: Configure signing (Release)
         if: github.event.inputs.build_type == 'release' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/ios/App
+        working-directory: frontend/platforms/mobile/ios/App
         env:
           CERTIFICATES_P12: ${{ secrets.CERTIFICATES_P12 }}
           CERTIFICATES_PASSWORD: ${{ secrets.CERTIFICATES_PASSWORD }}
@@ -154,7 +155,7 @@ jobs:
 
       - name: Build (Debug)
         if: github.event.inputs.build_type == 'debug' || github.event_name == 'pull_request'
-        working-directory: frontend/platforms/capacitor/ios
+        working-directory: frontend/platforms/mobile/ios
         run: |
           xcodebuild -workspace App/App.xcworkspace \
             -scheme App \
@@ -165,7 +166,7 @@ jobs:
 
       - name: Build (Release)
         if: github.event.inputs.build_type == 'release' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/ios
+        working-directory: frontend/platforms/mobile/ios
         run: |
           xcodebuild -workspace App/App.xcworkspace \
             -scheme App \
@@ -177,7 +178,7 @@ jobs:
 
       - name: Export IPA
         if: github.event.inputs.build_type == 'release' && github.event_name != 'pull_request'
-        working-directory: frontend/platforms/capacitor/ios
+        working-directory: frontend/platforms/mobile/ios
         run: |
           cat > build/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -206,7 +207,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nchat-ios-${{ env.VERSION }}-${{ env.BUILD_NUMBER }}
-          path: frontend/platforms/capacitor/ios/build/ipa/*.ipa
+          path: frontend/platforms/mobile/ios/build/ipa/*.ipa
           retention-days: 30
 
       - name: Deploy to TestFlight
@@ -221,7 +222,7 @@ jobs:
         working-directory: .
         run: |
           chmod +x scripts/deploy-testflight.sh
-          scripts/deploy-testflight.sh --ipa frontend/platforms/capacitor/ios/build/ipa/App.ipa
+          scripts/deploy-testflight.sh --ipa frontend/platforms/mobile/ios/build/ipa/App.ipa
 
       - name: Clean up keychain
         if: always()

@@ -72,24 +72,27 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
 
-      - name: Sync Capacitor
-        working-directory: frontend/platforms/capacitor
-        run: npx cap sync ios
+      - name: Add + Sync Capacitor iOS
+        working-directory: frontend/platforms/mobile
+        run: |
+          npx cap add ios 2>/dev/null || true
+          npx cap sync ios
 
       - name: Install CocoaPods
         run: |
-          cd platforms/capacitor/ios/App
+          cd platforms/mobile/ios/App
           pod install
 
       - name: Build iOS (Debug)
         if: inputs.build_type == 'debug'
         run: |
-          cd platforms/capacitor/ios/App
+          cd platforms/mobile/ios/App
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Debug \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
             build
 
       - name: Install Apple Certificate
@@ -111,7 +114,7 @@ jobs:
       - name: Build iOS (Release)
         if: inputs.build_type == 'release'
         run: |
-          cd platforms/capacitor/ios/App
+          cd platforms/mobile/ios/App
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
@@ -129,8 +132,8 @@ jobs:
         with:
           name: capacitor-ios-${{ inputs.build_type }}
           path: |
-            frontend/platforms/capacitor/ios/App/build/export/*.ipa
-            frontend/platforms/capacitor/ios/App/build/Build/Products/Debug-iphonesimulator/*.app
+            frontend/platforms/mobile/ios/App/build/export/*.ipa
+            frontend/platforms/mobile/ios/App/build/Build/Products/Debug-iphonesimulator/*.app
           retention-days: 14
 
   build-android:
@@ -174,25 +177,27 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
 
-      - name: Sync Capacitor
-        working-directory: frontend/platforms/capacitor
-        run: npx cap sync android
+      - name: Add + Sync Capacitor Android
+        working-directory: frontend/platforms/mobile
+        run: |
+          npx cap add android 2>/dev/null || true
+          npx cap sync android
 
       - name: Build Android (Debug)
         if: inputs.build_type == 'debug'
         run: |
-          cd platforms/capacitor/android
+          cd platforms/mobile/android
           ./gradlew assembleDebug
 
       - name: Decode Keystore
         if: inputs.build_type == 'release'
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > platforms/capacitor/android/app/release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > platforms/mobile/android/app/release.keystore
 
       - name: Build Android (Release)
         if: inputs.build_type == 'release'
         run: |
-          cd platforms/capacitor/android
+          cd platforms/mobile/android
           ./gradlew assembleRelease bundleRelease
         env:
           KEYSTORE_FILE: release.keystore
@@ -205,8 +210,8 @@ jobs:
         with:
           name: capacitor-android-${{ inputs.build_type }}
           path: |
-            frontend/platforms/capacitor/android/app/build/outputs/apk/**/*.apk
-            frontend/platforms/capacitor/android/app/build/outputs/bundle/**/*.aab
+            frontend/platforms/mobile/android/app/build/outputs/apk/**/*.apk
+            frontend/platforms/mobile/android/app/build/outputs/bundle/**/*.aab
           retention-days: 14
 
   combine:
