@@ -72,19 +72,19 @@ jobs:
         run: pnpm build
 
       - name: Build Electron TypeScript
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm build:all
 
       - name: Build Electron (Unsigned)
         if: ${{ !inputs.sign }}
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm dist:mac
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Build Electron (Signed)
         if: ${{ inputs.sign }}
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm dist:mac
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -133,19 +133,19 @@ jobs:
         run: pnpm build
 
       - name: Build Electron TypeScript
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm build:all
 
       - name: Build Electron (Unsigned)
         if: ${{ !inputs.sign }}
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm dist:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Build Electron (Signed)
         if: ${{ inputs.sign }}
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm dist:win
         env:
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
@@ -190,11 +190,11 @@ jobs:
         run: pnpm build
 
       - name: Build Electron TypeScript
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm build:all
 
       - name: Build Electron
-        working-directory: frontend/platforms/electron
+        working-directory: frontend/platforms/desktop
         run: pnpm dist:linux
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false

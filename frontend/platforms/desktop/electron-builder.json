@@ -1,6 +1,6 @@
 {
   "appId": "com.nself.chat",
-  "productName": "nself-chat",
+  "productName": "ɳChat",
   "directories": {
     "output": "release",
     "buildResources": "build"

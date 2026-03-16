@@ -4,7 +4,7 @@
  * Handles communication between main and renderer processes
  */
 
-import { ipcMain, app, shell } from 'electron'
+import { ipcMain, app, shell, desktopCapturer, clipboard, nativeImage } from 'electron'
 import { checkForUpdates } from './auto-updater'
 
 /**
@@ -75,6 +75,60 @@ export function setupIpcHandlers(): void {
     })
     notification.show()
     return true
+  })
+
+  // Screen sharing — desktopCapturer (T-0662)
+  // Lists available screen/window sources for getDisplayMedia() in renderer.
+  // The renderer calls navigator.mediaDevices.getUserMedia with the sourceId
+  // obtained here.
+  ipcMain.handle(
+    'screen:get-sources',
+    async (_event, options: { types: Array<'screen' | 'window'> }) => {
+      const sources = await desktopCapturer.getSources({
+        types: options.types ?? ['screen', 'window'],
+        thumbnailSize: { width: 320, height: 180 },
+        fetchWindowIcons: true,
+      })
+      return sources.map((s) => ({
+        id: s.id,
+        name: s.name,
+        thumbnailDataUrl: s.thumbnail.toDataURL(),
+        appIconDataUrl: s.appIcon ? s.appIcon.toDataURL() : null,
+      }))
+    }
+  )
+
+  // Clipboard — read/write text and images (T-0664)
+  ipcMain.handle('clipboard:read-text', () => {
+    return clipboard.readText()
+  })
+
+  ipcMain.on('clipboard:write-text', (_event, text: string) => {
+    clipboard.writeText(text)
+  })
+
+  ipcMain.handle('clipboard:read-image', () => {
+    const img = clipboard.readImage()
+    if (img.isEmpty()) return null
+    return img.toDataURL()
+  })
+
+  ipcMain.on('clipboard:write-image', (_event, dataUrl: string) => {
+    const img = nativeImage.createFromDataURL(dataUrl)
+    clipboard.writeImage(img)
+  })
+
+  ipcMain.handle('clipboard:has-image', () => {
+    return !clipboard.readImage().isEmpty()
+  })
+
+  // File drag-and-drop — start drag from renderer (T-0664)
+  // Renderer calls this with file path(s) to initiate a native drag.
+  ipcMain.on('drag:start-file', (event, filePath: string) => {
+    event.sender.startDrag({
+      file: filePath,
+      icon: nativeImage.createFromPath(filePath).resize({ width: 64, height: 64 }),
+    })
   })
 
   // Storage (using electron-store in adapters)

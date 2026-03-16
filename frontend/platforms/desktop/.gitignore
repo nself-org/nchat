@@ -1,0 +1,7 @@
+# Electron build output — ignored
+dist/
+release/
+
+# Do NOT ignore build sources (icons, entitlements)
+!build/
+!build/**
