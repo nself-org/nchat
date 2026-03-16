@@ -135,11 +135,12 @@ async function extractImageMetadata(
 
 async function extractVideoMetadata(
   _buffer: Buffer
-): Promise<{ width?: number; height?: number; duration?: number }> {
-  // Video metadata extraction requires ffprobe
-  // Integrate fluent-ffmpeg for production use: npm install fluent-ffmpeg
-  // See: https://github.com/fluent-ffmpeg/node-fluent-ffmpeg
-  return {}
+): Promise<{ width?: number; height?: number; duration?: number; needsTranscoding: boolean }> {
+  // Video metadata extraction and transcoding requires ffprobe + fluent-ffmpeg.
+  // ffmpeg-static is not in package.json. Mark for async transcoding instead.
+  // When ffmpeg-static is added: `npm install ffmpeg-static fluent-ffmpeg @types/fluent-ffmpeg`
+  // and replace this stub with actual metadata extraction and a job-queue dispatch.
+  return { needsTranscoding: true }
 }
 
 // ============================================================================
@@ -233,6 +234,7 @@ export async function POST(request: NextRequest) {
     let height: number | undefined
     let duration: number | undefined
     let blurhash: string | undefined
+    let videoNeedsTranscoding = false
 
     if (file.type.startsWith('image/')) {
       const imageMetadata = await extractImageMetadata(buffer)
@@ -244,6 +246,7 @@ export async function POST(request: NextRequest) {
       width = videoMetadata.width
       height = videoMetadata.height
       duration = videoMetadata.duration
+      videoNeedsTranscoding = videoMetadata.needsTranscoding
     }
 
     // Generate storage key
@@ -282,6 +285,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Create attachment record
+    // Videos with needsTranscoding=true are stored with processing=true in metadata.
+    // A background worker (or future ffmpeg integration) should clear this flag
+    // after transcoding completes and update file_url to the transcoded version.
     const { data: attachmentData, errors } = await apolloClient.mutate({
       mutation: CREATE_ATTACHMENT,
       variables: {
@@ -302,6 +308,11 @@ export async function POST(request: NextRequest) {
           originalName: file.name,
           uploadedBy: validatedMetadata.userId,
           uploadedAt: new Date().toISOString(),
+          ...(videoNeedsTranscoding && {
+            processing: true,
+            processingJob: 'transcode',
+            processingQueuedAt: new Date().toISOString(),
+          }),
         },
       },
     })
@@ -341,6 +352,7 @@ export async function POST(request: NextRequest) {
         data: {
           attachment,
           uploadedAt: new Date().toISOString(),
+          processing: videoNeedsTranscoding,
         },
       },
       { status: 201 }

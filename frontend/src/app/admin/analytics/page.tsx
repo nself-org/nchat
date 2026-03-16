@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { useState, useMemo } from 'react'
+import { useQuery } from '@apollo/client'
 import {
   BarChart3,
   TrendingUp,
@@ -26,6 +27,7 @@ import {
 } from '@/components/ui/select'
 import { ChartSkeleton } from '@/components/ui/loading-skeletons'
 import { useAdminAccess } from '@/lib/admin/use-admin'
+import { GET_ANALYTICS_DATA } from '@/graphql/admin'
 
 // Lazy load chart components
 const MessagesOverTimeChart = dynamic(
@@ -74,82 +76,145 @@ const PopularChannelsChart = dynamic(
   { loading: () => <ChartSkeleton />, ssr: false }
 )
 
-// Mock data for demonstration
-const generateMockData = (days: number) => {
-  const data = []
-  const now = new Date()
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(now)
-    date.setDate(date.getDate() - i)
-
-    data.push({
-      date: date.toISOString().split('T')[0],
-      users: Math.floor(Math.random() * 20) + 5,
-      messages: Math.floor(Math.random() * 500) + 100,
-      activeUsers: Math.floor(Math.random() * 50) + 20,
-    })
-  }
-
-  return data
+// Role color mapping for display
+const ROLE_COLORS: Record<string, string> = {
+  owner: 'bg-yellow-500',
+  admin: 'bg-red-500',
+  moderator: 'bg-blue-500',
+  member: 'bg-green-500',
+  guest: 'bg-gray-500',
 }
-
-const mockPopularChannels = [
-  { name: 'general', messages: 4521, members: 156, percentage: 100 },
-  { name: 'random', messages: 3287, members: 142, percentage: 73 },
-  { name: 'engineering', messages: 1856, members: 24, percentage: 41 },
-  { name: 'design', messages: 743, members: 12, percentage: 16 },
-  { name: 'announcements', messages: 89, members: 156, percentage: 2 },
-]
-
-const mockPeakHours = [
-  { hour: '9 AM', messages: 450 },
-  { hour: '10 AM', messages: 620 },
-  { hour: '11 AM', messages: 580 },
-  { hour: '12 PM', messages: 320 },
-  { hour: '1 PM', messages: 280 },
-  { hour: '2 PM', messages: 520 },
-  { hour: '3 PM', messages: 680 },
-  { hour: '4 PM', messages: 590 },
-  { hour: '5 PM', messages: 410 },
-  { hour: '6 PM', messages: 180 },
-]
-
-const mockRoleDistribution = [
-  { role: 'Owner', count: 1, color: 'bg-yellow-500' },
-  { role: 'Admin', count: 3, color: 'bg-red-500' },
-  { role: 'Moderator', count: 8, color: 'bg-blue-500' },
-  { role: 'Member', count: 136, color: 'bg-green-500' },
-  { role: 'Guest', count: 8, color: 'bg-gray-500' },
-]
 
 export default function AnalyticsPage() {
   const { canViewAnalytics } = useAdminAccess()
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('30d')
-  const [isLoading, setIsLoading] = useState(false)
 
   const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90
-  const chartData = useMemo(() => generateMockData(days), [days])
 
-  // Calculate totals from mock data
+  // Compute date range for GraphQL query
+  const { startDate, endDate } = useMemo(() => {
+    const end = new Date()
+    const start = new Date(end)
+    start.setDate(start.getDate() - days)
+    return {
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+    }
+  }, [days])
+
+  const { data: analyticsData, loading: isLoading, refetch } = useQuery(GET_ANALYTICS_DATA, {
+    variables: { startDate, endDate },
+    skip: !canViewAnalytics,
+    fetchPolicy: 'cache-and-network',
+  })
+
+  // Aggregate messages and signups per day from real data
+  const chartData = useMemo(() => {
+    if (!analyticsData) return []
+
+    const byDay: Record<string, { date: string; users: number; messages: number; activeUsers: number }> = {}
+
+    // Bucket new user signups by day
+    for (const user of analyticsData.user_signups ?? []) {
+      const day = (user.created_at as string).split('T')[0]
+      if (!byDay[day]) byDay[day] = { date: day, users: 0, messages: 0, activeUsers: 0 }
+      byDay[day].users += 1
+    }
+
+    // Bucket messages by day
+    for (const msg of analyticsData.messages ?? []) {
+      const day = (msg.created_at as string).split('T')[0]
+      if (!byDay[day]) byDay[day] = { date: day, users: 0, messages: 0, activeUsers: 0 }
+      byDay[day].messages += 1
+    }
+
+    // Fill in all days in range (so chart has continuous x-axis)
+    const result: { date: string; users: number; messages: number; activeUsers: number }[] = []
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const key = d.toISOString().split('T')[0]
+      result.push(byDay[key] ?? { date: key, users: 0, messages: 0, activeUsers: 0 })
+    }
+    return result
+  }, [analyticsData, days])
+
+  // Calculate totals from real data
   const totals = useMemo(() => {
-    const totalUsers = chartData.reduce((sum, d) => sum + d.users, 0)
-    const totalMessages = chartData.reduce((sum, d) => sum + d.messages, 0)
-    const avgActiveUsers = Math.round(
-      chartData.reduce((sum, d) => sum + d.activeUsers, 0) / chartData.length
-    )
+    const totalUsers = analyticsData?.user_signups?.length ?? 0
+    const totalMessages = analyticsData?.messages?.length ?? 0
+    const avgActiveUsers = chartData.length > 0
+      ? Math.round(chartData.reduce((sum, d) => sum + d.activeUsers, 0) / chartData.length)
+      : 0
     return { totalUsers, totalMessages, avgActiveUsers }
-  }, [chartData])
+  }, [analyticsData, chartData])
 
-  const totalRoleCount = mockRoleDistribution.reduce((sum, r) => sum + r.count, 0)
+  // Popular channels from real data
+  const popularChannels = useMemo(() => {
+    if (!analyticsData?.active_channels?.length) return []
+    const channels = [...(analyticsData.active_channels as Array<{
+      id: string
+      name: string
+      messages_aggregate: { aggregate: { count: number } }
+      members_aggregate?: { aggregate: { count: number } }
+    }>)]
+    channels.sort((a, b) => b.messages_aggregate.aggregate.count - a.messages_aggregate.aggregate.count)
+    const maxMessages = channels[0]?.messages_aggregate.aggregate.count || 1
+    return channels.slice(0, 5).map((ch) => ({
+      name: ch.name,
+      messages: ch.messages_aggregate.aggregate.count,
+      members: ch.members_aggregate?.aggregate.count ?? 0,
+      percentage: Math.round((ch.messages_aggregate.aggregate.count / maxMessages) * 100),
+    }))
+  }, [analyticsData])
+
+  // Role distribution from real data
+  const roleDistribution = useMemo(() => {
+    if (!analyticsData?.role_distribution?.length) return []
+    return (analyticsData.role_distribution as Array<{
+      id: string
+      name: string
+      users_aggregate: { aggregate: { count: number } }
+    }>).map((role) => ({
+      role: role.name.charAt(0).toUpperCase() + role.name.slice(1),
+      count: role.users_aggregate.aggregate.count,
+      color: ROLE_COLORS[role.name.toLowerCase()] ?? 'bg-gray-500',
+    }))
+  }, [analyticsData])
+
+  // Peak activity by hour — derived from messages in the window
+  const peakHours = useMemo(() => {
+    const hourBuckets: Record<number, number> = {}
+    for (const msg of analyticsData?.messages ?? []) {
+      const h = new Date(msg.created_at as string).getHours()
+      hourBuckets[h] = (hourBuckets[h] ?? 0) + 1
+    }
+    const HOUR_LABELS = [
+      '12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM',
+      '12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM',
+    ]
+    return Object.entries(hourBuckets)
+      .map(([h, count]) => ({ hour: HOUR_LABELS[Number(h)], messages: count }))
+      .sort((a, b) => HOUR_LABELS.indexOf(a.hour) - HOUR_LABELS.indexOf(b.hour))
+  }, [analyticsData])
+
+  const totalRoleCount = roleDistribution.reduce((sum, r) => sum + r.count, 0)
 
   const handleRefresh = () => {
-    setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 1000)
+    refetch()
   }
 
   const handleExport = () => {
-    // In production, this would generate a CSV/PDF report
+    // Export as CSV from real data
+    const rows = chartData.map((d) => `${d.date},${d.users},${d.messages}`)
+    const csv = ['date,new_users,messages', ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `analytics-${dateRange}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   if (!canViewAnalytics) {
@@ -245,21 +310,21 @@ export default function AnalyticsPage() {
           <TabsContent value="activity" className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
               <MessagesOverTimeChart data={chartData} />
-              <PeakActivityChart data={mockPeakHours} />
+              <PeakActivityChart data={peakHours} />
             </div>
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
               <UserGrowthChart data={chartData} />
-              <RoleDistributionChart data={mockRoleDistribution} totalCount={totalRoleCount} />
+              <RoleDistributionChart data={roleDistribution} totalCount={totalRoleCount} />
             </div>
             <DailyActiveUsersChart data={chartData} />
           </TabsContent>
 
           <TabsContent value="channels" className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
-              <PopularChannelsChart data={mockPopularChannels} />
+              <PopularChannelsChart data={popularChannels} />
 
               {/* Channel Stats */}
               <Card>
