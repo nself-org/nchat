@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check if wiki is initialized
         id: wiki-check
@@ -32,7 +32,7 @@ jobs:
 
       - name: Sync to GitHub Wiki
         if: steps.wiki-check.outputs.exists == 'true'
-        uses: Andrew-Chen-Wang/github-wiki-action@v4
+        uses: Andrew-Chen-Wang/github-wiki-action@v5
         with:
           path: .github/wiki/
           token: ${{ secrets.GITHUB_TOKEN }}
