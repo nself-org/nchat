@@ -25,7 +25,8 @@
     "desktop:build": "cd platforms/desktop && electron-builder",
     "scan:placeholders": "tsx ../.github/scripts/scan-placeholders.ts",
     "validate:env:prod": "tsx scripts/validate-env.ts --production",
-    "validate:env": "tsx scripts/validate-env.ts"
+    "validate:env": "tsx scripts/validate-env.ts",
+    "lighthouse": "lhci autorun"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^9.1.2",

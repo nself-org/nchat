@@ -21,6 +21,9 @@ export default defineConfig({
   // Test directory — tests live in tests/e2e.new/
   testDir: './tests/e2e.new',
 
+  // Exclude Detox mobile tests (not Playwright)
+  testIgnore: ['**/mobile/**', '**/mobile-only/**'],
+
   // Run tests in files in parallel
   fullyParallel: true,
 
