@@ -43,7 +43,7 @@
     "@nhost/nextjs": "^2.3.1",
     "@nhost/react": "^3.11.2",
     "@noble/curves": "^1.7.0",
-    "@noble/hashes": "^1.6.1",
+    "@noble/hashes": "^2.0.1",
     "@node-rs/argon2": "^2.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
