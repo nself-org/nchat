@@ -49,7 +49,7 @@ export function ThemeInjector() {
 
     // Button colors - always use dark theme colors
     root.style.setProperty('--button-primary-bg', theme.buttonPrimaryBg || theme.primaryColor)
-    root.style.setProperty('--button-primary-text', theme.buttonPrimaryText || '#0F172A')
+    root.style.setProperty('--button-primary-text', theme.buttonPrimaryText || '#0F0F1A')
     root.style.setProperty('--button-secondary-bg', theme.buttonSecondaryBg || '#334155')
     root.style.setProperty('--button-secondary-text', theme.buttonSecondaryText || '#F8FAFC')
 
@@ -60,13 +60,13 @@ export function ThemeInjector() {
     root.style.setProperty('--info', theme.infoColor || '#3B82F6')
 
     // Background and foreground - always use dark theme colors
-    root.style.setProperty('--background', theme.backgroundColor || '#0F172A')
+    root.style.setProperty('--background', theme.backgroundColor || '#0F0F1A')
     root.style.setProperty('--foreground', theme.textColor || '#F8FAFC')
     root.style.setProperty('--card-foreground', theme.textColor || '#F8FAFC')
     root.style.setProperty('--popover-foreground', theme.textColor || '#F8FAFC')
 
     // Apply background color to body for immediate visual feedback
-    document.body.style.backgroundColor = theme.backgroundColor || '#0F172A'
+    document.body.style.backgroundColor = theme.backgroundColor || '#0F0F1A'
     document.body.style.color = theme.textColor || '#F8FAFC'
 
     // Zinc color scale for grays - inverted for dark mode

@@ -428,9 +428,9 @@ export const BADGE_DEFINITIONS: Record<string, Badge> = {
     stackable: false,
     style: {
       backgroundColor: '#38BDF8',
-      textColor: '#0F172A',
+      textColor: '#0F0F1A',
       borderColor: '#0EA5E9',
-      iconColor: '#0F172A',
+      iconColor: '#0F0F1A',
       gradient: {
         from: '#38BDF8',
         to: '#0EA5E9',

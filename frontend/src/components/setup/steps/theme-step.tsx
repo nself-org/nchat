@@ -134,7 +134,7 @@ export function ThemeStep({ config, onUpdate, onValidate }: ThemeStepProps) {
         ...prev,
         backgroundColor: mode === 'dark' ? theme.backgroundColor : '#FFFFFF',
         surfaceColor: mode === 'dark' ? theme.surfaceColor : '#F8FAFC',
-        textColor: mode === 'dark' ? theme.textColor : '#0F172A',
+        textColor: mode === 'dark' ? theme.textColor : '#0F0F1A',
         mutedColor: mode === 'dark' ? theme.mutedColor : '#64748B',
       }))
     }

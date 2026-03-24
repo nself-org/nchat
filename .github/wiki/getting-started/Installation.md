@@ -48,7 +48,7 @@ The 15 free plugins install automatically with `nself start` — no license key 
 
 Pro plugins unlock advanced capabilities: video calls, E2E encryption, AI assistant, advanced moderation, bots, SSO, analytics, and more. A license key is required.
 
-**Get a license:** [nself.org/pricing](https://nself.org/pricing) — Basic tier starts at $0.99/month ($9.99/year), all 52 Pro Plugins included. Higher tiers add AI suite, priority support, and managed DevOps.
+**Get a license:** [nself.org/pricing](https://nself.org/pricing) — Basic tier starts at $0.99/month ($9.99/year), all 59 Pro Plugins included. Higher tiers add AI suite, priority support, and managed DevOps.
 
 #### Option 1: Set via CLI (recommended)
 

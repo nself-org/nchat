@@ -40,7 +40,7 @@ export const defaultTemplate: PlatformTemplate = {
       popoverColor: '#FFFFFF',
 
       // Text colors
-      textColor: '#0F172A',
+      textColor: '#0F0F1A',
       textMutedColor: '#64748B',
       textInverseColor: '#FFFFFF',
 
@@ -50,9 +50,9 @@ export const defaultTemplate: PlatformTemplate = {
 
       // Button colors
       buttonPrimaryBg: '#00D4FF',
-      buttonPrimaryText: '#0F172A',
+      buttonPrimaryText: '#0F0F1A',
       buttonSecondaryBg: '#F1F5F9',
-      buttonSecondaryText: '#0F172A',
+      buttonSecondaryText: '#0F0F1A',
       buttonGhostHover: '#F1F5F9',
 
       // Status colors
@@ -83,11 +83,11 @@ export const defaultTemplate: PlatformTemplate = {
       // Text colors
       textColor: '#F8FAFC',
       textMutedColor: '#94A3B8',
-      textInverseColor: '#0F172A',
+      textInverseColor: '#0F0F1A',
 
       // Border colors
       borderColor: '#1E293B',
-      borderMutedColor: '#0F172A',
+      borderMutedColor: '#0F0F1A',
 
       // Button colors
       buttonPrimaryBg: '#00D4FF',
