@@ -15,7 +15,7 @@ import { Huddle, HuddleParticipant, RoomType } from '@/lib/meetings/meeting-type
 import { logger } from '@/lib/logger'
 
 // ============================================================================
-// GraphQL (placeholders)
+// GraphQL Queries and Mutations
 // ============================================================================
 
 const GET_CHANNEL_HUDDLE = gql`

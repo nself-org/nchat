@@ -279,7 +279,7 @@ export function ChannelHeader({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Start call (coming soon)</p>
+                  <p>Start call (requires LiveKit plugin)</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -290,7 +290,7 @@ export function ChannelHeader({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Start video call (coming soon)</p>
+                  <p>Start video call (requires LiveKit plugin)</p>
                 </TooltipContent>
               </Tooltip>
             </>

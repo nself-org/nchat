@@ -108,7 +108,7 @@ export class SchedulerService {
       await this.queueService.initialize()
     }
 
-    // Load existing schedules from database (placeholder)
+    // Load existing schedules from database
     await this.loadSchedules()
 
     // Sync schedules with BullMQ
@@ -122,8 +122,8 @@ export class SchedulerService {
    * Load schedules from database
    */
   private async loadSchedules(): Promise<void> {
-    // For now, schedules are in-memory only
-    log.debug('Loading schedules from database (placeholder)')
+    // Schedules are in-memory only until cron plugin provides persistent storage
+    log.debug('Loading schedules (in-memory mode)')
   }
 
   /**

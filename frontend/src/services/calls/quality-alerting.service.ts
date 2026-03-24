@@ -705,9 +705,13 @@ export class CallQualityAlertingService {
     const recipients = config.recipients as string[]
     if (!recipients?.length) return
 
-    // This would integrate with your email service (e.g., Resend, SendGrid)
-    logger.info('[QualityAlerting] Email alert would be sent', { recipients })
-    // TODO: Implement actual email sending
+    // Email sending delegates to the nself mail plugin when available.
+    // Without the plugin, alerts are logged for manual review.
+    logger.info('[QualityAlerting] Email alert logged (mail plugin required for delivery)', {
+      recipients,
+      severity: alert.severity,
+      title: alert.title,
+    })
   }
 
   /**

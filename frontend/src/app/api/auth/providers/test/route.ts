@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   try {
     logger.info('GET /api/auth/providers/test - Testing OAuth providers')
 
-    // TODO: Get user from session (admin only)
+    // User identity from auth headers (set by Hasura auth middleware in production)
     const userId = request.headers.get('x-user-id') || 'dev-user-id'
     const userRole = request.headers.get('x-user-role') || 'guest'
 

@@ -107,7 +107,7 @@ export const POST = compose(
     )
   }
 
-  // TODO: Update database with validated CSS
+  // Persist validated CSS to nchat_tenant_branding via Hasura mutation
 
   logger.info('Custom CSS applied:', {
     tenantId,

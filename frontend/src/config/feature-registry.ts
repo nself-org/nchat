@@ -83,7 +83,7 @@ export interface Feature {
   test_file?: string
   /** Platform restrictions (empty = all platforms) */
   platforms?: Platform[]
-  /** Phase number from TODO.md */
+  /** Phase number from the development roadmap */
   phase?: number
   /** Priority (1-5, 1 being highest) */
   priority?: number

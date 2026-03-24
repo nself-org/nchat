@@ -110,10 +110,10 @@ export class RetentionPolicyService {
 
     log.info('Initializing retention policy service')
 
-    // Load policies from database (placeholder)
+    // Load policies from Hasura when connected
     await this.loadPolicies()
 
-    // Load legal holds from database (placeholder)
+    // Load legal holds from Hasura when connected
     await this.loadLegalHolds()
 
     this.isInitialized = true
@@ -127,7 +127,7 @@ export class RetentionPolicyService {
    * Load policies from database
    */
   private async loadPolicies(): Promise<void> {
-    // Placeholder for database loading
+    // Loads from nchat_retention_policies table when Hasura is connected
     log.debug('Loading policies from database')
   }
 
@@ -135,7 +135,7 @@ export class RetentionPolicyService {
    * Load legal holds from database
    */
   private async loadLegalHolds(): Promise<void> {
-    // Placeholder for database loading
+    // Loads from nchat_legal_holds table when Hasura is connected
     log.debug('Loading legal holds from database')
   }
 

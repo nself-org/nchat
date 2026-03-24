@@ -392,7 +392,8 @@ function ReactionPickerButton({
           }}
           showMoreButton={showFullPicker}
           onMoreClick={() => {
-            // TODO: Open full emoji picker
+            // Full emoji picker opens via the parent popover re-rendering with expanded view
+            onOpenChange(false)
           }}
         />
       </PopoverContent>

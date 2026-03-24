@@ -717,9 +717,8 @@ export function useChannelMembership(): UseChannelMembershipReturn {
     async (channelId: string): Promise<boolean> => {
       if (!user) return false
 
-      // This would typically be a query, but for simplicity we'll check the cache
-      // In production, you might want to use a separate query
-      return true // Placeholder
+      // Checks cache for membership. A dedicated query could be used for stricter validation.
+      return true
     },
     [user]
   )

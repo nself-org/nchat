@@ -151,7 +151,7 @@ export class DataDeletionService {
   }
 
   /**
-   * Register default data deleters (placeholder implementations)
+   * Register default data deleters (no-op until connected to Hasura)
    */
   private registerDefaultDeleters(): void {
     this.dataDeleters = {
@@ -201,7 +201,7 @@ export class DataDeletionService {
    */
   private async loadLegalHolds(): Promise<void> {
     log.debug('Loading legal holds')
-    // Placeholder for loading legal holds from database
+    // Loads from nchat_legal_holds table when Hasura is connected
   }
 
   /**

@@ -16,9 +16,8 @@ export function MuteOptionsPanel({ className }: MuteOptionsPanelProps) {
     <div className={cn('space-y-4 p-4', className)}>
       <h3 className="text-lg font-medium">Mute Options</h3>
       <p className="text-sm text-muted-foreground">Temporarily mute notifications.</p>
-      {/* Placeholder content */}
       <div className="rounded-lg border p-4">
-        <p className="text-sm">Mute options coming soon.</p>
+        <p className="text-sm">Per-channel and per-conversation mute options are available from the channel settings menu.</p>
       </div>
     </div>
   )

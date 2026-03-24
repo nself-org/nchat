@@ -834,8 +834,7 @@ export class ProfileService {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nchat.app'
       const deepLink = `${baseUrl}/u/${profile.username}`
 
-      // In production, use a QR code library
-      // For now, return a placeholder
+      // Returns an SVG placeholder. Use a QR code library (e.g., qrcode) for production.
       return {
         dataUrl: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="white" width="200" height="200"/><text x="100" y="100" text-anchor="middle">QR</text></svg>`,
         deepLink,

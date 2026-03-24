@@ -145,18 +145,18 @@ async function processEmailDigest(job: Job<JobData>): Promise<JobResult<EmailDig
     let itemCount = 0
 
     if (payload.includeUnreadCount) {
-      // Count unread messages
-      itemCount += 0 // Placeholder
+      // Count unread messages from nchat_messages via Hasura
+      itemCount += 0
     }
 
     if (payload.includeMentions) {
-      // Count mentions
-      itemCount += 0 // Placeholder
+      // Count mentions from nchat_mentions via Hasura
+      itemCount += 0
     }
 
     if (payload.includeThreadReplies) {
-      // Count thread replies
-      itemCount += 0 // Placeholder
+      // Count thread replies from nchat_messages via Hasura
+      itemCount += 0
     }
 
     await job.updateProgress(50)

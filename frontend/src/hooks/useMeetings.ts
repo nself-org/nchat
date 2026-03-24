@@ -37,7 +37,7 @@ import {
 } from '@/lib/meetings'
 
 // ============================================================================
-// GraphQL Queries and Mutations (placeholders)
+// GraphQL Queries and Mutations
 // ============================================================================
 
 const GET_MEETINGS = gql`

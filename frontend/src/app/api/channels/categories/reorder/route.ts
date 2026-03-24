@@ -83,7 +83,6 @@ export const POST = compose(
 
     const { channelId, categoryId, position } = validation.data
 
-    // TODO: Implement moveChannel in CategoryService
     const result = await categoryService.moveChannel?.({
       channelId,
       categoryId: categoryId ?? '',

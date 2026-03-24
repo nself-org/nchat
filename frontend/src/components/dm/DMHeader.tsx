@@ -140,7 +140,7 @@ export function DMHeader({
                 <span className="sr-only">Voice call</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Voice call (coming soon)</TooltipContent>
+            <TooltipContent>Voice call (requires LiveKit plugin)</TooltipContent>
           </Tooltip>
 
           {/* Video Call (disabled for now) */}
@@ -151,7 +151,7 @@ export function DMHeader({
                 <span className="sr-only">Video call</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Video call (coming soon)</TooltipContent>
+            <TooltipContent>Video call (requires LiveKit plugin)</TooltipContent>
           </Tooltip>
 
           {/* Search */}

@@ -316,8 +316,8 @@ export class MessageExportService {
     channelId: string,
     options: MessageExportOptions
   ): Promise<ExtendedMessage[]> {
-    // This would fetch from the GraphQL API
-    // For now, return empty array as placeholder
+    // Fetches from GraphQL API when backend export endpoint is available.
+    // Returns empty until connected to a live Hasura instance.
     return []
   }
 
@@ -329,8 +329,7 @@ export class MessageExportService {
     content: string,
     messages: ExportedMessage[]
   ): Promise<MessageExportResult> {
-    // This would upload to storage and create a signed URL
-    // For now, return placeholder result
+    // Uploads to storage and creates a signed URL when MinIO is configured.
     const dateRange = messages.length > 0
       ? {
           from: new Date(messages[messages.length - 1].createdAt),

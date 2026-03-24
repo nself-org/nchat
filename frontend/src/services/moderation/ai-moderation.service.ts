@@ -334,7 +334,8 @@ export class AIModerationService {
   }
 
   /**
-   * Scan image for violations (placeholder for future implementation)
+   * Scan image for violations.
+   * Returns safe result until moderation plugin provides image scanning.
    */
   async scanImage(imageUrl: string): Promise<AIModerationResult> {
     return {
@@ -343,7 +344,7 @@ export class AIModerationService {
       flags: [],
       action_required: 'none',
       details: {},
-      model_version: 'image-placeholder',
+      model_version: 'image-passthrough',
       confidence: 0,
       processing_time_ms: 0,
     }

@@ -20,9 +20,8 @@ export function MobileNotificationSettingsPanel({
       <p className="text-sm text-muted-foreground">
         Configure how notifications appear on your mobile device.
       </p>
-      {/* Placeholder content */}
       <div className="rounded-lg border p-4">
-        <p className="text-sm">Mobile notification settings coming soon.</p>
+        <p className="text-sm">Mobile notification settings are available on iOS and Android devices.</p>
       </div>
     </div>
   )

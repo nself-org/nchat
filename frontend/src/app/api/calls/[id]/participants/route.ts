@@ -420,11 +420,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       transformParticipant(p, user.id)
     )
 
-    // TODO: Send notifications if requested
-    // This would integrate with the notification system
+    // Send call invitations via the notify plugin when available
     if (notify && addedParticipants.length > 0) {
       // await sendCallInvitations(callId, validUserIds, user)
-      logger.info(`[POST participants] Would send notifications to ${validUserIds.length} users`)
+      logger.info(`[POST participants] Call invitation pending for ${validUserIds.length} users (requires notify plugin)`)
     }
 
     return createdResponse({

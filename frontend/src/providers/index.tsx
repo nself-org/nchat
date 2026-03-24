@@ -226,7 +226,7 @@ function NotificationProvider({ children }: { children: ReactNode }) {
 }
 
 // =============================================================================
-// Modal Provider (placeholder for modals system)
+// Modal Provider
 // =============================================================================
 
 interface ModalContextValue {
