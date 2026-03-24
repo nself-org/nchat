@@ -6,7 +6,7 @@ Technical name: `nself-chat` | Package: `@nself/chat` | Short name: `nchat` | **
 
 [![CI](https://github.com/nself-org/chat/actions/workflows/ci.yml/badge.svg)](https://github.com/nself-org/chat/actions/workflows/ci.yml)
 [![CD](https://github.com/nself-org/chat/actions/workflows/cd.yml/badge.svg)](https://github.com/nself-org/chat/actions/workflows/cd.yml)
-[![License: nself](https://img.shields.io/badge/License-nself-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-production-brightgreen)](.wiki/KNOWN-LIMITATIONS.md)
 [![Version](https://img.shields.io/badge/version-0.9.2-blue)](https://github.com/nself-org/chat/releases)
 [![Build](https://img.shields.io/badge/build-passing-green)](/)
@@ -72,7 +72,7 @@ Role hierarchy (descending access: 1 = highest, 6 = no special role):
 
 - **Docker Desktop** (20.10+) - [Install Docker](https://www.docker.com/get-started)
 - **Node.js** (20.0+) - [Install Node](https://nodejs.org/)
-- **ɳSelf CLI** (0.9.8+) - Install: `curl -sSL https://install.nself.org | bash`
+- **ɳSelf CLI** (0.9.9+) - Install: `curl -sSL https://install.nself.org | bash`
 
 **System Requirements:**
 - RAM: 8GB minimum (16GB recommended)
@@ -143,7 +143,7 @@ lsof -i :3021  # Admin dashboard
 
 ɳChat is built on the free ɳSelf CLI and 15 open-source plugins for its core backend. The advanced features — AI moderation, billing, calls, compliance, analytics, and more — are powered by **ɳSelf Pro Plugins**.
 
-**Pro Plugins require a license: $9.99/year.** [Get it at nself.org/pricing](https://nself.org/pricing)
+**Pro Plugins require a license starting at $0.99/month ($9.99/year).** [See tiers at nself.org/pricing](https://nself.org/pricing)
 
 ### Without a license
 
@@ -168,7 +168,7 @@ You have two options:
 | Admin API | `admin-api` | Write custom admin endpoints |
 | Real-time server (Socket.io) | `realtime` | Use standard GraphQL subscriptions |
 
-> The $9.99/year license covers all 49 Pro Plugins across every project you self-host. See [nself.org/plugins](https://nself.org/plugins) for the full catalog.
+> The Basic tier ($0.99/mo or $9.99/yr) covers all 52 Pro Plugins across every project you self-host. Higher tiers add AI suite, support, and managed DevOps. See [nself.org/pricing](https://nself.org/pricing) for the full tier breakdown.
 
 ---
 
@@ -190,7 +190,7 @@ This project demonstrates:
 
 Try it: **[chat.nself.org](https://chat.nself.org)**
 
-The live demo runs the full ɳChat stack with ɳSelf Pro Plugins active — so you get AI moderation, analytics, calling, live streaming, compliance tools, and everything else. The CLI and admin are free for everyone. Pro Plugins ($9.99/year) are what power the demo's advanced features.
+The live demo runs the full ɳChat stack with ɳSelf Pro Plugins active, so you get AI moderation, analytics, calling, live streaming, compliance tools, and everything else. The CLI and admin are free for everyone. Pro Plugins (starting at $0.99/mo) are what power the demo's advanced features.
 
 ### For Developers
 
@@ -283,9 +283,9 @@ Quick Links:
 
 ---
 
-## 🌟 What's New in v0.9.1
+## 🌟 What's New in v0.9.2
 
-**Release Date**: February 3, 2026 | **Status**: ✅ Production Ready
+**Release Date**: March 2026 | **Status**: ✅ Production Ready
 
 This release achieves **100% feature parity** with WhatsApp, Telegram, Slack, and Discord, completing all Phase 21 release preparation tasks.
 
@@ -371,9 +371,9 @@ Complete documentation for all features:
 
 ---
 
-## Current Status (v0.9.1-beta)
+## Current Status (v0.9.2)
 
-**Status**: Beta Release | **Completion**: ~80% | **Build**: ✅ Passing | **TypeScript**: ✅ 0 Errors
+**Status**: Production Ready | **Completion**: ~80% | **Build**: ✅ Passing | **TypeScript**: ✅ 0 Errors
 
 ### What Works Great (Production-Ready)
 
@@ -484,7 +484,7 @@ These features exist but have limitations or need additional work:
 
 | Category          | Status           | Details                                                      |
 | ----------------- | ---------------- | ------------------------------------------------------------ |
-| **Version**       | v0.9.1           | Production-Ready with Plugin System & Polished Docs          |
+| **Version**       | v0.9.2           | Production-Ready with Plugin System & Polished Docs          |
 | **CI/CD**         | ✅ All Passing   | All CI checks green, Docker build working                    |
 | **Code Quality**  | ✅ Excellent     | 860+ tests, TypeScript strict mode, 10% type error reduction |
 | **Production**    | ✅ Ready         | Multi-platform support (web, iOS, Android, desktop)          |
