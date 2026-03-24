@@ -59,8 +59,8 @@ export function createTray(windowManager: WindowManager): Tray {
     {
       label: 'New Conversation',
       click: () => {
-        windowManager.focusMainWindow()
-        // TODO: Trigger new conversation
+        const win = windowManager.focusMainWindow()
+        win?.webContents.send('new-conversation')
       },
     },
     { type: 'separator' },

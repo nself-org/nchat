@@ -371,14 +371,7 @@ describe('Validation', () => {
 // Sealing and Unsealing Tests
 // ============================================================================
 
-// TODO: These tests fail in Node.js 20 (CI) but pass in Node.js 24 (local).
-// Root cause: crypto.subtle ECDH key derivation behavior differs between
-// Node.js versions when importing raw P-256 private key bytes. The sealed-sender
-// implementation itself is correct — the issue is test infrastructure using raw
-// private key bytes that Node.js 20's WebCrypto rejects during importKey.
-// Re-enable when CI upgrades to Node.js 22+ (blocked by canvas@2.11.2 native module
-// which has no prebuilt binary for Node.js 22 / node-v127 on linux-x64).
-describe.skip('Message Sealing and Unsealing', () => {
+describe('Message Sealing and Unsealing', () => {
   let senderKeys: { publicKey: Uint8Array; privateKey: Uint8Array }
   let recipientKeys: { publicKey: Uint8Array; privateKey: Uint8Array }
   let senderCertificate: SenderCertificate
@@ -675,8 +668,7 @@ describe.skip('Message Sealing and Unsealing', () => {
 // Threat Model Tests
 // ============================================================================
 
-// TODO: Skipped for same reason as 'Message Sealing and Unsealing' above.
-describe.skip('Threat Model Verification', () => {
+describe('Threat Model Verification', () => {
   it('should demonstrate server blindness (envelope contains no sender info)', async () => {
     const senderKeys = await generateTestKeyPair()
     const recipientKeys = await generateTestKeyPair()

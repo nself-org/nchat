@@ -50,6 +50,10 @@ const mockGetSessionFn = nhost.auth.getSession as jest.Mock
 describe('/api/streams/[id]/reactions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    // Reset mock implementations to clear any unconsumed mockResolvedValueOnce queue
+    // entries from previous tests that may not have consumed all their mocked responses.
+    mockGraphqlRequestFn.mockReset()
+    mockGetSessionFn.mockReset()
   })
 
   describe('POST /api/streams/[id]/reactions', () => {
@@ -361,15 +365,8 @@ describe('/api/streams/[id]/reactions', () => {
         }
       )
 
-      // Stream check must pass first
-      mockGraphqlRequestFn.mockResolvedValueOnce({
-        data: {
-          nchat_streams_by_pk: {
-            status: 'live',
-            enable_reactions: true,
-          },
-        },
-      })
+      // Note: no graphql mock needed here because the route returns 400
+      // before reaching the stream check (normalizeReactionType returns null first).
 
       const response = await POST(request, { params: Promise.resolve({ id: MOCK_STREAM_ID }) })
       expect(response.status).toBe(400)
@@ -389,39 +386,36 @@ describe('/api/streams/[id]/reactions', () => {
       expect(response.status).toBe(400)
     })
 
-    // TODO: Mock setup for nhost.graphql.request returns empty reactions — needs investigation
-    it.skip('should return reactions with both emoji and reaction_type fields', async () => {
-      mockGraphqlRequestFn.mockResolvedValueOnce(
-        Promise.resolve({
-          data: {
-            nchat_stream_reactions: [
-              {
-                id: MOCK_REACTION_ID,
-                stream_id: MOCK_STREAM_ID,
-                user_id: MOCK_USER_ID,
-                emoji: '\u2764\uFE0F', // heart
-                position_x: 25,
-                position_y: 50,
-                created_at: '2026-02-07T12:00:00Z',
-              },
-              {
-                id: 'reaction-2',
-                stream_id: MOCK_STREAM_ID,
-                user_id: MOCK_USER_ID,
-                emoji: '\uD83D\uDD25', // fire
-                position_x: null,
-                position_y: null,
-                created_at: '2026-02-07T12:01:00Z',
-              },
-            ],
-            reaction_counts: {
-              aggregate: {
-                count: 2,
-              },
+    it('should return reactions with both emoji and reaction_type fields', async () => {
+      mockGraphqlRequestFn.mockResolvedValueOnce({
+        data: {
+          nchat_stream_reactions: [
+            {
+              id: MOCK_REACTION_ID,
+              stream_id: MOCK_STREAM_ID,
+              user_id: MOCK_USER_ID,
+              emoji: '\u2764\uFE0F', // heart
+              position_x: 25,
+              position_y: 50,
+              created_at: '2026-02-07T12:00:00Z',
+            },
+            {
+              id: 'reaction-2',
+              stream_id: MOCK_STREAM_ID,
+              user_id: MOCK_USER_ID,
+              emoji: '\uD83D\uDD25', // fire
+              position_x: null,
+              position_y: null,
+              created_at: '2026-02-07T12:01:00Z',
+            },
+          ],
+          reaction_counts: {
+            aggregate: {
+              count: 2,
             },
           },
-        })
-      )
+        },
+      })
 
       const request = new NextRequest(
         `http://localhost:3000/api/streams/${MOCK_STREAM_ID}/reactions`
@@ -545,14 +539,11 @@ describe('/api/streams/[id]/reactions', () => {
       expect(data.total).toBe(0)
     })
 
-    // TODO: Mock returns error array but route returns 200 — needs investigation
-    it.skip('should handle GraphQL errors gracefully', async () => {
-      mockGraphqlRequestFn.mockResolvedValueOnce(
-        Promise.resolve({
-          error: [{ message: 'Database error' }],
-          data: null,
-        })
-      )
+    it('should handle GraphQL errors gracefully', async () => {
+      mockGraphqlRequestFn.mockResolvedValueOnce({
+        error: [{ message: 'Database error' }],
+        data: null,
+      })
 
       const request = new NextRequest(
         `http://localhost:3000/api/streams/${MOCK_STREAM_ID}/reactions`
@@ -571,35 +562,29 @@ describe('/api/streams/[id]/reactions', () => {
       })
     })
 
-    // TODO: Mock called only once instead of twice — POST handler flow needs investigation
-    it.skip('should use emoji field in GraphQL mutation (not reaction_type)', async () => {
-
+    it('should use emoji field in GraphQL mutation (not reaction_type)', async () => {
       mockGraphqlRequestFn
-        .mockResolvedValueOnce(
-          Promise.resolve({
-            data: {
-              nchat_streams_by_pk: {
-                status: 'live',
-                enable_reactions: true,
-              },
+        .mockResolvedValueOnce({
+          data: {
+            nchat_streams_by_pk: {
+              status: 'live',
+              enable_reactions: true,
             },
-          })
-        )
-        .mockResolvedValueOnce(
-          Promise.resolve({
-            data: {
-              insert_nchat_stream_reactions_one: {
-                id: MOCK_REACTION_ID,
-                stream_id: MOCK_STREAM_ID,
-                user_id: MOCK_USER_ID,
-                emoji: '\uD83D\uDE02',
-                position_x: null,
-                position_y: null,
-                created_at: '2026-02-07T12:00:00Z',
-              },
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            insert_nchat_stream_reactions_one: {
+              id: MOCK_REACTION_ID,
+              stream_id: MOCK_STREAM_ID,
+              user_id: MOCK_USER_ID,
+              emoji: '\uD83D\uDE02',
+              position_x: null,
+              position_y: null,
+              created_at: '2026-02-07T12:00:00Z',
             },
-          })
-        )
+          },
+        })
 
       const request = new NextRequest(
         `http://localhost:3000/api/streams/${MOCK_STREAM_ID}/reactions`,
@@ -621,34 +606,29 @@ describe('/api/streams/[id]/reactions', () => {
       expect(insertCall[1].object.emoji).toBe('\uD83D\uDE02') // laugh emoji
     })
 
-    // TODO: Mock called only once instead of twice — POST handler flow needs investigation
-    it.skip('should use position_x and position_y directly (not in metadata)', async () => {
+    it('should use position_x and position_y directly (not in metadata)', async () => {
       mockGraphqlRequestFn
-        .mockResolvedValueOnce(
-          Promise.resolve({
-            data: {
-              nchat_streams_by_pk: {
-                status: 'live',
-                enable_reactions: true,
-              },
+        .mockResolvedValueOnce({
+          data: {
+            nchat_streams_by_pk: {
+              status: 'live',
+              enable_reactions: true,
             },
-          })
-        )
-        .mockResolvedValueOnce(
-          Promise.resolve({
-            data: {
-              insert_nchat_stream_reactions_one: {
-                id: MOCK_REACTION_ID,
-                stream_id: MOCK_STREAM_ID,
-                user_id: MOCK_USER_ID,
-                emoji: '\u2764\uFE0F',
-                position_x: 30,
-                position_y: 60,
-                created_at: '2026-02-07T12:00:00Z',
-              },
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            insert_nchat_stream_reactions_one: {
+              id: MOCK_REACTION_ID,
+              stream_id: MOCK_STREAM_ID,
+              user_id: MOCK_USER_ID,
+              emoji: '\u2764\uFE0F',
+              position_x: 30,
+              position_y: 60,
+              created_at: '2026-02-07T12:00:00Z',
             },
-          })
-        )
+          },
+        })
 
       const request = new NextRequest(
         `http://localhost:3000/api/streams/${MOCK_STREAM_ID}/reactions`,

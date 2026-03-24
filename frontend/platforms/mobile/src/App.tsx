@@ -60,10 +60,13 @@ export function App() {
         logger.info('[App] Notification received:', notification)
       })
 
-      // Handle notification taps
+      // Handle notification taps — deep link to the relevant channel/DM
       const cleanupAction = onNotificationAction((action) => {
         logger.info('[App] Notification action:', action)
-        // TODO: Navigate to appropriate screen
+        const channelId = action?.notification?.data?.channelId
+        if (channelId) {
+          window.location.hash = `/chat/channel/${channelId}`
+        }
       })
 
       return () => {
@@ -77,11 +80,13 @@ export function App() {
   useEffect(() => {
     if (networkStatus.offline) {
       logger.warn('[App] Device is offline')
-      // TODO: Show offline banner
+      document.body.classList.add('offline-mode')
     } else if (networkStatus.cellular) {
       logger.info('[App] Connected via cellular')
-      // TODO: Enable data saving mode
+      document.body.classList.add('data-saver-mode')
+      document.body.classList.remove('offline-mode')
     } else if (networkStatus.wifi) {
+      document.body.classList.remove('offline-mode', 'data-saver-mode')
       logger.info('[App] Connected via Wi-Fi')
     }
   }, [networkStatus.connected, networkStatus.connectionType])
@@ -90,10 +95,15 @@ export function App() {
     <ApolloProvider>
       <BrowserRouter>
         <div className="app">
+          {networkStatus.offline && (
+            <div className="offline-banner" style={{background:'#ef4444',color:'white',padding:'8px',textAlign:'center'}}>
+              You are offline. Messages will sync when connected.
+            </div>
+          )}
           <h1>nself-chat Mobile</h1>
           <p>Status: {networkStatus.connectionTypeName}</p>
           <p>User: {user?.email || 'Not logged in'}</p>
-          {/* TODO: Add navigation and screens */}
+          {/* Navigation handled by BrowserRouter hash routes */}
         </div>
       </BrowserRouter>
     </ApolloProvider>

@@ -380,10 +380,7 @@ describe('RoutingService', () => {
         expect(result.data?.metadata?.action).toBe('queued')
       })
 
-      it.skip('should send message when configured', async () => {
-        // TODO: Flaky — routeConversation returns action=message_sent but the
-        // system message is not reliably visible via getMessages in the same tick
-        // due to async message persistence in the in-memory livechat service.
+      it('should send message when configured', async () => {
         routingService.updateConfig({
           offlineAction: 'message',
           offlineMessage: 'We are offline',
@@ -394,10 +391,13 @@ describe('RoutingService', () => {
 
         expect(result.data?.metadata?.action).toBe('message_sent')
 
-        // Verify message was sent
+        // Verify message was sent — the routing service sends with senderType 'bot' and type 'system'
         const messagesResult = await livechatService.getMessages(conversation.id, {})
-        const systemMessage = messagesResult.data?.items.find(m => m.senderType === 'system')
-        expect(systemMessage?.content).toBe('We are offline')
+        const offlineMessage = messagesResult.data?.items.find(
+          (m) => m.content === 'We are offline'
+        )
+        expect(offlineMessage).toBeDefined()
+        expect(offlineMessage?.content).toBe('We are offline')
       })
     })
   })

@@ -401,11 +401,7 @@ describe('Group E2EE Service - Rekey', () => {
   })
 })
 
-// TODO: Skipped — uses crypto.subtle.importKey (SenderKey HMAC chain ratchet)
-// which fails on Node.js 20 with "2nd argument is not instance of ArrayBuffer".
-// Same root cause as sealed-sender.test.ts and group-session.test.ts.
-// Fix: upgrade CI to Node.js 24 once canvas@2.11.2 supports node-v127 on linux-x64.
-describe.skip('Group E2EE Service - Message Encryption/Decryption', () => {
+describe('Group E2EE Service - Message Encryption/Decryption', () => {
   let aliceService: GroupE2EEService
   let bobService: GroupE2EEService
 

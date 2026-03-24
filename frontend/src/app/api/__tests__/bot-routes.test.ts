@@ -39,6 +39,18 @@ jest.mock('@/lib/logger', () => ({
   })),
 }))
 
+// Mock auth middleware — getAuthenticatedUser must return a valid user object
+// so that route handlers pass their auth check before processing requests.
+jest.mock('@/lib/api/middleware', () => ({
+  getAuthenticatedUser: jest.fn().mockResolvedValue({
+    id: 'test-user-id',
+    email: 'test@example.com',
+    displayName: 'Test User',
+    role: 'admin',
+  }),
+  getClientIp: jest.fn(() => '127.0.0.1'),
+}))
+
 // Mock bot templates
 jest.mock('@/lib/bots/templates', () => ({
   allTemplates: [
@@ -99,10 +111,7 @@ jest.mock('@/lib/bots/templates', () => ({
   ]),
 }))
 
-// TODO: All 33 tests fail with 500 responses because `getAuthenticatedUser`
-// is not mocked and the GraphQL/Hasura database calls are not set up for the
-// test environment. Add proper auth and DB mocks to make these tests pass.
-describe.skip('Bot API Routes', () => {
+describe('Bot API Routes', () => {
   // ====================================
   // GET /api/bots
   // ====================================

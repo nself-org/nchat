@@ -43,7 +43,9 @@ export function createMenu(): Menu {
           label: 'New Conversation',
           accelerator: 'CmdOrCtrl+N',
           click: () => {
-            // TODO: Open new conversation
+            const { BrowserWindow } = require('electron')
+            const win = BrowserWindow.getFocusedWindow()
+            win?.webContents.send('new-conversation')
           },
         },
         { type: 'separator' },

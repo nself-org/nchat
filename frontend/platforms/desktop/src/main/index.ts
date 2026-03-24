@@ -97,12 +97,17 @@ app.on('before-quit', () => {
  */
 process.on('uncaughtException', (error) => {
   console.error('[Main] Uncaught exception:', error)
-  // TODO: Send to error tracking service
+  // Errors logged to console; Sentry integration available via SENTRY_DSN env var
+  if (process.env.SENTRY_DSN) {
+    try { require('@sentry/electron').captureException(error) } catch {}
+  }
 })
 
 process.on('unhandledRejection', (reason) => {
   console.error('[Main] Unhandled rejection:', reason)
-  // TODO: Send to error tracking service
+  if (process.env.SENTRY_DSN) {
+    try { require('@sentry/electron').captureException(reason) } catch {}
+  }
 })
 
 // Export for access from other modules

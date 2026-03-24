@@ -388,10 +388,7 @@ describe('Analytics Client', () => {
       expect(onEventTracked).toHaveBeenCalledTimes(1)
     })
 
-    it.skip('should auto-flush when batch size reached', async () => {
-      // TODO: Flaky timeout — AnalyticsClient has internal background timers that
-      // prevent the test promise from settling within Jest's 10s timeout.
-      // Fix: refactor test to use jest.useFakeTimers() and jest.runAllTimers().
+    it('should auto-flush when batch size reached', async () => {
       const onFlush = jest.fn().mockResolvedValue(undefined)
       const client = new AnalyticsClient(createTestConfig({ batchSize: 2, onFlush }))
       client.initialize(createConsentState(true))
@@ -399,8 +396,11 @@ describe('Analytics Client', () => {
       client.track(AnalyticsEvent.PAGE_VIEW, { path: '/1', title: '1' })
       client.track(AnalyticsEvent.PAGE_VIEW, { path: '/2', title: '2' })
 
-      // Wait for async flush
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      // Advance fake timers and flush microtask queue for async flush
+      jest.advanceTimersByTime(100)
+      await Promise.resolve()
+      jest.advanceTimersByTime(100)
+      await Promise.resolve()
 
       expect(onFlush).toHaveBeenCalled()
     })
@@ -416,15 +416,18 @@ describe('Analytics Client', () => {
       expect(client.getQueueSize()).toBeLessThanOrEqual(3)
     })
 
-    it.skip('should flush immediately when option is set', async () => {
-      // TODO: Same background timer issue — see 'should auto-flush when batch size reached'.
+    it('should flush immediately when option is set', async () => {
       const onFlush = jest.fn().mockResolvedValue(undefined)
       const client = new AnalyticsClient(createTestConfig({ onFlush }))
       client.initialize(createConsentState(true))
 
       client.track(AnalyticsEvent.PAGE_VIEW, { path: '/chat', title: 'Chat' }, { immediate: true })
 
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      // Advance fake timers and flush microtask queue for async flush
+      jest.advanceTimersByTime(100)
+      await Promise.resolve()
+      jest.advanceTimersByTime(100)
+      await Promise.resolve()
 
       expect(onFlush).toHaveBeenCalled()
     })
@@ -472,15 +475,18 @@ describe('Analytics Client', () => {
       expect(event?.properties.errorMessage).toBe('Failed to fetch')
     })
 
-    it.skip('should flush immediately', async () => {
-      // TODO: Same background timer issue — see 'should auto-flush when batch size reached'.
+    it('should flush immediately', async () => {
       const onFlush = jest.fn().mockResolvedValue(undefined)
       const client = new AnalyticsClient(createTestConfig({ onFlush }))
       client.initialize(createConsentState(true))
 
       client.error('TestError', 'Test message')
 
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      // Advance fake timers and flush microtask queue for async flush
+      jest.advanceTimersByTime(100)
+      await Promise.resolve()
+      jest.advanceTimersByTime(100)
+      await Promise.resolve()
 
       expect(onFlush).toHaveBeenCalled()
     })
@@ -538,24 +544,26 @@ describe('Analytics Client', () => {
       expect(onError).toHaveBeenCalled()
     })
 
-    it.skip('should not flush while already flushing', async () => {
-      // TODO: Same background timer issue — see 'should auto-flush when batch size reached'.
+    it('should not flush while already flushing', async () => {
       let flushCount = 0
       const onFlush = jest.fn().mockImplementation(async () => {
         flushCount++
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        // Simulate async work with a resolved promise (no real timer needed)
+        await Promise.resolve()
       })
       const client = new AnalyticsClient(createTestConfig({ onFlush }))
       client.initialize(createConsentState(true))
 
       client.track(AnalyticsEvent.PAGE_VIEW, { path: '/1', title: '1' })
 
-      // Start multiple flushes
-      client.flush()
-      client.flush()
-      client.flush()
+      // Start multiple flushes concurrently
+      const p1 = client.flush()
+      const p2 = client.flush()
+      const p3 = client.flush()
 
-      await new Promise((resolve) => setTimeout(resolve, 200))
+      await p1
+      await p2
+      await p3
 
       expect(flushCount).toBe(1)
     })

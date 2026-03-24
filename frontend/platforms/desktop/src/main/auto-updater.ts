@@ -60,7 +60,7 @@ export function setupAutoUpdater(): void {
     const percent = progressObj.percent.toFixed(2)
     console.log(`[AutoUpdater] Download progress: ${percent}%`)
 
-    // TODO: Send progress to renderer process
+    // Send progress to renderer process via IPC
     BrowserWindow.getAllWindows().forEach((window) => {
       window.webContents.send('update-download-progress', progressObj)
     })
