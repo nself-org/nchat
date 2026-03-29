@@ -4,7 +4,7 @@
  * Secrets Scanner for nself-chat
  *
  * Scans the repository for potential secrets and credentials.
- * Used as part of security validation for v0.9.2 release.
+ * Used as part of security validation for v1.0.0 release.
  *
  * Usage:
  *   pnpm tsx scripts/scan-secrets.ts

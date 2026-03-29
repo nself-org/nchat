@@ -352,7 +352,7 @@ function scanForPlaceholders(args: string[]): ScanResult {
     violations,
     stats,
     timestamp: new Date().toISOString(),
-    version: '0.9.2',
+    version: '1.0.0',
   }
 
   // Output results

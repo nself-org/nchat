@@ -15,7 +15,7 @@
  * - Offline queue integration
  *
  * @module hooks/use-optimistic-messages
- * @version 0.9.1
+ * @version 1.0.0
  */
 
 'use client'

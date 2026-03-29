@@ -5,7 +5,7 @@
  * Wraps the application to provide realtime connectivity, presence, typing, and room features.
  *
  * @module providers/realtime-provider
- * @version 0.9.1
+ * @version 1.0.0
  */
 
 'use client'

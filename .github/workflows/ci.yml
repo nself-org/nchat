@@ -20,7 +20,7 @@ env:
 # 5. Timeout limits - 5s for unit tests, 30s for integration tests, 60s for E2E tests
 # Failing tests are triaged against policy violations before declaring "flaky"
 
-# Monorepo Structure (v0.9.2+):
+# Monorepo Structure (v1.0.0+):
 # - backend/ - nSelf CLI backend infrastructure
 # - frontend/ - Multi-platform frontend (web/mobile/desktop)
 #   - frontend/apps/web - Next.js web app

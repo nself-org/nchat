@@ -5,7 +5,7 @@
  * It serves as the single source of truth for feature metadata, status, and dependencies.
  *
  * @module feature-registry
- * @version 0.9.1
+ * @version 1.0.0
  * @since 2026-02-03
  */
 

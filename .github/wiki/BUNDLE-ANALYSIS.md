@@ -1,7 +1,7 @@
 # Bundle Size Analysis Report
 
 **Date**: February 9, 2026
-**Version**: 0.9.1
+**Version**: 1.0.0
 **Build**: Next.js 15.5.10
 
 ---

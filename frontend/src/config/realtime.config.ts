@@ -5,7 +5,7 @@
  * feature flags, and service configurations.
  *
  * @module config/realtime
- * @version 0.9.1
+ * @version 1.0.0
  */
 
 // ============================================================================

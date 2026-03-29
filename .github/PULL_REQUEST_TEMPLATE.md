@@ -19,7 +19,7 @@
 - [ ] 🔧 Build configuration change
 - [ ] 🔒 Security fix
 
-## v0.9.1 Scope Compliance
+## v1.0.0 Scope Compliance
 
 <!-- REQUIRED: Reference the canonical task ID from .claude/TODO.md -->
 

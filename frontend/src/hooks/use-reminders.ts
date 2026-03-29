@@ -8,7 +8,7 @@
  * - Real-time updates via subscriptions
  *
  * @module hooks/use-reminders
- * @version 0.9.1
+ * @version 1.0.0
  */
 
 'use client'
