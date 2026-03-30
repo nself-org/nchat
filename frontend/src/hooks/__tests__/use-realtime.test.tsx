@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @jest-environment <rootDir>/jest.jsdom-env.js
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react'

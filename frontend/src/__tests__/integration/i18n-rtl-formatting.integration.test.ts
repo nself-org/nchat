@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @jest-environment <rootDir>/jest.jsdom-env.js
  *
  * Integration Test: i18n + RTL + Formatting
  *

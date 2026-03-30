@@ -1,6 +1,6 @@
 /**
  * Tests for code highlighting components
- * @jest-environment jsdom
+ * @jest-environment <rootDir>/jest.jsdom-env.js
  */
 
 // All tests are skipped due to complex mocking requirements for highlight.js

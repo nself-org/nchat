@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @jest-environment <rootDir>/jest.jsdom-env.js
  *
  * Integration Test: File Upload + Storage + Media Processing
  *

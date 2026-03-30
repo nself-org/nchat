@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @jest-environment <rootDir>/jest.jsdom-env.js
  */
 
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals'
