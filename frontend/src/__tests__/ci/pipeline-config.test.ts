@@ -411,8 +411,8 @@ describe('CI Pipeline Configuration', () => {
   })
 
   describe('Node.js and pnpm Configuration', () => {
-    it('should use Node.js 20', () => {
-      expect(ciWorkflow.env.NODE_VERSION).toBe('20')
+    it('should use Node.js 22', () => {
+      expect(ciWorkflow.env.NODE_VERSION).toBe('22')
     })
 
     it('should use pnpm with frozen lockfile', () => {
@@ -421,7 +421,7 @@ describe('CI Pipeline Configuration', () => {
         s.name.includes('Install dependencies')
       )
       expect(installStep).toBeDefined()
-      expect(installStep.run).toBe('pnpm install --frozen-lockfile')
+      expect(installStep.run).toBe('pnpm install --frozen-lockfile --ignore-scripts')
     })
 
     it('should setup pnpm before Node.js', () => {
