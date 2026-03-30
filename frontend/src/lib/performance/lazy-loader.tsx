@@ -214,13 +214,13 @@ export async function loadQRCode() {
 }
 
 /**
- * Lazy load XLSX library
+ * Lazy load ExcelJS library
  * Bundle size: ~100KB
  * Load when: Exporting to Excel
  */
 export async function loadXLSX() {
-  const XLSX = await import('xlsx')
-  return XLSX
+  const ExcelJS = await import('exceljs')
+  return ExcelJS
 }
 
 /**

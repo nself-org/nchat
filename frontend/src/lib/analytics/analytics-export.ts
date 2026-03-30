@@ -34,8 +34,8 @@ async function loadJsPDF() {
 }
 
 async function loadXLSX() {
-  const xlsxModule = await import('xlsx')
-  return xlsxModule
+  const ExcelJS = await import('exceljs')
+  return ExcelJS
 }
 
 // ============================================================================
@@ -676,8 +676,8 @@ async function exportToXLSX(
   fileName: string
 ): Promise<void> {
   try {
-    const XLSX = await loadXLSX()
-    const workbook = XLSX.utils.book_new()
+    const ExcelJS = await loadXLSX()
+    const workbook = new ExcelJS.default.Workbook()
 
     // Helper to add worksheet
     const addWorksheet = (
@@ -687,28 +687,24 @@ async function exportToXLSX(
     ) => {
       if (sheetData.length === 0) return
 
-      // Create worksheet data with headers and rows
-      const wsData: (string | unknown)[][] = [headers]
-      sheetData.forEach((row) => {
-        const rowData: (string | unknown)[] = headers.map((header) => {
-          const value = row[header]
-          if (value instanceof Date) {
-            return value.toISOString()
-          }
-          return value
-        })
-        wsData.push(rowData)
-      })
+      const worksheet = workbook.addWorksheet(name)
 
-      const worksheet = XLSX.utils.aoa_to_sheet(wsData)
-
-      // Set column widths
-      const colWidths = headers.map((header) => ({
-        wch: Math.max(header.length, 12),
+      // Set column definitions with widths
+      worksheet.columns = headers.map((header) => ({
+        header,
+        key: header,
+        width: Math.max(header.length, 12),
       }))
-      worksheet['!cols'] = colWidths
 
-      XLSX.utils.book_append_sheet(workbook, worksheet, name)
+      // Add data rows
+      sheetData.forEach((row) => {
+        const rowData: Record<string, unknown> = {}
+        headers.forEach((header) => {
+          const value = row[header]
+          rowData[header] = value instanceof Date ? value.toISOString() : value
+        })
+        worksheet.addRow(rowData)
+      })
     }
 
     // Summary sheet
@@ -778,8 +774,8 @@ async function exportToXLSX(
     }
 
     // Generate and download
-    const xlsxData = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
-    const blob = new Blob([xlsxData], {
+    const xlsxBuffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([xlsxBuffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     })
 

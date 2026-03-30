@@ -73,7 +73,7 @@ The nself-chat multi-platform build system is **PRODUCTION READY** with comprehe
 #### 3. GitHub Workflow (`build-web.yml`)
 
 ```yaml
-✅ Node 20.x configured
+✅ Node 22.x configured
 ✅ pnpm caching enabled
 ✅ Environment-based builds (dev/staging/prod)
 ✅ Bundle analysis job

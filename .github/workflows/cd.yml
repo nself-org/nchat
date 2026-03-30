@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   check-secrets:
@@ -51,15 +51,15 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -79,7 +79,7 @@ jobs:
           NODE_ENV: production
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: build-${{ steps.version.outputs.version }}
           path: |
@@ -100,10 +100,10 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: build-${{ needs.build.outputs.version }}
 
@@ -126,10 +126,10 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: build-${{ needs.build.outputs.version }}
 

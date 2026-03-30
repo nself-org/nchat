@@ -265,12 +265,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (format === 'xlsx') {
-      // Generate XLSX using xlsx library with multiple sheets
+      // Generate XLSX using exceljs library with multiple sheets
       try {
-        const xlsxModule = await import('xlsx')
-        const XLSX = xlsxModule.default
+        const ExcelJS = await import('exceljs')
+        const workbook = new ExcelJS.default.Workbook()
 
-        const workbook = XLSX.utils.book_new()
         const formattedSections: Record<string, { data: Record<string, unknown>[]; headers: string[] }> = {
           summary: formatSummaryData(dashboardData),
           messages: formatMessagesData(dashboardData),
@@ -285,31 +284,30 @@ export async function POST(request: NextRequest) {
         sections.forEach((section) => {
           const sectionData = formattedSections[section]
           if (sectionData && sectionData.data.length > 0) {
-            // Create worksheet data with headers and rows
-            const wsData: unknown[][] = [sectionData.headers as unknown[]]
-            sectionData.data.forEach((row) => {
-              const rowData = sectionData.headers.map((header) => {
-                const value = row[header]
-                if (value instanceof Date) {
-                  return value.toISOString()
-                }
-                return value
-              })
-              wsData.push(rowData as unknown[])
-            })
+            const sheetName = section.charAt(0).toUpperCase() + section.slice(1)
+            const worksheet = workbook.addWorksheet(sheetName)
 
-            const worksheet = XLSX.utils.aoa_to_sheet(wsData as any[][])
-            // Set column widths
-            const colWidths = sectionData.headers.map((header) => ({
-              wch: Math.max(header.length, 12),
+            // Set column definitions with widths
+            worksheet.columns = sectionData.headers.map((header) => ({
+              header,
+              key: header,
+              width: Math.max(header.length, 12),
             }))
-            worksheet['!cols'] = colWidths
-            XLSX.utils.book_append_sheet(workbook, worksheet, section.charAt(0).toUpperCase() + section.slice(1))
+
+            // Add data rows
+            sectionData.data.forEach((row) => {
+              const rowData: Record<string, unknown> = {}
+              sectionData.headers.forEach((header) => {
+                const value = row[header]
+                rowData[header] = value instanceof Date ? value.toISOString() : value
+              })
+              worksheet.addRow(rowData)
+            })
           }
         })
 
         // Generate Excel buffer
-        const xlsxBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+        const xlsxBuffer = await workbook.xlsx.writeBuffer()
 
         return new NextResponse(Buffer.from(xlsxBuffer), {
           headers: {
