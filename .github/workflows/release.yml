@@ -73,7 +73,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build
         run: pnpm build
@@ -214,7 +214,7 @@ jobs:
   #         node-version: ${{ env.NODE_VERSION }}
   #         cache: 'pnpm'
   #     - name: Install dependencies
-  #       run: pnpm install --frozen-lockfile
+  #       run: pnpm install --frozen-lockfile --ignore-scripts
   #     - name: Build
   #       run: pnpm build
   #       env:

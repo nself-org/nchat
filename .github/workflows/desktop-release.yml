@@ -53,7 +53,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build Next.js app
         run: pnpm build
@@ -100,7 +100,7 @@ jobs:
 
       - name: Install Electron dependencies
         working-directory: frontend/platforms/desktop
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build Electron (TypeScript)
         working-directory: frontend/platforms/desktop
@@ -153,7 +153,7 @@ jobs:
 
       - name: Install Electron dependencies
         working-directory: frontend/platforms/desktop
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install @electron/notarize
         working-directory: frontend/platforms/desktop
@@ -250,7 +250,7 @@ jobs:
 
       - name: Install Electron dependencies
         working-directory: frontend/platforms/desktop
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build Electron (TypeScript)
         working-directory: frontend/platforms/desktop
