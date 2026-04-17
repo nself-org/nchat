@@ -194,7 +194,7 @@ pnpm build
 netlify deploy --prod --dir=.next
 ```
 
-**Netlify Configuration** (`netlify.toml`):
+**Netlify Configuration** (`netlify.toml`) (note: `[[redirects]]` below is TOML array-of-tables syntax, not a wiki link):
 
 ```toml
 [build]

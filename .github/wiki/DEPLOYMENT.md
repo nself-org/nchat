@@ -638,7 +638,7 @@ netlify init
 
 3. **Configure Build Settings**:
 
-Create `netlify.toml`:
+Create `netlify.toml` (note: `[[plugins]]` below is TOML array-of-tables syntax, not a wiki link):
 
 ```toml
 [build]
