@@ -76,7 +76,7 @@ The Stripe Plugin enables payment processing, subscription management, and billi
 ### Install Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself plugin install stripe
 ```
 

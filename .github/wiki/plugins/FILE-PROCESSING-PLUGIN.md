@@ -49,7 +49,7 @@ The File Processing Plugin provides comprehensive file transformation and optimi
 ### Install Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself plugin install file-processing
 ```
 

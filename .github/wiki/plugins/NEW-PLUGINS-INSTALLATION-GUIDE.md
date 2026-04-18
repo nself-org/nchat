@@ -28,7 +28,7 @@ docker --version
 docker-compose --version
 
 # Check backend status
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself status
 # All core services should be "running"
 ```
@@ -54,7 +54,7 @@ cd /Users/admin/Sites/nself-chat
 Install plugins one at a time:
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Analytics Plugin
 nself plugin install analytics

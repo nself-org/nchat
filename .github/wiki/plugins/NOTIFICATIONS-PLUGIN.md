@@ -52,7 +52,7 @@ The Notifications Plugin provides multi-channel notification delivery for ɳChat
 ### Install Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself plugin install notifications
 ```
 

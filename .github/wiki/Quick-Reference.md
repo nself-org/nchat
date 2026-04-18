@@ -8,7 +8,7 @@
 
 ```bash
 # Clone and setup
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 
 # Backend setup
@@ -601,4 +601,4 @@ Add to `.vscode/tasks.json`:
 
 ---
 
-**Need help?** Check the [FAQ](troubleshooting/FAQ.md) or [open an issue](https://github.com/nself-org/chat/issues).
+**Need help?** Check the [FAQ](troubleshooting/FAQ.md) or [open an issue](https://github.com/nself-org/nchat/issues).

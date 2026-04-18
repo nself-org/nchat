@@ -227,7 +227,7 @@ export function DeploymentStep({ config, onUpdate, onValidate }: DeploymentStepP
 
               <div className="flex gap-3">
                 <a
-                  href="https://vercel.com/new/clone?repository-url=https://github.com/nself-org/chat"
+                  href="https://vercel.com/new/clone?repository-url=https://github.com/nself-org/nchat"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-white hover:bg-gray-800"

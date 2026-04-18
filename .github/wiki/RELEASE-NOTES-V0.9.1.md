@@ -456,21 +456,21 @@ Special thanks to:
 
 ### Documentation
 
-- [Complete Documentation](https://github.com/nself-org/chat/wiki)
-- [API Reference](https://github.com/nself-org/chat/wiki/API)
-- [Deployment Guide](https://github.com/nself-org/chat/wiki/Deployment)
-- [User Guide](https://github.com/nself-org/chat/wiki/User-Guide)
+- [Complete Documentation](https://github.com/nself-org/nchat/wiki)
+- [API Reference](https://github.com/nself-org/nchat/wiki/API)
+- [Deployment Guide](https://github.com/nself-org/nchat/wiki/Deployment)
+- [User Guide](https://github.com/nself-org/nchat/wiki/User-Guide)
 
 ### Getting Help
 
-- [GitHub Issues](https://github.com/nself-org/chat/issues)
-- [Discussions](https://github.com/nself-org/chat/discussions)
+- [GitHub Issues](https://github.com/nself-org/nchat/issues)
+- [Discussions](https://github.com/nself-org/nchat/discussions)
 - [Discord Community](https://discord.gg/nself)
 
 ### Contributing
 
-- [Contributing Guide](https://github.com/nself-org/chat/blob/main/.github/CONTRIBUTING.md)
-- [Code of Conduct](https://github.com/nself-org/chat/blob/main/.github/CODE_OF_CONDUCT.md)
+- [Contributing Guide](https://github.com/nself-org/nchat/blob/main/.github/CONTRIBUTING.md)
+- [Code of Conduct](https://github.com/nself-org/nchat/blob/main/.github/CODE_OF_CONDUCT.md)
 
 ---
 
@@ -499,4 +499,4 @@ See [CHANGELOG.md](CHANGELOG.md) for the complete version history.
 **Date**: February 3, 2026
 **Status**: Production Ready
 
-**Download**: [GitHub Releases](https://github.com/nself-org/chat/releases/tag/v0.9.1)
+**Download**: [GitHub Releases](https://github.com/nself-org/nchat/releases/tag/v0.9.1)

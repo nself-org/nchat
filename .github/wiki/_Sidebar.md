@@ -186,9 +186,9 @@
 
 ## 🔗 Links
 
-- [GitHub](https://github.com/nself-org/chat)
-- [Issues](https://github.com/nself-org/chat/issues)
-- [Discussions](https://github.com/nself-org/chat/discussions)
+- [GitHub](https://github.com/nself-org/nchat)
+- [Issues](https://github.com/nself-org/nchat/issues)
+- [Discussions](https://github.com/nself-org/nchat/discussions)
 - [Demo](https://demo.nself-chat.org)
 
 ---

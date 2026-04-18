@@ -315,8 +315,8 @@ pnpm build:linux
 
 **1. Clone and Start (2 min)**
 ```bash
-git clone https://github.com/nself-org/chat.git
-cd nself-chat/backend
+git clone https://github.com/nself-org/nchat.git
+cd nself-nchat/backend
 nself start
 # In new terminal
 cd frontend
@@ -502,7 +502,7 @@ When someone clones nself-chat, they get:
 - **Documentation**: [Home.md](Home.md)
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md)
 - **Deployment**: [deployment/](deployment/)
-- **GitHub**: https://github.com/nself-org/chat
+- **GitHub**: https://github.com/nself-org/nchat
 - **ɳSelf CLI**: https://github.com/nself-org/cli
 
 ---

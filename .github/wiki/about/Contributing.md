@@ -67,7 +67,7 @@ Before contributing, ensure you have:
 
 3. Add the upstream repository:
    ```bash
-   git remote add upstream https://github.com/nself-org/chat.git
+   git remote add upstream https://github.com/nself-org/nchat.git
    ```
 
 ### Install Dependencies

@@ -611,7 +611,7 @@ Upcoming security enhancements:
 For non-security inquiries:
 
 - **General Support**: support@nself.org
-- **GitHub Issues**: https://github.com/nself-org/chat/issues
+- **GitHub Issues**: https://github.com/nself-org/nchat/issues
 - **Documentation**: https://docs.nself.org
 
 For security-specific inquiries:

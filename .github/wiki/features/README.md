@@ -253,7 +253,7 @@ Want to implement these features? Check out our guides:
 
 - **[User Guide](../guides/USER-GUIDE)** - How to use features
 - **[FAQ](../troubleshooting/FAQ)** - Common questions
-- **[GitHub Discussions](https://github.com/nself-org/chat/discussions)** - Ask the community
+- **[GitHub Discussions](https://github.com/nself-org/nchat/discussions)** - Ask the community
 
 ---
 
@@ -261,6 +261,6 @@ Want to implement these features? Check out our guides:
 
 **[⬆ Back to Home](../Home)**
 
-**[Edit this page on GitHub](https://github.com/nself-org/chat/edit/main/docs/features/README.md)**
+**[Edit this page on GitHub](https://github.com/nself-org/nchat/edit/main/docs/features/README.md)**
 
 </div>

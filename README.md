@@ -5,7 +5,7 @@
 Technical name: `nself-chat` | Package: `@nself/chat` | Short name: `nchat` | **Version**: `1.0.0`
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/nself-org/chat/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/nself-org/nchat/releases)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
@@ -18,7 +18,7 @@ Powered by [ɳSelf CLI](https://github.com/nself-org/cli) for backend infrastruc
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 
 # 2. Start the backend (PostgreSQL, Hasura, Auth, Storage, etc.)
@@ -160,7 +160,7 @@ The frontend contains ~3,700 test files across unit, integration, and E2E suites
 ### Standalone
 
 ```bash
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 cd backend && nself start
 cd ../frontend && pnpm install && pnpm dev
@@ -223,7 +223,7 @@ Before opening a PR:
 - [ɳSelf Admin](https://github.com/nself-org/admin) - Admin dashboard
 - [ɳSelf Plugins](https://github.com/nself-org/plugins) - 25 free MIT plugins
 - [ɳSelf Pro Plugins](https://github.com/nself-org/plugins-pro) - License-gated pro plugins (livekit, recording, moderation, bots, realtime, auth, chat)
-- [chat.nself.org](https://chat.nself.org) - Hosted community chat (separate, simpler app at `web/chat/` — not this repo)
+- [chat.nself.org](https://chat.nself.org) - Hosted community chat (separate, simpler app at `web/nchat/` — not this repo)
 
 Learn more at [nself.org](https://nself.org)
 

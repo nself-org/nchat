@@ -286,7 +286,7 @@ Historical documentation:
 1. **[FAQ](troubleshooting/FAQ.md)** - Common questions
 2. **[Troubleshooting Guide](troubleshooting/TROUBLESHOOTING.md)** - Common issues
 3. **[Runbook](troubleshooting/RUNBOOK.md)** - Ops procedures
-4. **[GitHub Issues](https://github.com/nself-org/chat/issues)** - Report bugs
+4. **[GitHub Issues](https://github.com/nself-org/nchat/issues)** - Report bugs
 
 ### Building a Bot or Plugin
 
@@ -373,8 +373,8 @@ See **[Contributing Guide](about/Contributing.md)** for:
 
 ## 📞 Support
 
-- **GitHub Issues**: [Bug reports & feature requests](https://github.com/nself-org/chat/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/nself-org/chat/discussions)
+- **GitHub Issues**: [Bug reports & feature requests](https://github.com/nself-org/nchat/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nself-org/nchat/discussions)
 - **Email**: support@nself.org
 
 ---
@@ -396,6 +396,6 @@ See **[Contributing Guide](about/Contributing.md)** for:
 
 _Documentation Index for nself-chat v0.9.1_
 
-**[View on GitHub](https://github.com/nself-org/chat)**
+**[View on GitHub](https://github.com/nself-org/nchat)**
 
 </div>

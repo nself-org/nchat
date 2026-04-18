@@ -108,7 +108,7 @@ Just run `nself start` and everything is ready!
 
 - **[FAQ](../troubleshooting/FAQ)** - Frequently asked questions
 - **[Troubleshooting](../troubleshooting/TROUBLESHOOTING)** - Common issues
-- **[GitHub Discussions](https://github.com/nself-org/chat/discussions)** - Ask the community
+- **[GitHub Discussions](https://github.com/nself-org/nchat/discussions)** - Ask the community
 
 ---
 
@@ -127,6 +127,6 @@ After getting started:
 
 **[⬆ Back to Home](../Home)**
 
-**[Edit this page on GitHub](https://github.com/nself-org/chat/edit/main/docs/getting-started/README.md)**
+**[Edit this page on GitHub](https://github.com/nself-org/nchat/edit/main/docs/getting-started/README.md)**
 
 </div>

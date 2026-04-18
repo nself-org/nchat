@@ -113,7 +113,7 @@ function ConnectGitHub({ channelId }) {
       method: 'POST',
       body: JSON.stringify({
         channelId,
-        repo: 'nself-org/chat',
+        repo: 'nself-org/nchat',
       }),
     })
   }

@@ -13,7 +13,7 @@ An open-source chat client that runs on top of the nSelf backend stack. Users se
 ## Setup
 
 ```bash
-git clone https://github.com/nself-org/chat
+git clone https://github.com/nself-org/nchat
 cd chat
 pnpm install
 ```

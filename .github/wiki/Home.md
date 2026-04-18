@@ -222,8 +222,8 @@ nself-chat/
 - **Build a mobile app** → Mobile Apps Guide (coming soon)
 - **Understand the architecture** → [Architecture Overview](Architecture-Overview.md)
 - **Contribute code** → [Contributing Guide](CONTRIBUTING.md)
-- **Report a bug** → [GitHub Issues](https://github.com/nself-org/chat/issues)
-- **Ask a question** → [GitHub Discussions](https://github.com/nself-org/chat/discussions)
+- **Report a bug** → [GitHub Issues](https://github.com/nself-org/nchat/issues)
+- **Ask a question** → [GitHub Discussions](https://github.com/nself-org/nchat/discussions)
 
 ---
 
@@ -269,8 +269,8 @@ See [Quick Reference](Quick-Reference.md) for complete command list.
 
 ### Community Support
 
-- **[GitHub Issues](https://github.com/nself-org/chat/issues)** - Bug reports and feature requests
-- **[GitHub Discussions](https://github.com/nself-org/chat/discussions)** - Questions and community help
+- **[GitHub Issues](https://github.com/nself-org/nchat/issues)** - Bug reports and feature requests
+- **[GitHub Discussions](https://github.com/nself-org/nchat/discussions)** - Questions and community help
 - **[Email Support](mailto:support@nself.org)** - Direct support (paid plans)
 
 ### Professional Support
@@ -289,7 +289,7 @@ See [Quick Reference](Quick-Reference.md) for complete command list.
 - Main README (coming soon) - Project overview
 - Backend README (coming soon) - Backend documentation
 - Frontend README (coming soon) - Frontend monorepo docs
-- [GitHub Repository](https://github.com/nself-org/chat)
+- [GitHub Repository](https://github.com/nself-org/nchat)
 
 ### External Resources
 

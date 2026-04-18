@@ -223,5 +223,5 @@ No blocking issues identified. All core features working.
 **Notes**:
 - This is a release candidate (RC1) - not for production use
 - Intended for staging/testing environments
-- Report issues to: https://github.com/nself-org/chat/issues
-- Documentation: https://github.com/nself-org/chat/wiki
+- Report issues to: https://github.com/nself-org/nchat/issues
+- Documentation: https://github.com/nself-org/nchat/wiki

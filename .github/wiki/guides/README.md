@@ -326,6 +326,6 @@ Performance optimization strategies.
 
 **[⬆ Back to Home](../Home)**
 
-**[Edit this page on GitHub](https://github.com/nself-org/chat/edit/main/docs/guides/README.md)**
+**[Edit this page on GitHub](https://github.com/nself-org/nchat/edit/main/docs/guides/README.md)**
 
 </div>

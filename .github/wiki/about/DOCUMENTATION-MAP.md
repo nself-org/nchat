@@ -420,16 +420,16 @@ Quick reference guide to find any documentation in the nself-chat project.
 
 ### Documentation Issues
 
-- **Missing info?** [Open an issue](https://github.com/nself-org/chat/issues)
-- **Need clarification?** [Start a discussion](https://github.com/nself-org/chat/discussions)
+- **Missing info?** [Open an issue](https://github.com/nself-org/nchat/issues)
+- **Need clarification?** [Start a discussion](https://github.com/nself-org/nchat/discussions)
 - **Found a typo?** [Submit a PR](../CONTRIBUTING.md)
 
 ### Getting Help
 
 1. Check [Troubleshooting Guide](../troubleshooting/TROUBLESHOOTING.md) first
 2. Search [FAQ](../troubleshooting/FAQ.md)
-3. Search existing [GitHub Issues](https://github.com/nself-org/chat/issues)
-4. Ask in [GitHub Discussions](https://github.com/nself-org/chat/discussions)
+3. Search existing [GitHub Issues](https://github.com/nself-org/nchat/issues)
+4. Ask in [GitHub Discussions](https://github.com/nself-org/nchat/discussions)
 5. Contact support: support@nself.org
 
 ---

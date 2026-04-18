@@ -36,7 +36,7 @@ nself --version  # Should be v0.9.8+
 docker ps
 
 # Navigate to backend
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 ```
 
 ### 2. Install Core Plugins

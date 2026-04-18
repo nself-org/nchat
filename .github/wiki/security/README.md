@@ -436,6 +436,6 @@ Quick reference for security features and commands.
 
 **[⬆ Back to Home](../Home)**
 
-**[Edit this page on GitHub](https://github.com/nself-org/chat/edit/main/docs/security/README.md)**
+**[Edit this page on GitHub](https://github.com/nself-org/nchat/edit/main/docs/security/README.md)**
 
 </div>

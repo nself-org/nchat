@@ -6,7 +6,7 @@
  * the frontend. Absent env vars mean the plugin is not installed — the feature
  * hides gracefully rather than crashing.
  *
- * Reference: `chat/backend/.env.example` — nChat Bundle section.
+ * Reference: `nchat/backend/.env.example` — nChat Bundle section.
  */
 
 export type NChatPlugin =

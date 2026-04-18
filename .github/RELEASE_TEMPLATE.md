@@ -253,7 +253,7 @@ Thank you to everyone who contributed!
 
 ## 🔗 Links
 
-- **Download**: [Release v[VERSION]](https://github.com/nself-org/chat/releases/tag/v[VERSION])
+- **Download**: [Release v[VERSION]](https://github.com/nself-org/nchat/releases/tag/v[VERSION])
 - **Docker Image**: `nchat:[VERSION]`
 - **npm Package**: `@nself/chat@[VERSION]`
 
@@ -263,8 +263,8 @@ Thank you to everyone who contributed!
 
 Need help with this release?
 
-- **GitHub Issues**: https://github.com/nself-org/chat/issues
-- **GitHub Discussions**: https://github.com/nself-org/chat/discussions
+- **GitHub Issues**: https://github.com/nself-org/nchat/issues
+- **GitHub Discussions**: https://github.com/nself-org/nchat/discussions
 - **Discord**: [Community Server Link]
 - **Email**: support@nself.org
 
@@ -275,7 +275,7 @@ Need help with this release?
 **Planned for**: [DATE]
 **Focus**: [What the next release will focus on]
 
-See our [roadmap](https://github.com/nself-org/chat/projects) for more details.
+See our [roadmap](https://github.com/nself-org/nchat/projects) for more details.
 
 ---
 

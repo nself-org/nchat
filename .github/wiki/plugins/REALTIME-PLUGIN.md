@@ -50,7 +50,7 @@ The Realtime Plugin provides WebSocket-based real-time communication infrastruct
 ### Install Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself plugin install realtime
 ```
 

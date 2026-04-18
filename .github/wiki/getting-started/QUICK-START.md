@@ -44,7 +44,7 @@ nself-chat/
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 ```
 
@@ -395,8 +395,8 @@ pnpm lint:fix
 
 ### Community
 
-- [GitHub Issues](https://github.com/nself-org/chat/issues) - Bug reports
-- [GitHub Discussions](https://github.com/nself-org/chat/discussions) - Questions
+- [GitHub Issues](https://github.com/nself-org/nchat/issues) - Bug reports
+- [GitHub Discussions](https://github.com/nself-org/nchat/discussions) - Questions
 - [Email Support](mailto:support@nself.org) - Direct support
 
 ---

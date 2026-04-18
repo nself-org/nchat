@@ -211,7 +211,7 @@ Get nself-chat running in under 5 minutes:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 
 # 2. Install dependencies
@@ -494,8 +494,8 @@ open http://localhost:3000
 ### Getting Help
 
 - **Documentation**: You're reading it!
-- **Issues**: [GitHub Issues](https://github.com/nself-org/chat/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/nself-org/chat/discussions)
+- **Issues**: [GitHub Issues](https://github.com/nself-org/nchat/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nself-org/nchat/discussions)
 - **Email**: support@nself.org
 
 ### Contributing
@@ -540,7 +540,7 @@ Built with:
 
 <div align="center">
 
-**Version 0.9.1** • **February 2026** • **[GitHub](https://github.com/nself-org/chat)**
+**Version 0.9.1** • **February 2026** • **[GitHub](https://github.com/nself-org/nchat)**
 
 _nself-chat - White-label team communication platform_
 

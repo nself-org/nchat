@@ -26,7 +26,7 @@ nself --version
 docker ps
 
 # Check backend status
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself status
 ```
 
@@ -34,7 +34,7 @@ nself status
 
 ```bash
 # Copy plugin configuration example
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 cp ../. backend/.env.plugins.example .env.plugins
 
 # Edit plugin configuration
@@ -46,7 +46,7 @@ cp ../. backend/.env.plugins.example .env.plugins
 #### 3.1 Realtime Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install the plugin
 nself plugin install realtime
@@ -79,7 +79,7 @@ curl http://realtime.localhost:3101/health
 #### 3.2 Notifications Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install the plugin
 nself plugin install notifications
@@ -111,7 +111,7 @@ curl http://notifications.localhost:3102/health
 #### 3.3 Jobs Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install the plugin
 nself plugin install jobs
@@ -147,7 +147,7 @@ open http://queues.localhost:4200
 #### 3.4 File Processing Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install the plugin
 nself plugin install file-processing
@@ -180,7 +180,7 @@ curl http://files.localhost:3104/health
 ### Step 4: Restart Services
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Restart to load plugins
 nself restart
@@ -216,7 +216,7 @@ nself logs file-processing
 - OAuth application credentials
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install the plugin
 nself plugin install idme
@@ -240,7 +240,7 @@ curl http://localhost/api/auth/oauth/providers | grep idme
 ### Stripe Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install when billing is needed
 nself plugin install stripe
@@ -258,7 +258,7 @@ nself restart
 ### GitHub Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install for repository integration
 nself plugin install github
@@ -276,7 +276,7 @@ nself restart
 ### Shopify Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 
 # Install for e-commerce features
 nself plugin install shopify

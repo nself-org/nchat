@@ -180,7 +180,7 @@ All features from v0.9.0 are included:
 **Installation**:
 ```bash
 # Clone repository
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 
 # Install dependencies
@@ -271,7 +271,7 @@ Will be generated with final release artifacts.
 
 ### Reporting Issues
 
-**Bug Reports**: https://github.com/nself-org/chat/issues
+**Bug Reports**: https://github.com/nself-org/nchat/issues
 
 **Include**:
 - Version: v0.9.1-rc.1
@@ -424,10 +424,10 @@ Special thanks to all contributors who reported issues and suggested improvement
 
 ## 🔗 Links
 
-- **Repository**: https://github.com/nself-org/chat
-- **Issue Tracker**: https://github.com/nself-org/chat/issues
-- **Documentation**: https://github.com/nself-org/chat/wiki
-- **Releases**: https://github.com/nself-org/chat/releases
+- **Repository**: https://github.com/nself-org/nchat
+- **Issue Tracker**: https://github.com/nself-org/nchat/issues
+- **Documentation**: https://github.com/nself-org/nchat/wiki
+- **Releases**: https://github.com/nself-org/nchat/releases
 - **nself CLI**: https://github.com/nself-org/cli
 
 ---
@@ -442,7 +442,7 @@ MIT License - see LICENSE file for details
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 git checkout v0.9.1-rc.1
 pnpm install

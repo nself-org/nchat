@@ -326,7 +326,7 @@ To use the new mobile/desktop features:
 - First sync after long offline period may be slow
 - Large attachment cache may cause storage warnings
 
-See [GitHub Issues](https://github.com/nself-org/chat/issues) for full list and workarounds.
+See [GitHub Issues](https://github.com/nself-org/nchat/issues) for full list and workarounds.
 
 ---
 
@@ -458,8 +458,8 @@ Planned features:
 Need help?
 
 - **Installation Issues**: See [INSTALL.md](INSTALL.md)
-- **Bug Reports**: [GitHub Issues](https://github.com/nself-org/chat/issues)
-- **Questions**: [GitHub Discussions](https://github.com/nself-org/chat/discussions)
+- **Bug Reports**: [GitHub Issues](https://github.com/nself-org/nchat/issues)
+- **Questions**: [GitHub Discussions](https://github.com/nself-org/nchat/discussions)
 - **Documentation**: [Full Docs](docs/)
 - **Mobile Specific**: [Capacitor README](./ARCHITECTURE.md)
 

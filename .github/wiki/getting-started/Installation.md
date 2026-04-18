@@ -108,7 +108,7 @@ For local development with test users. **Fastest way to get started.**
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 
 # 2. Install dependencies
@@ -170,7 +170,7 @@ For production deployment with real authentication and database.
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 ```
 
@@ -615,7 +615,7 @@ vercel --prod
 
 ```bash
 # On your VPS
-git clone https://github.com/nself-org/chat.git
+git clone https://github.com/nself-org/nchat.git
 cd nself-chat
 pnpm install
 pnpm build
@@ -807,7 +807,7 @@ pnpm build
 
 - [Troubleshooting Guide](TROUBLESHOOTING)
 - [FAQ](troubleshooting/FAQ)
-- [GitHub Issues](https://github.com/nself-org/chat/issues)
+- [GitHub Issues](https://github.com/nself-org/nchat/issues)
 - [Email Support](mailto:support@nself.org)
 
 ---

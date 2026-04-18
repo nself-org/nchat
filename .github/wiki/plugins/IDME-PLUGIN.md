@@ -63,7 +63,7 @@ The ID.me Plugin enables identity verification and specialized login for militar
 ### Install Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself plugin install idme
 ```
 

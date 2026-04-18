@@ -459,7 +459,7 @@ No Contributor License Agreement required. By contributing, you agree to the MIT
 
 ### How do I report a bug?
 
-1. Check [existing issues](https://github.com/nself-org/chat/issues)
+1. Check [existing issues](https://github.com/nself-org/nchat/issues)
 2. Create new issue with template
 3. Include:
    - Steps to reproduce
@@ -494,4 +494,4 @@ Yes! Use GitHub Discussions:
 
 ---
 
-_Can't find your question? Ask in [GitHub Discussions](https://github.com/nself-org/chat/discussions)!_
+_Can't find your question? Ask in [GitHub Discussions](https://github.com/nself-org/nchat/discussions)!_

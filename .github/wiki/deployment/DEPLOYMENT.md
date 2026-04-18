@@ -919,7 +919,7 @@ kubectl rollout undo deployment/nchat-app -n nchat
 For deployment assistance:
 
 - **Documentation**: https://docs.nself.org
-- **GitHub Issues**: https://github.com/nself-org/chat/issues
+- **GitHub Issues**: https://github.com/nself-org/nchat/issues
 - **Discord**: Join our community server
 - **Email**: support@nself.org
 

@@ -52,7 +52,7 @@ The Jobs Plugin provides background job processing and task scheduling for ɳCha
 ### Install Plugin
 
 ```bash
-cd /Users/admin/Sites/nself-chat/backend
+cd /Users/admin/Sites/nself-nchat/backend
 nself plugin install jobs
 ```
 

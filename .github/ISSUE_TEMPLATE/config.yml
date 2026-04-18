@@ -1,19 +1,19 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 GitHub Discussions
-    url: https://github.com/nself-org/chat/discussions
+    url: https://github.com/nself-org/nchat/discussions
     about: Ask questions and discuss ideas with the community
   - name: 📚 Documentation
     url: https://docs.nself.org
     about: Read the official documentation
   - name: 💡 FAQ
-    url: https://github.com/nself-org/chat/blob/main/FAQ.md
+    url: https://github.com/nself-org/nchat/blob/main/FAQ.md
     about: Check frequently asked questions (50+ Q&A)
   - name: 🚀 Deployment Guide
-    url: https://github.com/nself-org/chat/blob/main/DEPLOYMENT.md
+    url: https://github.com/nself-org/nchat/blob/main/DEPLOYMENT.md
     about: Get help with deployment issues
   - name: 🔒 Security Issue
-    url: https://github.com/nself-org/chat/blob/main/SECURITY.md
+    url: https://github.com/nself-org/nchat/blob/main/SECURITY.md
     about: Report a security vulnerability privately
   - name: 📧 Email Support
     url: mailto:support@nself.org

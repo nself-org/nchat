@@ -17,7 +17,7 @@ The **nChat bundle** is the pro plugin bundle that activates the full chat featu
 ## Installing the bundle
 
 ```bash
-cd chat/backend
+cd nchat/backend
 
 # 1. Set your membership key (obtain at https://nself.org/pricing)
 nself license set nself_pro_xxxxx...
@@ -61,7 +61,7 @@ if (!isFullBundleInstalled()) {
 
 ## Env var reference
 
-The canonical env-var reference lives in `chat/backend/.env.example` under the **nChat Bundle** section. It documents every variable each plugin contributes. Copy the variables you need into `.env` (or set them via `nself env`) rather than editing `.env.example`.
+The canonical env-var reference lives in `nchat/backend/.env.example` under the **nChat Bundle** section. It documents every variable each plugin contributes. Copy the variables you need into `.env` (or set them via `nself env`) rather than editing `.env.example`.
 
 ## Without a license
 
@@ -76,7 +76,7 @@ No hard crashes. Set `NSELF_PLUGIN_LICENSE_KEY` to a valid key and rerun `nself 
 
 ## Related docs
 
-- `chat/backend/.env.example` — nChat Bundle section with every env var
+- `nchat/backend/.env.example` — nChat Bundle section with every env var
 - `chat/frontend/src/lib/features/bundle-detect.ts` — runtime detection helpers
 - https://nself.org/pricing — Basic, Pro, Elite, Business, and Enterprise tiers
 - https://docs.nself.org/plugins — plugin registry and install guide

@@ -1077,7 +1077,7 @@ DEBUG=nself:* pnpm dev
 
 ### Report Issues
 
-1. **GitHub Issues:** https://github.com/nself-org/chat/issues
+1. **GitHub Issues:** https://github.com/nself-org/nchat/issues
 2. **Include:**
    - nself-chat version
    - Operating system
@@ -1099,4 +1099,4 @@ DEBUG=nself:* pnpm dev
 
 **Last Updated:** January 30, 2026 • **Version:** 0.3.0
 
-**Still having issues?** Open an issue on [GitHub](https://github.com/nself-org/chat/issues) or ask in [Discussions](https://github.com/nself-org/chat/discussions).
+**Still having issues?** Open an issue on [GitHub](https://github.com/nself-org/nchat/issues) or ask in [Discussions](https://github.com/nself-org/nchat/discussions).

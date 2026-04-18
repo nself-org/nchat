@@ -663,7 +663,7 @@ import type {
 
 ### Database Schema
 
-See `/Users/admin/Sites/nself-chat/backend/nself/migrations/20260203150000_advanced_channels.up.sql` for complete schema.
+See `/Users/admin/Sites/nself-nchat/backend/nself/migrations/20260203150000_advanced_channels.up.sql` for complete schema.
 
 ### API Types
 
