@@ -905,12 +905,12 @@ ELECTRON_APP_ID=org.nself.nchat
 
 ### New Documentation
 
-- [iOS Deployment Guide](/docs/deployment/ios-deployment.md)
-- [Android Deployment Guide](/docs/deployment/android-deployment.md)
+- [iOS Deployment Guide](../../deployment/ios-deployment.md)
+- [Android Deployment Guide](../../deployment/android-deployment.md)
 - [Desktop Deployment Guide](/docs/deployment/desktop-deployment.md)
-- [Mobile Deployment Checklist](/docs/deployment/mobile-deployment-checklist.md)
-- [App Store Submission Guide](/docs/deployment/app-store-submission.md)
-- [Play Store Submission Guide](/docs/deployment/play-store-submission.md)
+- [Mobile Deployment Checklist](../../deployment/mobile-deployment-checklist.md)
+- [App Store Submission Guide](../../deployment/app-store-submission.md)
+- [Play Store Submission Guide](../../deployment/play-store-submission.md)
 - [Offline Mode Guide](/docs/guides/offline-mode.md)
 - [Background Sync Guide](/docs/guides/background-sync.md)
 - [Mobile API Reference](/docs/api/mobile-api.md)
@@ -920,9 +920,9 @@ ELECTRON_APP_ID=org.nself.nchat
 
 ### Updated Documentation
 
-- [Home](/docs/Home.md) - Added v0.8.0 information
-- [CHANGELOG](/docs/CHANGELOG.md) - v0.8.0 entries
-- [README](/README.md) - Platform support information
+- [Home](../../Home.md) - Added v0.8.0 information
+- [CHANGELOG](CHANGELOG.md) - v0.8.0 entries
+- [README](../../README.md) - Platform support information
 
 ---
 

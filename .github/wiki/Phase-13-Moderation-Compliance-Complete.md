@@ -572,7 +572,7 @@ if (!result.isValid) {
 
 ## Documentation
 
-- [GDPR Compliance Guide](/docs/compliance/GDPR-COMPLIANCE.md)
+- [GDPR Compliance Guide](legal/GDPR-COMPLIANCE.md)
 - [Moderation Best Practices](/docs/guides/moderation-best-practices.md)
 - [AI Moderation Setup](/docs/ai/moderation-setup.md)
 - [Audit Trail Verification](/docs/security/audit-verification.md)

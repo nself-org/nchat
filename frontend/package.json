@@ -1,6 +1,6 @@
 {
   "name": "@nself-chat/web",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "description": "nself-chat - White-label team communication platform",

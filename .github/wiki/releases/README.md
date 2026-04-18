@@ -8,7 +8,7 @@ Release documentation, migration guides, and version-specific information for ns
 
 - **[v0.7.0 Release Notes](v0.7.0/RELEASE-NOTES.md)** - AI & Intelligence features
 - **[v0.7.0 Changelog](v0.7.0/CHANGELOG.md)** - Complete changelog for v0.7.0
-- **[v0.7.0 Upgrade Guide](v0.7.0/UPGRADE-GUIDE.md)** - How to upgrade from v0.6.0
+- **[v0.7.0 Upgrade Guide](../about/UPGRADE-GUIDE.md)** - How to upgrade from v0.6.0
 
 ### Previous Releases
 
@@ -43,7 +43,7 @@ Release documentation, migration guides, and version-specific information for ns
 
 **Upgrading:**
 
-- From v0.6.0 to v0.7.0: [v0.7.0 Upgrade Guide](v0.7.0/UPGRADE-GUIDE.md)
+- From v0.6.0 to v0.7.0: [v0.7.0 Upgrade Guide](../about/UPGRADE-GUIDE.md)
 - From v0.5.0 to v0.6.0: [v0.6.0 Upgrade Guide](v0.6.0/UPGRADE-GUIDE.md)
 - From v0.4.x to v0.5.0: [v0.5.0 Plan](v0.5.0-PLAN.md)
 - From v0.3.x to v0.4.0: [v0.4.0 Upgrade Guide](v0.4.0-UPGRADE-GUIDE.md)
@@ -95,7 +95,7 @@ Release documentation, migration guides, and version-specific information for ns
 
 - [v0.7.0 Release Notes](v0.7.0/RELEASE-NOTES.md) - Complete AI features
 - [v0.7.0 Changelog](v0.7.0/CHANGELOG.md) - Detailed changelog
-- [v0.7.0 Upgrade Guide](v0.7.0/UPGRADE-GUIDE.md) - Upgrade from v0.6.0
+- [v0.7.0 Upgrade Guide](../about/UPGRADE-GUIDE.md) - Upgrade from v0.6.0
 
 ### v0.6.0 - January 31, 2026
 

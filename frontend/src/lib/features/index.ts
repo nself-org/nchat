@@ -280,6 +280,20 @@ export {
 } from './components/feature-gate-any'
 
 // ============================================================================
+// nCHAT BUNDLE DETECTION
+// ============================================================================
+
+export {
+  NCHAT_BUNDLE_PLUGINS,
+  nchatBundle,
+  isPluginInstalled,
+  installedPlugins,
+  isFullBundleInstalled,
+  missingPlugins,
+  type NChatPlugin,
+} from './bundle-detect'
+
+// ============================================================================
 // CONVENIENCE RE-EXPORTS
 // ============================================================================
 

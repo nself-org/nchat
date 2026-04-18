@@ -311,7 +311,7 @@ SELECT * FROM pg_stat_user_indexes WHERE idx_scan = 0;
 
 ## Resources
 
-- [Performance Guide](/docs/guides/performance/optimization.md)
+- [Performance Guide](optimization.md)
 - [Next.js Performance Docs](https://nextjs.org/docs/app/building-your-application/optimizing)
 - [Web Vitals](https://web.dev/vitals/)
 - [GraphQL Best Practices](https://graphql.org/learn/best-practices/)

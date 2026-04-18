@@ -2,7 +2,7 @@
 
 > **nself-chat (nchat)** - White-Label Team Communication Platform
 >
-> Version: 0.2.0 | Last Updated: January 29, 2026
+> Version: 1.0.9 | Last Updated: April 18, 2026
 
 ---
 
@@ -39,14 +39,14 @@
 | **Package Name** | nself-chat                                                            |
 | **Description**  | Slack-like team chat with Telegram features, white-label customizable |
 | **Type**         | Demo project showcasing nself CLI stack                               |
-| **License**      | Proprietary                                                           |
+| **License**      | MIT                                                                   |
 
 ### Project Purpose
 
 nself-chat serves as:
 
 1. A production-ready team communication platform
-2. A demonstration of the nself CLI backend infrastructure (v0.4.2)
+2. A demonstration of the nself CLI backend infrastructure (v1.0.9)
 3. A white-label solution that can be customized for any organization
 4. A reference implementation for building apps on the nself stack
 
@@ -1197,8 +1197,8 @@ await switchUser('guest@nself.org')
 | [Environment-Variables.md](./Environment-Variables.md) | All env vars            |
 | [Database-Schema.md](./Database-Schema.md)             | Full database docs      |
 | [Types.md](./Types.md)                                 | TypeScript types        |
-| [Roadmap.md](./Roadmap.md)                             | Development phases      |
-| [Features-Complete.md](./Features-Complete.md)         | Feature details         |
+| [Roadmap.md](../about/Roadmap.md)                             | Development phases      |
+| [Features-Complete.md](../features/Features-Complete.md)         | Feature details         |
 
 ---
 

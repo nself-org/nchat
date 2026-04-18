@@ -45,8 +45,8 @@ export class WindowManager {
       height: windowHeight,
       minWidth: 800,
       minHeight: 600,
-      title: 'nself-chat',
-      backgroundColor: '#ffffff',
+      title: 'nChat',
+      backgroundColor: '#0F0F1A',
       webPreferences: {
         preload: path.join(__dirname, '../preload/index.js'),
         contextIsolation: true,

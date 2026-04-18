@@ -143,8 +143,8 @@ See [Audit Logging Guide](./Audit-Logging.md) for detailed instructions.
 
 ### Integration & Customization
 
-- **[Webhooks Guide](./Webhooks.md)**: Custom integrations (coming soon)
-- **[API Reference](./API.md)**: GraphQL and REST APIs (coming soon)
+- **[Webhooks Guide](../../Webhooks.md)**: Custom integrations (coming soon)
+- **[API Reference](../../api/API.md)**: GraphQL and REST APIs (coming soon)
 - **[Custom Apps](./Custom-Apps.md)**: Build custom applications (coming soon)
 
 ## Security

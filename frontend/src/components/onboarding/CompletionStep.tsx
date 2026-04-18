@@ -3,6 +3,7 @@
 import { CheckCircle, Sparkles, MessageSquare, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { isFullBundleInstalled, missingPlugins } from '@/lib/features'
 import confetti from 'canvas-confetti'
 import { useEffect } from 'react'
 
@@ -154,6 +155,32 @@ export function CompletionStep({
           </div>
         </div>
       </div>
+
+      {/* Bundle Upsell */}
+      {!isFullBundleInstalled() && (
+        <div className="mb-6 w-full max-w-sm rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left dark:border-indigo-800 dark:bg-indigo-950/30">
+          <p className="font-semibold text-indigo-900 dark:text-indigo-200">
+            Activate the nChat bundle for full feature access
+          </p>
+          <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-300">
+            Voice calls, recording, moderation, and bots require the nChat bundle — $0.99/mo.
+            {missingPlugins().length > 0 && (
+              <span className="mt-1 block text-xs text-indigo-600 dark:text-indigo-400">
+                Not yet installed: {missingPlugins().join(', ')}
+              </span>
+            )}
+          </p>
+          <a
+            href="https://nself.org/pricing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          >
+            View pricing at nself.org
+            <ArrowRight className="h-3 w-3" />
+          </a>
+        </div>
+      )}
 
       {/* CTA */}
       <Button size="lg" onClick={onComplete} className="min-w-[200px]">

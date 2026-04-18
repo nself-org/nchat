@@ -752,7 +752,7 @@ console.log('Local settings:', settings)
 
 ## Related Documentation
 
-- [Offline Mode v0.8.0](./Offline-Mode-v0.8.0.md)
+- [Offline Mode v0.8.0](../Offline-Mode-v0.8.0.md)
 - [Offline Integration Guide](../OFFLINE-INTEGRATION-GUIDE.md)
 - [Offline Sync Implementation](../OFFLINE-SYNC-IMPLEMENTATION.md)
 - [PWA Guide](./PWA.md)

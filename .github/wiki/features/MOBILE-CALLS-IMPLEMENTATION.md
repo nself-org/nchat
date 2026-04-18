@@ -629,9 +629,9 @@ describe('MobileCallScreen', () => {
 
 ### Documentation
 
-- [Full Implementation Guide](./Mobile-Call-Optimizations.md)
-- [Quick Reference](./Mobile-Calls-Quick-Reference.md)
-- [API Documentation](../src/lib/README.md)
+- [Full Implementation Guide](../guides/Mobile-Call-Optimizations.md)
+- [Quick Reference](../reference/Mobile-Calls-Quick-Reference.md)
+- [API Documentation](README.md)
 
 ### External Resources
 
@@ -721,4 +721,4 @@ describe('MobileCallScreen', () => {
 
 ---
 
-_For questions or issues, please refer to the [troubleshooting guide](./Mobile-Call-Optimizations.md#troubleshooting) or open a GitHub issue._
+_For questions or issues, please refer to the [troubleshooting guide](../guides/Mobile-Call-Optimizations.md#troubleshooting) or open a GitHub issue._

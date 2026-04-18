@@ -706,9 +706,9 @@ GRANT EXECUTE ON FUNCTION public.user_has_app_permission TO hasura;
 ## Next Steps
 
 1. **Security:** Review [Security Guide](../security/SECURITY.md)
-2. **Production:** Read [Deployment Guide](DEPLOYMENT-GUIDE.md)
+2. **Production:** Read [Deployment Guide](../DEPLOYMENT-GUIDE.md)
 3. **Scaling:** Check [Performance Guide](../Performance-Optimization.md)
-4. **Monitoring:** Set up [Observability](../observability/README.md)
+4. **Monitoring:** Set up [Observability](README.md)
 
 ---
 

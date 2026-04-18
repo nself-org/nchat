@@ -260,9 +260,9 @@ Screen reader announcements for:
 
 ### Documentation
 
-- 📖 [Full Accessibility Guide](/docs/guides/accessibility.md)
-- 📊 [Color Contrast Report](/docs/guides/color-contrast-report.md)
-- 🔊 [Screen Reader Testing](/docs/guides/screen-reader-testing-report.md)
+- 📖 [Full Accessibility Guide](accessibility.md)
+- 📊 [Color Contrast Report](color-contrast-report.md)
+- 🔊 [Screen Reader Testing](screen-reader-testing-report.md)
 
 ### Support
 

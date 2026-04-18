@@ -59,8 +59,8 @@ export function createTray(windowManager: WindowManager): Tray {
     {
       label: 'New Conversation',
       click: () => {
-        const win = windowManager.focusMainWindow()
-        win?.webContents.send('new-conversation')
+        windowManager.focusMainWindow()
+        windowManager.getMainWindow()?.webContents.send('new-conversation')
       },
     },
     { type: 'separator' },
@@ -80,7 +80,7 @@ export function createTray(windowManager: WindowManager): Tray {
   ])
 
   tray.setContextMenu(contextMenu)
-  tray.setToolTip('nself-chat')
+  tray.setToolTip('nChat')
 
   // Handle tray click
   tray.on('click', () => {
@@ -98,9 +98,9 @@ export function updateTrayBadge(count: number): void {
   if (!tray) return
 
   if (count > 0) {
-    tray.setToolTip(`nself-chat (${count} unread)`)
+    tray.setToolTip(`nChat (${count} unread)`)
   } else {
-    tray.setToolTip('nself-chat')
+    tray.setToolTip('nChat')
   }
 }
 

@@ -385,5 +385,5 @@ Potential improvements to the validation system:
 
 - [Environment Variables Reference](.env.example)
 - [Deployment Guide](./Deployment.md)
-- [Scripts Documentation](../scripts/README.md)
-- [CI/CD Workflows](../.github/workflows/README.md)
+- [Scripts Documentation](README.md)
+- [CI/CD Workflows](README.md)

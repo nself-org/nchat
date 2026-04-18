@@ -148,6 +148,7 @@ is:starred         - Starred messages only
 16. **`.env.example`** (modified)
     - Added NEXT_PUBLIC_MEILISEARCH_URL
     - Added MEILISEARCH_MASTER_KEY
+    - Added NEXT_PUBLIC_MEILISEARCH_PUBLIC_KEY (search-only key for direct browser access)
 
 ---
 
@@ -175,6 +176,11 @@ Add to `.env.local`:
 ```bash
 NEXT_PUBLIC_MEILISEARCH_URL=http://search.localhost:7700
 MEILISEARCH_MASTER_KEY=nchat-search-dev-key-32-chars-long
+
+# Optional: public (search-only) API key for direct browser access.
+# When set, the frontend queries MeiliSearch directly without a proxy round-trip.
+# Leave unset to use the /api/plugins/search/search proxy (safe default).
+# NEXT_PUBLIC_MEILISEARCH_PUBLIC_KEY=<search-only-api-key>
 ```
 
 ### 3. Ensure MeiliSearch is Running
@@ -638,7 +644,7 @@ Kill the process or change MeiliSearch port in `.backend/.env.dev`.
 ## Resources
 
 - [MeiliSearch Documentation](https://docs.meilisearch.com/)
-- [Search System README](../src/lib/search/README.md)
+- [Search System README](README.md)
 - [API Reference](../src/app/api/search/route.ts)
 - [nself-chat Documentation](./README.md)
 

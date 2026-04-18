@@ -1,5 +1,7 @@
-# LiveKit SFU Configuration for ɳChat
-# Provides WebRTC infrastructure for voice/video calls and streaming
+# DEPRECATED — install via `nself plugin install livekit` (pro plugin).
+# Tracked in ~/Sites/nself/.claude/docs/doctrines/nself-first-cli-gaps.md (2026-04-17, Theme 26).
+# LiveKit SFU Configuration for ɳChat (DEPRECATED)
+# Provides WebRTC infrastructure for voice/video calls and streaming.
 
 version: '3.8'
 

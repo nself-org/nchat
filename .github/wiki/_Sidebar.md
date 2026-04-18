@@ -83,7 +83,7 @@
 ### Deployment
 
 - [📋 Deployment Checklist](guides/deployment/DEPLOYMENT-CHECKLIST)
-- [🐳 Docker](guides/deployment/docker-deployment)
+- [🐳 Docker](deployment/Deployment-Docker)
 - [☸️ Kubernetes](guides/deployment/self-hosted)
 - [📱 Mobile](guides/deployment/mobile-deployment)
 - [🖥️ Desktop](guides/deployment/desktop-deployment)

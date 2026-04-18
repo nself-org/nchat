@@ -1748,10 +1748,10 @@ export function Providers({ children }) {
 
 ## Next Steps
 
-- **Configuration Guide** → [Configuration.md](./Configuration.md)
+- **Configuration Guide** → [Configuration.md](../configuration/Configuration.md)
 - **Database Migrations** → [Migrations.md](./Migrations.md)
 - **Troubleshooting** → [Troubleshooting.md](./Troubleshooting.md)
-- **Architecture Deep Dive** → [Architecture.md](./Architecture.md)
+- **Architecture Deep Dive** → [Architecture.md](../reference/Architecture.md)
 
 ---
 

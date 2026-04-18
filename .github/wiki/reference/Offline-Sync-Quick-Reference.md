@@ -326,5 +326,5 @@ offlineDB.close()
 ## Related Docs
 
 - [Full Guide](../features/Offline-Sync-Phase17.md)
-- [Offline Mode v0.8.0](../features/Offline-Mode-v0.8.0.md)
+- [Offline Mode v0.8.0](../Offline-Mode-v0.8.0.md)
 - [PWA Guide](../features/PWA.md)

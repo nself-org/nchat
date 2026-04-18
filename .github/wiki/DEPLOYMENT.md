@@ -638,7 +638,7 @@ netlify init
 
 3. **Configure Build Settings**:
 
-Create `netlify.toml`:
+Create `netlify.toml` (the `plugins` array below uses TOML array-of-tables syntax — double brackets are TOML, not wiki-links):
 
 ```toml
 [build]
@@ -1260,8 +1260,10 @@ cp backups/20260130/frontend-env .env.production
 4. **Restart Services**:
 
 ```bash
-docker compose down
-docker compose up -d
+# nSelf-First: use the CLI, not raw compose.
+cd backend
+nself stop
+nself start
 ```
 
 #### Recovery Time Objective (RTO)

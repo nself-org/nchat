@@ -196,7 +196,7 @@ interface NselfPlugin {
 
 ## Contributing
 
-See [docs/Contributing.md](docs/Contributing.md) for how to contribute to nself-chat.
+See [docs/Contributing.md](Contributing.md) for how to contribute to nself-chat.
 
 ---
 

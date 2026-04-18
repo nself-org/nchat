@@ -274,4 +274,4 @@ No changes required - all improvements are automatic.
 
 ---
 
-**[← Previous Version (v0.5.0)](../v0.5.0/CHANGELOG.md)** | **[Next Version (v0.7.0) →](../v0.7.0/CHANGELOG.md)**
+**[← Previous Version (v0.5.0)](CHANGELOG.md)** | **[Next Version (v0.7.0) →](../v0.7.0/CHANGELOG.md)**

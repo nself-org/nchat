@@ -294,10 +294,10 @@ Will be generated with final release artifacts.
 
 ### Key Documentation Links
 - [Setup Guide](README.md#quick-start)
-- [Features Overview](docs/Features-Complete.md)
-- [API Documentation](.claude/implementation/API.md)
+- [Features Overview](../features/Features-Complete.md)
+- [API Documentation](../api/API.md)
 - [Deployment Guide](.claude/implementation/DEPLOYMENT.md)
-- [Known Limitations](docs/KNOWN-LIMITATIONS.md)
+- [Known Limitations](../KNOWN-LIMITATIONS.md)
 
 ---
 

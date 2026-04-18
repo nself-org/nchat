@@ -8,17 +8,15 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
-// Import shared packages (demonstrates integration)
 import { logger } from '@nself-chat/core'
 import { ApolloProvider } from '@nself-chat/api'
 import { useAuthStore } from '@nself-chat/state'
 
-// Import mobile-specific hooks and adapters
 import { usePushNotifications } from './hooks/use-push-notifications'
 import { useNetworkStatus } from './hooks/use-network-status'
 import { mobileStorage } from './adapters/storage'
+import { AppNavigator } from './navigation/AppNavigator'
 
-// Import UI components from shared package
 import '@nself-chat/ui/styles.css'
 
 /**
@@ -40,7 +38,7 @@ import '@nself-chat/ui/styles.css'
  * ```
  */
 export function App() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
   const { register, onNotificationReceived, onNotificationAction } =
     usePushNotifications()
   const networkStatus = useNetworkStatus()
@@ -96,14 +94,28 @@ export function App() {
       <BrowserRouter>
         <div className="app">
           {networkStatus.offline && (
-            <div className="offline-banner" style={{background:'#ef4444',color:'white',padding:'8px',textAlign:'center'}}>
-              You are offline. Messages will sync when connected.
+            <div
+              className="offline-banner"
+              role="alert"
+              aria-live="polite"
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 10000,
+                background: '#ef4444',
+                color: 'white',
+                padding: '8px 16px',
+                textAlign: 'center',
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              You are offline. Messages will sync when reconnected.
             </div>
           )}
-          <h1>nself-chat Mobile</h1>
-          <p>Status: {networkStatus.connectionTypeName}</p>
-          <p>User: {user?.email || 'Not logged in'}</p>
-          {/* Navigation handled by BrowserRouter hash routes */}
+          <AppNavigator />
         </div>
       </BrowserRouter>
     </ApolloProvider>

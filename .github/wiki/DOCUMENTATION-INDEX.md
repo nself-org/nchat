@@ -139,7 +139,7 @@ Production deployment guides:
 - **[Deployment-Helm.md](deployment/Deployment-Helm.md)** - Helm charts
 - **[Production-Deployment-Checklist.md](deployment/Production-Deployment-Checklist.md)** - Pre-deploy
 - **[Production-Validation.md](deployment/Production-Validation.md)** - Post-deploy
-- **[Multi-Tenant-Deployment.md](deployment/Multi-Tenant-Deployment.md)** - Multi-tenancy
+- **[Multi-Tenant-Deployment.md](Multi-Tenant-Deployment.md)** - Multi-tenancy
 - **[README.md](deployment/README.md)** - Deployment overview
 
 #### Platform-Specific

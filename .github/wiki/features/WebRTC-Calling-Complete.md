@@ -889,7 +889,7 @@ WHERE id = call_id
 
 ### Documentation
 
-- [Voice Calling Quick Start](./Voice-Calling-Quick-Start.md)
+- [Voice Calling Quick Start](../reference/Voice-Calling-Quick-Start.md)
 - [Media Server Setup](./Media-Server-Setup.md)
 - [WebRTC Best Practices](../guides/WebRTC-Best-Practices.md)
 

@@ -8,7 +8,9 @@ Welcome to the **nself-chat** documentation! A production-ready, white-label tea
 
 ## Plugin Requirements
 
-ɳChat's advanced features run on **ɳSelf Pro Plugins**: AI moderation, voice/video calls, analytics, Stripe billing, GDPR/HIPAA compliance, live streaming, and more.
+ɳChat's advanced features run on the **nChat pro plugin bundle** (7 plugins: chat, livekit, recording, moderation, bots, realtime, auth). See [nChat Bundle](plugins/nChat-Bundle.md) for full install, env-var, and feature-detection reference.
+
+Advanced features also leverage generic ɳSelf Pro Plugins: AI moderation, analytics, Stripe billing, GDPR/HIPAA compliance, live streaming, and more.
 
 **Pro Plugins license: starting at $0.99/month ($9.99/year)** at [nself.org/pricing](https://nself.org/pricing). Set `NSELF_PLUGIN_LICENSE_KEY` in your backend `.env` and `nself start` installs them automatically.
 
@@ -22,14 +24,14 @@ See the [live demo](https://chat.nself.org). It runs the full stack with Pro Plu
 
 **New to nself-chat?** Start here:
 
-1. **[Quick Start Guide](getting-started/Quick-Start.md)** - Get running in 5 minutes
+1. **[Quick Start Guide](nself-cli/Quick-Start.md)** - Get running in 5 minutes
 2. **[Installation Guide](getting-started/Installation.md)** - Detailed setup instructions
 3. **[Quick Reference](Quick-Reference.md)** - Common commands cheat sheet
 
 **Already familiar?** Jump to:
 
 - [Architecture Overview](Architecture-Overview.md) - System design and structure
-- [Deployment Guide](deployment/DEPLOYMENT-GUIDE.md) - Production deployment
+- [Deployment Guide](DEPLOYMENT-GUIDE.md) - Production deployment
 - [API Reference](api/API.md) - Complete API documentation
 
 ---
@@ -83,7 +85,7 @@ nself-chat/
 
 **Essential guides for new users:**
 
-- [Quick Start](getting-started/Quick-Start.md) - 5-minute setup
+- [Quick Start](nself-cli/Quick-Start.md) - 5-minute setup
 - [Installation](getting-started/Installation.md) - Detailed installation guide
 - [Configuration](configuration/Configuration.md) - Environment variables and settings
 - [Quick Reference](Quick-Reference.md) - Command cheat sheet
@@ -92,11 +94,11 @@ nself-chat/
 
 **Explore what nself-chat can do:**
 
-- [Features Overview](Features-Complete.md) - Complete feature list
+- [Features Overview](features/Features-Complete.md) - Complete feature list
 - [Authentication System](AUTH-SYSTEM-COMPLETE.md) - 11 OAuth providers + 2FA
-- [End-to-End Encryption](E2EE-COMPLETE.md) - Signal Protocol implementation
-- [Voice & Video Calls](VOICE-VIDEO-COMPLETE.md) - WebRTC + LiveKit
-- [Search](SEARCH-IMPLEMENTATION-COMPLETE.md) - MeiliSearch integration
+- End-to-End Encryption (coming soon) - Signal Protocol implementation
+- Voice & Video Calls (coming soon) - WebRTC + LiveKit
+- Search (coming soon) - MeiliSearch integration
 - [Messaging](features/Features-Messaging.md) - Advanced messaging features
 - [White-Label](features/White-Label-Guide.md) - Branding and customization
 
@@ -104,10 +106,10 @@ nself-chat/
 
 **Build for specific platforms:**
 
-- [Web App](../frontend/apps/web/README.md) - Next.js 15 web application
-- [Mobile Apps](../frontend/apps/mobile/README.md) - iOS and Android (Capacitor)
-- [Desktop Apps](../frontend/apps/desktop/README.md) - Windows, macOS, Linux (Electron)
-- [Multi-Platform Deployment](MOBILE-COMPLETE.md) - Deploy to all platforms
+- Web App (coming soon) - Next.js 15 web application
+- Mobile Apps (coming soon) - iOS and Android (Capacitor)
+- Desktop Apps (coming soon) - Windows, macOS, Linux (Electron)
+- Multi-Platform Deployment (coming soon) - Deploy to all platforms
 
 ### 🔧 Development
 
@@ -115,38 +117,38 @@ nself-chat/
 
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
 - [Architecture Overview](Architecture-Overview.md) - System design
-- [Code Standards](CODE-STANDARDS.md) - Coding conventions
-- [Testing Guide](TESTING-GUIDE.md) - Testing strategy
+- Code Standards (coming soon) - Coding conventions
+- Testing Guide (coming soon) - Testing strategy
 - [Code Quality Report](CODE-QUALITY-REPORT-v091.md) - Quality metrics
 
 ### 🚀 Deployment
 
 **Production deployment guides:**
 
-- [Deployment Overview](deployment/DEPLOYMENT-GUIDE.md) - General deployment guide
+- [Deployment Overview](DEPLOYMENT-GUIDE.md) - General deployment guide
 - **[Monorepo Setup](deployment/Monorepo-Setup.md)** - **NEW** - Run multiple apps with one backend
 - [Docker Deployment](deployment/Deployment-Docker.md) - Docker containers
 - [Kubernetes Deployment](deployment/Deployment-Kubernetes.md) - K8s manifests
-- [Vercel Deployment](deployment/Deployment-Vercel.md) - Vercel hosting
-- [Security Runbook](SECURITY-RUNBOOK.md) - Security procedures
+- Vercel Deployment (coming soon) - Vercel hosting
+- Security Runbook (coming soon) - Security procedures
 
 ### 🔐 Security
 
 **Security features and best practices:**
 
 - [Security Overview](security/SECURITY.md) - Security architecture
-- [Security Runbook](SECURITY-RUNBOOK.md) - Incident response procedures
+- Security Runbook (coming soon) - Incident response procedures
 - [2FA Implementation](2FA-COMPLETE.md) - Two-factor authentication
 - [PIN Lock System](security/PIN-LOCK-SYSTEM.md) - App lock features
-- [OAuth Providers](OAuth-Testing-Guide.md) - OAuth integration guide
+- OAuth Providers (coming soon) - OAuth integration guide
 
 ### 📚 Reference
 
 **Technical references:**
 
 - [API Documentation](api/API.md) - Complete API reference
-- [Database Schema](Schema-Complete.md) - Database structure (222 tables)
-- [GraphQL API](GraphQL-Complete.md) - GraphQL queries and mutations
+- Database Schema (coming soon) - Database structure (222 tables)
+- GraphQL API (coming soon) - GraphQL queries and mutations
 - [Backend Services](nself-cli/README.md) - nself CLI services
 - [Environment Variables](configuration/Environment-Variables.md) - All env vars
 
@@ -156,8 +158,8 @@ nself-chat/
 
 - [Bot Framework](Bot-Framework-Complete.md) - Build custom bots
 - [Analytics](Analytics.md) - Metrics and monitoring
-- [Integrations](Integrations-v0.7.0.md) - Slack, GitHub, Jira, etc.
-- [Webhooks](guides/development/Webhooks-Guide.md) - Webhook integration
+- Integrations (coming soon) - Slack, GitHub, Jira, etc.
+- Webhooks (coming soon) - Webhook integration
 - [Custom Plugins](plugins/README.md) - Plugin development
 
 ---
@@ -166,30 +168,30 @@ nself-chat/
 
 ### For End Users
 
-1. Start with [Quick Start](getting-started/Quick-Start.md)
+1. Start with [Quick Start](nself-cli/Quick-Start.md)
 2. Read [User Guide](guides/USER-GUIDE.md)
-3. Explore [Features Overview](Features-Complete.md)
+3. Explore [Features Overview](features/Features-Complete.md)
 
 ### For Developers
 
 1. Read [Architecture Overview](Architecture-Overview.md)
 2. Follow [Contributing Guide](CONTRIBUTING.md)
-3. Review [Code Standards](CODE-STANDARDS.md)
+3. Review Code Standards (coming soon)
 4. Check [API Documentation](api/API.md)
 
 ### For DevOps/SysAdmins
 
-1. Review [Deployment Guide](deployment/DEPLOYMENT-GUIDE.md)
-2. Read [Security Runbook](SECURITY-RUNBOOK.md)
-3. Study [Backend README](../backend/README.md)
+1. Review [Deployment Guide](DEPLOYMENT-GUIDE.md)
+2. Read Security Runbook (coming soon)
+3. Study Backend README (coming soon)
 4. Check [Troubleshooting](troubleshooting/README.md)
 
 ### For Product Owners
 
-1. Explore [Features Overview](Features-Complete.md)
-2. Review [Roadmap](Roadmap.md)
+1. Explore [Features Overview](features/Features-Complete.md)
+2. Review [Roadmap](about/Roadmap.md)
 3. Check [White-Label Guide](features/White-Label-Guide.md)
-4. Read [Multi-Tenancy](Multi-Tenancy-Complete.md)
+4. Read Multi-Tenancy (coming soon)
 
 ---
 
@@ -213,11 +215,11 @@ nself-chat/
 
 **I want to...**
 
-- **Get started quickly** → [Quick Start](getting-started/Quick-Start.md)
+- **Get started quickly** → [Quick Start](nself-cli/Quick-Start.md)
 - **Install nself-chat** → [Installation Guide](getting-started/Installation.md)
-- **Deploy to production** → [Deployment Guide](deployment/DEPLOYMENT-GUIDE.md)
+- **Deploy to production** → [Deployment Guide](DEPLOYMENT-GUIDE.md)
 - **Customize branding** → [White-Label Guide](features/White-Label-Guide.md)
-- **Build a mobile app** → [Mobile Apps Guide](../frontend/apps/mobile/README.md)
+- **Build a mobile app** → Mobile Apps Guide (coming soon)
 - **Understand the architecture** → [Architecture Overview](Architecture-Overview.md)
 - **Contribute code** → [Contributing Guide](CONTRIBUTING.md)
 - **Report a bug** → [GitHub Issues](https://github.com/nself-org/chat/issues)
@@ -284,9 +286,9 @@ See [Quick Reference](Quick-Reference.md) for complete command list.
 
 ### Project Links
 
-- [Main README](../README.md) - Project overview
-- [Backend README](../backend/README.md) - Backend documentation
-- [Frontend README](../frontend/README.md) - Frontend monorepo docs
+- Main README (coming soon) - Project overview
+- Backend README (coming soon) - Backend documentation
+- Frontend README (coming soon) - Frontend monorepo docs
 - [GitHub Repository](https://github.com/nself-org/chat)
 
 ### External Resources
@@ -327,4 +329,4 @@ See [LICENSE](LICENSE.md) for full license text.
 
 ---
 
-**[📖 Browse Documentation](.)** | **[🚀 Quick Start](getting-started/Quick-Start.md)** | **[📝 Changelog](CHANGELOG.md)** | **[🤝 Contributing](CONTRIBUTING.md)**
+**[📖 Browse Documentation](.)** | **[🚀 Quick Start](nself-cli/Quick-Start.md)** | **[📝 Changelog](CHANGELOG.md)** | **[🤝 Contributing](CONTRIBUTING.md)**

@@ -856,7 +856,7 @@ Now that you have nself CLI installed:
 1. **Read the Quick Start** → [Quick-Start.md](./Quick-Start.md)
 2. **Learn the Commands** → [Commands.md](./Commands.md)
 3. **Explore Services** → [Services.md](./Services.md)
-4. **Configure Your Stack** → [Configuration.md](./Configuration.md)
+4. **Configure Your Stack** → [Configuration.md](../configuration/Configuration.md)
 
 ---
 

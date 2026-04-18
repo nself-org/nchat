@@ -927,11 +927,11 @@ sequenceDiagram
 
 ## Related Documentation
 
-- [Architecture Reference](reference/Architecture.md)
-- [Database Schema](reference/Database-Schema.md)
-- [API Documentation](api/API-DOCUMENTATION.md)
+- [Architecture Reference](Architecture.md)
+- [Database Schema](Database-Schema.md)
+- [API Documentation](../api/API-DOCUMENTATION.md)
 - [Deployment Guide](deployment/DEPLOYMENT.md)
-- [Project Structure](reference/Project-Structure.md)
+- [Project Structure](Project-Structure.md)
 
 ---
 

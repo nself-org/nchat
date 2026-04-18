@@ -1,7 +1,7 @@
 # nself CLI - Commands Reference
 
-**Version**: v0.4.2
-**Last Updated**: February 1, 2026
+**Version**: v1.0.9
+**Last Updated**: April 18, 2026
 **Complete command reference for nself CLI**
 
 ---
@@ -1313,7 +1313,7 @@ nself db:migrate up
 ## Next Steps
 
 - **Learn about Services** → [Services.md](./Services.md)
-- **Configuration Guide** → [Configuration.md](./Configuration.md)
+- **Configuration Guide** → [Configuration.md](../configuration/Configuration.md)
 - **Database Migrations** → [Migrations.md](./Migrations.md)
 - **Troubleshooting** → [Troubleshooting.md](./Troubleshooting.md)
 

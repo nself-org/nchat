@@ -458,5 +458,5 @@ const { mode, tiles, mainTile, thumbnails, setMode, pinParticipant, setSpeakingP
 
 - [Voice Calling Guide](./Voice-Calling-Guide.md)
 - [Background Effects](./Background-Effects-Guide.md)
-- [Performance Optimization](./Performance-Optimization.md)
+- [Performance Optimization](../Performance-Optimization.md)
 - [Troubleshooting](./Troubleshooting.md)

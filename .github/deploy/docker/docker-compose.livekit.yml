@@ -1,7 +1,9 @@
+# DEPRECATED — install via `nself plugin install livekit` (pro plugin).
+# Tracked in ~/Sites/nself/.claude/docs/doctrines/nself-first-cli-gaps.md (2026-04-17, Theme 26).
 version: '3.8'
 
-# LiveKit Server for WebRTC Voice & Video Calls
-# Provides SFU (Selective Forwarding Unit) for efficient multi-party calls
+# LiveKit Server for WebRTC Voice & Video Calls (DEPRECATED)
+# Install via the LiveKit pro plugin instead: `nself plugin install livekit`.
 
 services:
   # LiveKit Server

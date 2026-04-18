@@ -594,7 +594,7 @@ pnpm workers:start
 pnpm build && pnpm start
 ```
 
-**Detailed Guide:** See [Upgrade Guide](UPGRADE-GUIDE.md)
+**Detailed Guide:** See [Upgrade Guide](../../about/UPGRADE-GUIDE.md)
 
 ---
 
@@ -695,4 +695,4 @@ Found a bug? Please submit a detailed issue with:
 
 ---
 
-**[← Previous Version (v0.6.0)](../v0.6.0/RELEASE-NOTES.md)** | **[View Changelog](CHANGELOG.md)** | **[Upgrade Guide →](UPGRADE-GUIDE.md)**
+**[← Previous Version (v0.6.0)](../v0.6.0/RELEASE-NOTES.md)** | **[View Changelog](CHANGELOG.md)** | **[Upgrade Guide →](../../about/UPGRADE-GUIDE.md)**

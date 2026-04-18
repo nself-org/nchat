@@ -1191,7 +1191,7 @@ bot
 
 ## Related Documentation
 
-- [Bot API Implementation](../BOT_API_IMPLEMENTATION.md)
+- [Bot API Implementation](BOT_API_IMPLEMENTATION.md)
 - [Bot Development Guide](../features/Bots.md)
 - [API Documentation](API-DOCUMENTATION.md)
 - [Interactive API Docs](/api-docs/bots)

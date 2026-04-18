@@ -5,8 +5,7 @@
  * and communication between main and renderer processes.
  */
 
-import { app, BrowserWindow } from 'electron'
-import path from 'path'
+import { app } from 'electron'
 import { WindowManager } from './window-manager'
 import { createMenu } from './menu'
 import { createTray } from './tray'
@@ -18,11 +17,55 @@ import { setupShortcuts } from './shortcuts'
 let windowManager: WindowManager
 
 /**
+ * Register nchat:// deep link protocol
+ *
+ * On macOS/Linux, the OS sends 'open-url' events to the app process.
+ * On Windows, the URL is passed as a command-line argument.
+ * Both paths route the parsed URL into the renderer via IPC.
+ */
+function registerDeepLinkProtocol(): void {
+  // Windows: handle the protocol via single-instance lock
+  if (process.platform === 'win32') {
+    const args = process.argv.slice(1)
+    const deepLink = args.find((arg) => arg.startsWith('nchat://'))
+    if (deepLink) {
+      handleDeepLink(deepLink)
+    }
+  }
+
+  // macOS/Linux: handle via open-url event
+  app.on('open-url', (event, url) => {
+    event.preventDefault()
+    handleDeepLink(url)
+  })
+}
+
+/**
+ * Route a deep link URL into the renderer process.
+ *
+ * nchat://channel/<id>  → navigate to channel
+ * nchat://dm/<userId>   → open DM with user
+ * nchat://join/<invite> → accept workspace invite
+ */
+function handleDeepLink(url: string): void {
+  console.log('[Main] Deep link received:', url)
+  const mainWindow = windowManager?.getMainWindow()
+  if (mainWindow) {
+    mainWindow.show()
+    mainWindow.focus()
+    mainWindow.webContents.send('deep-link', url)
+  }
+}
+
+/**
  * Initialize the application
  */
 async function initialize() {
   try {
-    console.log('[Main] Initializing nself-chat desktop app')
+    console.log('[Main] Initializing nChat desktop app')
+
+    // Set canonical app name (shown in macOS menu bar, Taskbar, etc.)
+    app.setName('nChat')
 
     // Create window manager
     windowManager = new WindowManager()
@@ -56,10 +99,33 @@ async function initialize() {
   }
 }
 
+// Register deep link protocol before app is ready (required on macOS)
+app.setAsDefaultProtocolClient('nchat')
+
+// Ensure single instance — second launch sends args to the first
+const gotSingleInstanceLock = app.requestSingleInstanceLock()
+if (!gotSingleInstanceLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (_event, argv) => {
+    // Focus existing window and route the deep link if present
+    const mainWindow = windowManager?.getMainWindow()
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+    const deepLink = argv.find((arg) => arg.startsWith('nchat://'))
+    if (deepLink) {
+      handleDeepLink(deepLink)
+    }
+  })
+}
+
 /**
  * Handle application ready event
  */
 app.on('ready', async () => {
+  registerDeepLinkProtocol()
   await initialize()
 })
 
@@ -75,11 +141,15 @@ app.on('window-all-closed', () => {
 
 /**
  * Handle activate event
- * On macOS, recreate window when dock icon is clicked
+ * On macOS, recreate window when dock icon is clicked and show it
  */
 app.on('activate', async () => {
-  if (!windowManager.getMainWindow()) {
+  const mainWindow = windowManager?.getMainWindow()
+  if (!mainWindow) {
     await windowManager.createMainWindow()
+  } else {
+    mainWindow.show()
+    mainWindow.focus()
   }
 })
 

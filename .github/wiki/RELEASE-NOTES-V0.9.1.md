@@ -491,7 +491,7 @@ Stay tuned for updates!
 
 ## 📝 Full Changelog
 
-See [CHANGELOG.md](../CHANGELOG.md) for the complete version history.
+See [CHANGELOG.md](CHANGELOG.md) for the complete version history.
 
 ---
 

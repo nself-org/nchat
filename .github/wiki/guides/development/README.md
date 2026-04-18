@@ -508,7 +508,7 @@ https://github.com/nself-chat/examples
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](../../../CONTRIBUTING.md) for guidelines.
+We welcome contributions! See [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
 
 ## License
 

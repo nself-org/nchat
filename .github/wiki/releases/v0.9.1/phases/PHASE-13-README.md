@@ -323,9 +323,9 @@ npm run test:e2e
 
 ## 📚 Documentation
 
-- [Complete Implementation Guide](/docs/Phase-13-Moderation-Compliance-Complete.md)
-- [GDPR Compliance](/docs/compliance/GDPR-COMPLIANCE.md)
-- [AI Moderation Setup](/docs/AI-Moderation-v0.7.0.md)
+- [Complete Implementation Guide](../../../Phase-13-Moderation-Compliance-Complete.md)
+- [GDPR Compliance](../../../legal/GDPR-COMPLIANCE.md)
+- [AI Moderation Setup](../../../AI-Moderation-v0.7.0.md)
 - [Audit Trail Verification](/docs/security/audit-verification.md)
 - [Legal Hold Procedures](/docs/compliance/legal-hold-procedures.md)
 

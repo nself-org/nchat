@@ -650,7 +650,7 @@ if (Hls.isSupported()) {
 
 ## Resources
 
-- [WebRTC Guide](/docs/guides/Video-Calling-Guide.md)
+- [WebRTC Guide](../guides/Video-Calling-Guide.md)
 - [Streaming Guide](/docs/guides/Live-Streaming-Guide.md)
 - [Implementation Summary](/.claude/implementation/PHASE-8-WEBRTC-STREAMING-COMPLETE.md)
 - [LiveKit Docs](https://docs.livekit.io/)

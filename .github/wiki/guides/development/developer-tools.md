@@ -62,7 +62,7 @@ const message = await client.messages.send({
 })
 ```
 
-**Documentation**: [docs/guides/development/sdk-usage.md](./docs/guides/development/sdk-usage.md)
+**Documentation**: [docs/guides/development/sdk-usage.md](sdk-usage.md)
 
 ### 2. CLI Tool (`@nchat/cli`)
 
@@ -99,7 +99,7 @@ nchat-cli deploy vercel --prod
 nchat-cli deploy docker --tag latest --push
 ```
 
-**Documentation**: [docs/guides/development/cli-usage.md](./docs/guides/development/cli-usage.md)
+**Documentation**: [docs/guides/development/cli-usage.md](cli-usage.md)
 
 ### 3. API Documentation
 
@@ -122,7 +122,7 @@ Comprehensive API reference with interactive examples.
 - **GraphQL**: `https://api.nchat.example.com/graphql`
 - **WebSocket**: `wss://api.nchat.example.com/socket.io`
 
-**Documentation**: [docs/api/README.md](./docs/api/README.md)
+**Documentation**: [docs/api/README.md](README.md)
 
 ### 4. API Playground
 
@@ -367,7 +367,7 @@ Base URL: `https://api.nchat.example.com/api`
 - `PATCH /api/messages/{id}` - Update message
 - `DELETE /api/messages/{id}` - Delete message
 
-[Full REST API Reference →](./docs/api/README.md)
+[Full REST API Reference →](README.md)
 
 ### GraphQL API
 
@@ -416,7 +416,7 @@ subscription OnNewMessage($channelId: uuid!) {
 }
 ```
 
-[Full GraphQL Schema Reference →](./docs/api/graphql-schema.md)
+[Full GraphQL Schema Reference →](../../api/graphql-schema.md)
 
 ## 🎨 SDK Examples
 
@@ -555,7 +555,7 @@ nchat-cli deploy docker --tag v1.0.0 --push
 nchat-cli deploy k8s --namespace production
 ```
 
-[More CLI Examples →](./docs/guides/development/cli-usage.md)
+[More CLI Examples →](cli-usage.md)
 
 ## 🔐 Authentication
 
@@ -575,7 +575,7 @@ curl https://api.nchat.example.com/api/channels \
   -H "Authorization: Bearer your-jwt-token"
 ```
 
-[Authentication Guide →](./docs/api/authentication.md)
+[Authentication Guide →](../../api/authentication.md)
 
 ## 📊 Rate Limits
 

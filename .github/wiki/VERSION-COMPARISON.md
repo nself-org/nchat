@@ -476,7 +476,7 @@ GET    /api/audit/trail
 ### Upgrade Guides
 
 - [v0.6.0 Upgrade Guide](releases/v0.6.0/UPGRADE-GUIDE.md)
-- [v0.7.0 Upgrade Guide](releases/v0.7.0/UPGRADE-GUIDE.md)
+- [v0.7.0 Upgrade Guide](about/UPGRADE-GUIDE.md)
 - [v0.8.0 Upgrade Guide](releases/v0.8.0/UPGRADE-GUIDE.md)
 
 ### Community

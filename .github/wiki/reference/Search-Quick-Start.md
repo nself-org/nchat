@@ -213,8 +213,8 @@ kill -9 <PID>
 
 ## 📚 Documentation
 
-- **Full Documentation**: [Search-Implementation.md](./Search-Implementation.md)
-- **System Architecture**: [../src/lib/search/README.md](../src/lib/search/README.md)
+- **Full Documentation**: [Search-Implementation.md](../guides/Search-Implementation.md)
+- **System Architecture**: [../src/lib/search/README.md](README.md)
 - **API Reference**: [../src/app/api/search/route.ts](../src/app/api/search/route.ts)
 
 ---
@@ -238,5 +238,5 @@ Press **Cmd+K** and start searching!
 
 For questions or issues, see:
 
-- [Search Implementation Guide](./Search-Implementation.md)
+- [Search Implementation Guide](../guides/Search-Implementation.md)
 - [nself-chat Documentation](./README.md)

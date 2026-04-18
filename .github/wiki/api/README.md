@@ -176,8 +176,8 @@ const message = await client.messages.send({
 
 ### Integrations
 
-- [Webhooks](./webhooks.md) - Outgoing webhooks
-- [Bots](./bots.md) - Bot API and management
+- [Webhooks](../plugins/webhooks.md) - Outgoing webhooks
+- [Bots](../plugins/bots.md) - Bot API and management
 - [OAuth Apps](./oauth-apps.md) - Third-party integrations
 
 ### Administration
@@ -363,4 +363,4 @@ Try the API in your browser:
 
 ## Changelog
 
-See [CHANGELOG.md](./CHANGELOG.md) for API changes and version history.
+See [CHANGELOG.md](../CHANGELOG.md) for API changes and version history.

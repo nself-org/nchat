@@ -413,7 +413,7 @@ pnpm build && pnpm start
 
 ### Detailed Upgrade
 
-See [Upgrade Guide](UPGRADE-GUIDE.md) for platform-specific instructions.
+See [Upgrade Guide](../../about/UPGRADE-GUIDE.md) for platform-specific instructions.
 
 ---
 
@@ -461,4 +461,4 @@ See [Upgrade Guide](UPGRADE-GUIDE.md) for platform-specific instructions.
 
 ---
 
-**[← Previous Version (v0.6.0)](../v0.6.0/CHANGELOG.md)** | **[Release Notes](RELEASE-NOTES.md)** | **[Upgrade Guide →](UPGRADE-GUIDE.md)**
+**[← Previous Version (v0.6.0)](../v0.6.0/CHANGELOG.md)** | **[Release Notes](RELEASE-NOTES.md)** | **[Upgrade Guide →](../../about/UPGRADE-GUIDE.md)**

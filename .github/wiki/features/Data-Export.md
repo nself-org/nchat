@@ -453,7 +453,7 @@ Track these metrics:
 - [Privacy & Security](./Privacy-Security.md)
 - [GDPR Compliance](./GDPR-Compliance.md)
 - [API Documentation](../api/README.md)
-- [Data Export Library](../../src/lib/export/README.md)
+- [Data Export Library](README.md)
 
 ## Support
 

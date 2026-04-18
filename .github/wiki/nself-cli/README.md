@@ -2,7 +2,7 @@
 
 **Complete documentation for the nself CLI backend infrastructure tool**
 
-Version: v0.4.2 | Last Updated: February 1, 2026
+Version: v1.0.9 | Last Updated: April 18, 2026
 
 ---
 
@@ -15,10 +15,10 @@ Version: v0.4.2 | Last Updated: February 1, 2026
 | **[Quick Start](./Quick-Start.md)**         | Get started in 5 minutes                | 567         |
 | **[Commands](./Commands.md)**               | Complete command reference              | 1,229       |
 | **[Services](./Services.md)**               | All available services documentation    | 1,682       |
-| **[Configuration](./Configuration.md)**     | How to configure nself projects         | Coming Soon |
+| **[Configuration](../configuration/Configuration.md)**     | How to configure nself projects         | Coming Soon |
 | **[Migrations](./Migrations.md)**           | Database migration management           | Coming Soon |
 | **[Troubleshooting](./Troubleshooting.md)** | Common issues and solutions             | Coming Soon |
-| **[Architecture](./Architecture.md)**       | How nself CLI works internally          | Coming Soon |
+| **[Architecture](../reference/Architecture.md)**       | How nself CLI works internally          | Coming Soon |
 | **[API Reference](./API-Reference.md)**     | nself CLI API reference                 | Coming Soon |
 
 **Total Documentation:** 5,077+ lines across 10 comprehensive guides
@@ -66,7 +66,7 @@ nself start
 curl -fsSL https://nself.org/install.sh | sh
 
 # Verify installation
-nself --version  # Should show v0.4.2
+nself --version  # Should show v1.0.9
 ```
 
 ### 3. **Create Your First Project**
@@ -107,12 +107,12 @@ nself urls
 
 4. **[Services](./Services.md)** - Deep dive into each service (PostgreSQL, Hasura, Auth, etc.)
 5. **[Commands](./Commands.md)** - Master all available commands
-6. **[Configuration](./Configuration.md)** - Customize your stack
+6. **[Configuration](../configuration/Configuration.md)** - Customize your stack
 7. **[Migrations](./Migrations.md)** - Manage database schema changes
 
 ### For Advanced Users
 
-8. **[Architecture](./Architecture.md)** - Understand how nself CLI works internally
+8. **[Architecture](../reference/Architecture.md)** - Understand how nself CLI works internally
 9. **[API Reference](./API-Reference.md)** - Complete API documentation
 10. **[Troubleshooting](./Troubleshooting.md)** - Solve common issues
 
@@ -275,7 +275,7 @@ nself upgrade            # Update nself CLI
 └─────────┘      └─────────┘
 ```
 
-[Full architecture details →](./Architecture.md)
+[Full architecture details →](../reference/Architecture.md)
 
 ---
 
@@ -467,4 +467,4 @@ nself CLI is open source under the MIT License.
 
 ---
 
-_This documentation is for nself CLI v0.4.2. Last updated: February 1, 2026._
+_This documentation is for nself CLI v1.0.9. Last updated: April 18, 2026._

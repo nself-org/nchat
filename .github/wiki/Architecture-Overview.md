@@ -595,8 +595,8 @@ main (production)
 - [Frontend README](../frontend/README.md) - Frontend monorepo details
 - [Database Schema](Schema-Complete.md) - Complete schema documentation
 - [API Reference](api/API.md) - GraphQL API documentation
-- [Deployment Guide](deployment/DEPLOYMENT-GUIDE.md) - Production deployment
+- [Deployment Guide](DEPLOYMENT-GUIDE.md) - Production deployment
 
 ---
 
-**Next Steps**: [Quick Start](getting-started/Quick-Start.md) | [Installation](getting-started/Installation.md) | [Deployment](deployment/DEPLOYMENT-GUIDE.md)
+**Next Steps**: [Quick Start](nself-cli/Quick-Start.md) | [Installation](getting-started/Installation.md) | [Deployment](DEPLOYMENT-GUIDE.md)

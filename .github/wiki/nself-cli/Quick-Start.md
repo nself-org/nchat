@@ -1,7 +1,7 @@
 # nself CLI - Quick Start Guide
 
 **Time to Complete**: 5 minutes
-**Version**: v0.4.2
+**Version**: v1.0.9
 **Prerequisites**: Docker installed, nself CLI installed
 
 ---
@@ -21,7 +21,7 @@ docker --version
 
 # Check nself CLI
 nself --version
-# Should show: nself version v0.4.2
+# Should show: nself version v1.0.9
 
 # Check disk space (10GB+ recommended)
 df -h
@@ -421,6 +421,29 @@ nself down --volumes
 
 ---
 
+## Activating the nChat Bundle
+
+nself-chat's advanced features (voice/video calls, recording, moderation, bots, SSO) require the **nChat pro plugin bundle**. Install it after your backend is running:
+
+```bash
+cd chat/.backend
+
+# Set your membership key (obtain at https://nself.org/pricing)
+nself license set nself_pro_xxxxx...
+
+# Install all 7 plugins in one call
+nself plugin install chat livekit recording moderation bots realtime auth
+
+# Rebuild and start
+nself build && nself start
+```
+
+Without a license, core messaging runs on the 25 free plugins. Pro features hide gracefully via runtime detection.
+
+See [nChat Bundle](../plugins/nChat-Bundle.md) for full plugin reference and env-var details.
+
+---
+
 ## What's Next?
 
 ### Learn More
@@ -436,7 +459,7 @@ nself down --volumes
    - Command options
    - Advanced usage
 
-3. **Configure Your Stack** → [Configuration.md](./Configuration.md)
+3. **Configure Your Stack** → [Configuration.md](../configuration/Configuration.md)
    - Enable optional services
    - Customize ports
    - Set environment variables
@@ -560,7 +583,7 @@ docker stats
 
 1. Read the [Services Guide](./Services.md) to understand each component
 2. Check out [Commands Reference](./Commands.md) for all available commands
-3. Learn about [Configuration](./Configuration.md) to customize your stack
+3. Learn about [Configuration](../configuration/Configuration.md) to customize your stack
 4. Explore [nself-chat source code](../..) to see a real-world example
 
 ---

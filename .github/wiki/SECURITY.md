@@ -168,7 +168,7 @@ nself-chat includes the following security features:
 
 | Date       | Auditor  | Scope         | Report                                                    |
 | ---------- | -------- | ------------- | --------------------------------------------------------- |
-| 2026-01-29 | Internal | Full codebase | [docs/SECURITY-AUDIT.md](docs/security/SECURITY-AUDIT.md) |
+| 2026-01-29 | Internal | Full codebase | [docs/SECURITY-AUDIT.md](security/SECURITY-AUDIT.md) |
 
 ## Compliance
 
@@ -181,8 +181,8 @@ nself-chat is designed with the following compliance considerations:
 
 ## Additional Resources
 
-- [Security Audit Report](docs/security/SECURITY-AUDIT.md)
-- [Authentication Documentation](docs/configuration/Authentication.md)
+- [Security Audit Report](security/SECURITY-AUDIT.md)
+- [Authentication Documentation](configuration/Authentication.md)
 - [Deployment Security Guide](docs/deployment/DEPLOYMENT.md#security)
 - [Environment Variables Reference](.env.example)
 

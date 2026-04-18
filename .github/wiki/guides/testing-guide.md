@@ -794,4 +794,4 @@ pnpm test:watch
 
 - [Utilities Documentation](./README.md)
 - [Integration Examples](./integration-examples.md)
-- [Contributing Guide](../../CONTRIBUTING.md)
+- [Contributing Guide](../CONTRIBUTING.md)

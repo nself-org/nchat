@@ -895,7 +895,7 @@ console.log('Push token:', token)
 
 - [Call System Implementation](/docs/features/Calls-Implementation.md)
 - [WebRTC Setup](/docs/features/WebRTC-Complete.md)
-- [Capacitor Native Plugins](/platforms/capacitor/src/native/README.md)
+- [Capacitor Native Plugins](README.md)
 - [Push Notifications](/docs/features/Push-Notifications.md)
 
 ---

@@ -757,7 +757,7 @@ Planned features for future releases:
 ## Related Documentation
 
 - [Architecture Overview](../../CLAUDE.md)
-- [API Documentation](../../../.claude/implementation/API.md)
+- [API Documentation](../../api/API.md)
 - [Deployment Guide](../../../.claude/implementation/DEPLOYMENT.md)
 - [OpenAI API Docs](https://platform.openai.com/docs)
 - [Anthropic API Docs](https://docs.anthropic.com)

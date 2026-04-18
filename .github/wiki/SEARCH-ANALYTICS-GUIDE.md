@@ -751,7 +751,7 @@ addScheduledReport({
 - [MeiliSearch Documentation](https://docs.meilisearch.com/)
 - [Recharts Documentation](https://recharts.org/)
 - [Analytics Implementation Plan](./SEARCH-ANALYTICS-PLAN.md)
-- [API Documentation](../.claude/implementation/API.md)
+- [API Documentation](api/API.md)
 
 ---
 

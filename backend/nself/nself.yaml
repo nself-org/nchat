@@ -1,0 +1,74 @@
+project: nchat
+title: "ɳChat"
+description: "Self-hosted team communication platform built on nSelf"
+version: "1.0.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Optional Services
+# Required services (PostgreSQL, Hasura, Auth, Nginx) are always on.
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  redis:
+    enabled: true
+    # Redis stores presence data, typing indicators, and rate-limit counters.
+  meilisearch:
+    enabled: true
+    # Full-text message search. Indexes on insert via the chat plugin.
+  minio:
+    enabled: true
+    # Object storage for file uploads and recording egress output.
+  mailpit:
+    enabled: true
+    # Local SMTP trap for auth emails in development.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Plugins
+#
+# These plugins are part of the nChat bundle. They require a nSelf Basic
+# license ($0.99/mo or $9.99/yr). Set your key before installing:
+#
+#   nself license set nself_pro_xxxxxxxxxxxxxxxxxxxxxxxx
+#   nself plugin install chat livekit recording moderation bots realtime auth
+#   nself build && nself start
+#
+# Without a license key only the free core messaging surface is active.
+# All pro features degrade gracefully — buttons hide, the app never crashes.
+# ─────────────────────────────────────────────────────────────────────────────
+plugins:
+  required:
+    - name: chat
+      bundle: nchat
+      tier: basic
+      description: "Core message store hooks, channel management, and delivery status"
+
+    - name: livekit
+      bundle: nchat
+      tier: basic
+      description: "WebRTC voice and video calls via LiveKit"
+
+    - name: recording
+      bundle: nchat
+      tier: basic
+      description: "Call and screen-share recording with storage egress (requires livekit)"
+
+    - name: moderation
+      bundle: nchat
+      tier: basic
+      description: "AI-assisted and rule-based message filtering with auto-ban thresholds"
+
+    - name: bots
+      bundle: nchat
+      tier: basic
+      description: "Programmable bot accounts and slash-command runtime"
+
+    - name: realtime
+      bundle: nchat
+      tier: basic
+      description: "Presence, typing indicators, and live cursor sync over WebSocket"
+
+    - name: auth
+      bundle: nchat
+      tier: basic
+      description: "SSO, LDAP, and SAML extensions on top of the base Nhost Auth service"
+
+custom_services: []

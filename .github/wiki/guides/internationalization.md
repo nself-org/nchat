@@ -808,4 +808,4 @@ Contributors retain copyright of their translations but grant nself-chat the rig
 - 💬 Discord: [nself-chat Discord](https://discord.gg/nself-chat)
 - 📖 Docs: [docs.nself.org/i18n](https://docs.nself.org/i18n)
 
-**Want to contribute?** See [CONTRIBUTING.md](../../CONTRIBUTING.md) for more information!
+**Want to contribute?** See [CONTRIBUTING.md](../CONTRIBUTING.md) for more information!

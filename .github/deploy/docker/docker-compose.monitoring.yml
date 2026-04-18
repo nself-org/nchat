@@ -1,5 +1,7 @@
+# DEPRECATED — side-channel compose, scheduled for removal. nSelf CLI ships a 10-service monitoring bundle.
+# Tracked in ~/Sites/nself/.claude/docs/doctrines/nself-first-cli-gaps.md (2026-04-17, Theme 26).
 # ============================================================================
-# nself-chat Monitoring Stack
+# nself-chat Monitoring Stack (DEPRECATED — use nself CLI monitoring bundle)
 # ============================================================================
 # Optional monitoring with Grafana, Prometheus, and supporting services
 #

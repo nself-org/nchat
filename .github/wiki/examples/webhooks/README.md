@@ -234,9 +234,9 @@ curl -X POST $WEBHOOK_URL \
 
 ## Additional Resources
 
-- [Main Webhook Documentation](../../docs/Webhooks.md)
-- [Implementation Details](../../docs/Webhook-Implementation.md)
-- [API Reference](../../docs/API.md)
+- [Main Webhook Documentation](../../Webhooks.md)
+- [Implementation Details](../../Webhook-Implementation.md)
+- [API Reference](../../api/API.md)
 
 ## Support
 

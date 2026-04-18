@@ -1894,9 +1894,9 @@ Now that you understand bot templates:
 
 ### Related Documentation
 
-- [Bot SDK Documentation](/docs/guides/development/bot-sdk.md) - Complete SDK reference
-- [Bot Management UI](/docs/Bot-Management-UI.md) - Admin interface guide
-- [Bot Framework](/docs/Bot-Framework-v0.7.0.md) - Architecture overview
+- [Bot SDK Documentation](bot-sdk.md) - Complete SDK reference
+- [Bot Management UI](../../Bot-Management-UI.md) - Admin interface guide
+- [Bot Framework](../../Bot-Framework-v0.7.0.md) - Architecture overview
 
 ---
 

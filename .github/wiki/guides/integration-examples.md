@@ -549,5 +549,5 @@ describe('Feature with utilities', () => {
 **See Also**:
 
 - [Utilities Documentation](./README.md)
-- [API Documentation](../API.md)
+- [API Documentation](../api/API.md)
 - [Performance Guide](performance/performance-summary.md)

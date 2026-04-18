@@ -194,7 +194,7 @@ pnpm build
 netlify deploy --prod --dir=.next
 ```
 
-**Netlify Configuration** (`netlify.toml`):
+**Netlify Configuration** (`netlify.toml`) (the `redirects` array below uses TOML array-of-tables syntax — double brackets are TOML, not wiki-links):
 
 ```toml
 [build]
@@ -771,7 +771,7 @@ See [Environment-Variables.md](./Environment-Variables.md) for complete list.
 
 1. **Setup Monitoring**: [Monitoring.md](../operations/Monitoring.md)
 2. **Configure Backups**: [Backup-Strategy.md](../operations/Backup-Strategy.md)
-3. **Performance Tuning**: [Performance-Optimization.md](../operations/Performance-Optimization.md)
+3. **Performance Tuning**: [Performance-Optimization.md](../Performance-Optimization.md)
 4. **Scaling Guide**: [Scaling-Guide.md](../operations/Scaling-Guide.md)
 
 ## Resources

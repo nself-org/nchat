@@ -2745,13 +2745,13 @@ Help us improve this guide:
 
 **Related Documentation**:
 
-- [AI Features Complete Guide](/docs/guides/features/ai-features-complete.md)
-- [Auto-Moderation Guide](/docs/guides/features/auto-moderation.md)
-- [Search API Documentation](/docs/api/ai-endpoints.md#search)
+- [AI Features Complete Guide](ai-features-complete.md)
+- [Auto-Moderation Guide](auto-moderation.md)
+- [Search API Documentation](../../api/ai-endpoints.md#search)
 - [Admin AI Management](/docs/guides/admin/ai-management.md)
 
 **For Developers**:
 
 - [Search Implementation](/docs/guides/development/)
-- [Vector Search Setup](/docs/Vector-Search-Setup.md)
+- [Vector Search Setup](../../Vector-Search-Setup.md)
 - [Embedding Service](/src/lib/ai/embedding-service.ts)

@@ -883,7 +883,7 @@ For questions, issues, or feature requests, please open an issue on GitHub or co
 
 **Related Documentation**:
 
-- [Live Streaming Quick Start](./Live-Streaming-Quick-Start.md)
+- [Live Streaming Quick Start](../reference/Live-Streaming-Quick-Start.md)
 - [API Documentation](../api/Streams.md)
 - [Database Schema](../reference/Database-Schema.md)
 - [Deployment Guide](../deployment/Production-Deployment.md)

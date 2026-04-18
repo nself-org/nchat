@@ -34,6 +34,7 @@ dist/
 .env
 .env.*
 !.env.example
+!backend/.env.dev
 *.local
 .env.local
 .env.development.local

@@ -57,5 +57,11 @@
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true
   },
-  "publish": null
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "nself-org",
+      "repo": "chat"
+    }
+  ]
 }

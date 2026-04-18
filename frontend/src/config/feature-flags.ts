@@ -1,9 +1,13 @@
 /**
- * Comprehensive Feature Flags Configuration
+ * Feature Flags Configuration
  *
  * This file defines all feature flags available in the nself-chat application
  * using a category-based structure. Feature flags allow granular control over
  * every feature, enabling white-label customization and progressive feature rollout.
+ *
+ * Pro features (voice, video, moderation, bots, realtime, SSO) read from
+ * NEXT_PUBLIC_* environment variables set by the nChat bundle plugins. When a
+ * variable is absent the feature is off; the app never crashes on missing plugins.
  *
  * @example
  * ```typescript
@@ -14,6 +18,16 @@
  * }
  * ```
  */
+
+// Helpers — inlined so Next.js can statically replace each env access.
+const _livekit =
+  process.env.NEXT_PUBLIC_LIVEKIT_URL != null && process.env.NEXT_PUBLIC_LIVEKIT_URL !== ''
+const _recording = process.env.NEXT_PUBLIC_RECORDING_ENABLED === 'true'
+const _moderation = process.env.NEXT_PUBLIC_MODERATION_ENABLED === 'true'
+const _bots = process.env.NEXT_PUBLIC_BOTS_ENABLED === 'true'
+const _realtime =
+  process.env.NEXT_PUBLIC_REALTIME_URL != null && process.env.NEXT_PUBLIC_REALTIME_URL !== ''
+const _sso = process.env.NEXT_PUBLIC_AUTH_SSO_ENABLED === 'true'
 
 export const FEATURE_FLAGS = {
   // ============================================================================
@@ -42,28 +56,30 @@ export const FEATURE_FLAGS = {
 
   // ============================================================================
   // VOICE FEATURES
+  // Enabled when the livekit plugin is installed (NEXT_PUBLIC_LIVEKIT_URL set).
   // ============================================================================
   voice: {
     /** Master switch for voice functionality */
-    enabled: false,
+    enabled: _livekit,
     /** Enable voice calls */
-    calls: false,
+    calls: _livekit,
     /** Enable voice message recording and playback */
-    voiceMessages: false,
+    voiceMessages: _livekit,
     /** Enable voice channels (persistent audio rooms) */
-    voiceChannels: false,
+    voiceChannels: _livekit,
   },
 
   // ============================================================================
   // VIDEO FEATURES
+  // Enabled when the livekit plugin is installed (NEXT_PUBLIC_LIVEKIT_URL set).
   // ============================================================================
   video: {
     /** Master switch for video functionality */
-    enabled: false,
+    enabled: _livekit,
     /** Enable video calls */
-    calls: false,
+    calls: _livekit,
     /** Enable screen sharing during calls */
-    screenShare: false,
+    screenShare: _livekit,
   },
 
   // ============================================================================
@@ -102,6 +118,7 @@ export const FEATURE_FLAGS = {
 
   // ============================================================================
   // SECURITY FEATURES
+  // sso requires the auth plugin (NEXT_PUBLIC_AUTH_SSO_ENABLED=true).
   // ============================================================================
   security: {
     /** Enable end-to-end encryption */
@@ -114,16 +131,19 @@ export const FEATURE_FLAGS = {
     twoFactor: true,
     /** Enable session management (view/revoke sessions) */
     sessionManagement: true,
+    /** Enable SSO login (requires auth plugin) */
+    sso: _sso,
   },
 
   // ============================================================================
   // INTEGRATION FEATURES
+  // bots requires the bots plugin (NEXT_PUBLIC_BOTS_ENABLED=true).
   // ============================================================================
   integrations: {
     /** Enable incoming/outgoing webhooks */
     webhooks: true,
-    /** Enable bot accounts */
-    bots: true,
+    /** Enable bot accounts (requires bots plugin) */
+    bots: _bots,
     /** Enable importing data from Slack */
     slackImport: false,
     /** Enable external app integrations */
@@ -146,18 +166,47 @@ export const FEATURE_FLAGS = {
 
   // ============================================================================
   // ADMIN FEATURES
+  // auditLog and moderation panel require the moderation plugin.
   // ============================================================================
   admin: {
     /** Enable admin dashboard access */
     dashboard: true,
     /** Enable analytics viewing */
     analytics: false,
-    /** Enable audit log viewing */
+    /** Enable audit log viewing (requires moderation plugin for full log) */
     auditLog: true,
+    /** Enable moderation panel (requires moderation plugin) */
+    moderationPanel: _moderation,
     /** Enable user management */
     userManagement: true,
     /** Enable role management */
     roleManagement: true,
+  },
+
+  // ============================================================================
+  // REALTIME FEATURES
+  // Enabled when the realtime plugin is installed (NEXT_PUBLIC_REALTIME_URL set).
+  // ============================================================================
+  realtime: {
+    /** Master switch for extended realtime features */
+    enabled: _realtime,
+    /** Live presence indicators */
+    presence: _realtime,
+    /** Typing indicators */
+    typing: _realtime,
+  },
+
+  // ============================================================================
+  // RECORDING FEATURES
+  // Enabled when the recording plugin is installed (NEXT_PUBLIC_RECORDING_ENABLED=true).
+  // ============================================================================
+  recording: {
+    /** Master switch for recording features */
+    enabled: _recording,
+    /** Record voice/video calls */
+    calls: _recording,
+    /** Record screen shares */
+    screenShares: _recording,
   },
 } as const
 

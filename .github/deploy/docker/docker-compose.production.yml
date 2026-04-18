@@ -1,5 +1,7 @@
+# DEPRECATED — side-channel compose, scheduled for removal. Use `cd backend && nself start`.
+# Tracked in ~/Sites/nself/.claude/docs/doctrines/nself-first-cli-gaps.md (2026-04-17, Theme 26).
 # ============================================================================
-# nself-chat Production Docker Compose
+# nself-chat Production Docker Compose (DEPRECATED)
 # ============================================================================
 # Production-ready deployment with SSL, security hardening, and monitoring
 #

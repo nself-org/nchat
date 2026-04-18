@@ -9,7 +9,7 @@ Quick reference index for all self-hosted deployment documentation and resources
 | Document                                                 | Description                                              | Audience       |
 | -------------------------------------------------------- | -------------------------------------------------------- | -------------- |
 | [Self-Hosted Guide](./self-hosted.md)                    | Complete deployment guide with step-by-step instructions | Everyone       |
-| [Quick Reference](../../../deploy/self-hosted/README.md) | Quick commands and common tasks                          | Administrators |
+| [Quick Reference](README.md) | Quick commands and common tasks                          | Administrators |
 | [Troubleshooting](./self-hosted-troubleshooting.md)      | Problem-solving guide                                    | Support teams  |
 
 ### Installation Methods
@@ -352,7 +352,7 @@ sudo /usr/local/bin/diagnose-nchat
 - **Main Guide**: [self-hosted.md](./self-hosted.md)
 - **Troubleshooting**: [self-hosted-troubleshooting.md](./self-hosted-troubleshooting.md)
 - **Production Guide**: [production-deployment.md](./production-deployment.md)
-- **Quick Reference**: [../../../deploy/self-hosted/README.md](../../../deploy/self-hosted/README.md)
+- **Quick Reference**: [../../../deploy/self-hosted/README.md](README.md)
 
 ### Community
 

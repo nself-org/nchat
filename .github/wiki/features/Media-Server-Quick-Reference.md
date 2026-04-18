@@ -561,7 +561,7 @@ media_participants_total / media_rooms_total
 ## Quick Links
 
 - [Full Setup Guide](./Media-Server-Setup.md)
-- [Media Server README](../../.backend/custom-services/media-server/README.md)
+- [Media Server README](README.md)
 - [Docker Compose File](../../.backend/docker-compose.media.yml)
 - [MediaSoup Docs](https://mediasoup.org/)
 - [coturn Docs](https://github.com/coturn/coturn)

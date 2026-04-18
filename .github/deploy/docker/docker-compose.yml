@@ -1,14 +1,10 @@
+# DEPRECATED — side-channel compose, scheduled for removal. Use `cd backend && nself start`.
+# Tracked in ~/Sites/nself/.claude/docs/doctrines/nself-first-cli-gaps.md (2026-04-17, Theme 26).
 # ============================================================================
-# nself-chat Docker Compose - Local Development
+# nself-chat Docker Compose - Local Development (DEPRECATED)
 # ============================================================================
-# Full stack local development environment
-#
-# Usage:
-#   docker compose up -d              # Start all services
-#   docker compose up -d --build      # Rebuild and start
-#   docker compose logs -f nchat      # View logs
-#   docker compose down               # Stop all services
-#   docker compose down -v            # Stop and remove volumes
+# This file predates the nSelf-First Doctrine. Do not add new services here.
+# Use `cd backend && nself build && nself start` instead.
 # ============================================================================
 
 name: nself-chat-dev

@@ -594,7 +594,7 @@ Add to `.vscode/tasks.json`:
 ## 📚 Additional Resources
 
 - [Full Documentation](./) - Complete wiki
-- [Getting Started](getting-started/Quick-Start.md) - Detailed setup guide
+- [Getting Started](nself-cli/Quick-Start.md) - Detailed setup guide
 - [Architecture Overview](Architecture-Overview.md) - System design
 - [Troubleshooting](troubleshooting/README.md) - Common issues
 - [API Reference](api/API.md) - Complete API docs

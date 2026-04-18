@@ -354,7 +354,7 @@ console.log('Push token:', pushToken)
 
 ## Resources
 
-- [Full Documentation](./Mobile-Call-Optimizations.md)
+- [Full Documentation](../guides/Mobile-Call-Optimizations.md)
 - [CallKit API Reference](../platforms/capacitor/src/native/call-kit.ts)
 - [Apple CallKit Docs](https://developer.apple.com/documentation/callkit)
 - [Android Telecom Docs](https://developer.android.com/guide/topics/connectivity/telecom)

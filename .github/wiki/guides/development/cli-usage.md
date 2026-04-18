@@ -727,4 +727,4 @@ jobs:
 - [SDK Usage Guide](./sdk-usage.md)
 - [API Reference](../../api/README.md)
 - [Deployment Guide](../deployment/README.md)
-- [Contributing Guide](../../../CONTRIBUTING.md)
+- [Contributing Guide](../../CONTRIBUTING.md)

@@ -7,6 +7,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { searchMessages, type SearchMessagesResult } from '@/lib/search/meilisearch'
 
 // ============================================================================
 // Types
@@ -228,6 +229,18 @@ export interface SearchActions {
   enableQuickSwitcherMode: () => void
   disableQuickSwitcherMode: () => void
   setQuickSwitcherResults: (results: (ChannelSearchResult | UserSearchResult)[]) => void
+
+  // Search execution actions
+  /**
+   * Execute a full-text message search using the configured search backend
+   * (MeiliSearch direct or proxy fallback). Updates results, totalResults,
+   * hasMore, and loading state. Appends results when loadMore is true.
+   */
+  performSearch: (query: string, loadMore?: boolean) => Promise<void>
+  /**
+   * Execute an in-channel message search scoped to channelId.
+   */
+  performInChannelSearch: (query: string, channelId: string) => Promise<void>
 
   // Utility actions
   reset: () => void
@@ -757,6 +770,156 @@ export const useSearchStore = create<SearchStore>()(
             false,
             'search/setQuickSwitcherResults'
           ),
+
+        // Search execution actions
+        performSearch: async (query, loadMore = false) => {
+          const state = get()
+          const trimmed = query.trim()
+
+          if (!trimmed) {
+            set(
+              (s) => {
+                s.results = []
+                s.totalResults = 0
+                s.hasMore = false
+                s.currentPage = 1
+              },
+              false,
+              'search/performSearch/cleared'
+            )
+            return
+          }
+
+          if (loadMore) {
+            set((s) => { s.isLoadingMore = true }, false, 'search/performSearch/loadingMore')
+          } else {
+            set((s) => { s.isSearching = true }, false, 'search/performSearch/searching')
+          }
+
+          const offset = loadMore ? state.results.length : 0
+
+          let result: SearchMessagesResult
+          try {
+            result = await searchMessages(trimmed, {
+              limit: state.resultsPerPage,
+              offset,
+            })
+          } catch {
+            set(
+              (s) => {
+                s.isSearching = false
+                s.isLoadingMore = false
+              },
+              false,
+              'search/performSearch/error'
+            )
+            return
+          }
+
+          // Map MeiliSearch hits to the store's MessageSearchResult shape
+          const mapped: MessageSearchResult[] = result.hits.map((hit) => ({
+            id: hit.id,
+            type: 'message' as const,
+            score: 1,
+            highlights: hit._formatted?.content_search
+              ? [hit._formatted.content_search]
+              : [],
+            channelId: hit.channel_id,
+            channelName: '',
+            authorId: hit.user_id ?? '',
+            authorName: '',
+            authorAvatar: null,
+            content: hit.content_search,
+            timestamp: new Date(hit.created_at),
+            threadId: hit.thread_id,
+            isPinned: hit.is_pinned ?? false,
+            isStarred: false,
+            reactions: [],
+            hasAttachments: false,
+          }))
+
+          if (loadMore) {
+            set(
+              (s) => {
+                s.results = [...s.results, ...mapped]
+                s.hasMore = result.hasMore
+                s.isLoadingMore = false
+                s.currentPage = s.currentPage + 1
+              },
+              false,
+              'search/performSearch/loadedMore'
+            )
+          } else {
+            set(
+              (s) => {
+                s.results = mapped
+                s.totalResults = result.estimatedTotalHits
+                s.hasMore = result.hasMore
+                s.isSearching = false
+                s.currentPage = 1
+              },
+              false,
+              'search/performSearch/done'
+            )
+          }
+        },
+
+        performInChannelSearch: async (query, channelId) => {
+          const trimmed = query.trim()
+
+          if (!trimmed) {
+            set(
+              (s) => {
+                s.inChannelSearchResults = []
+                s.inChannelCurrentIndex = 0
+              },
+              false,
+              'search/performInChannelSearch/cleared'
+            )
+            return
+          }
+
+          let result: SearchMessagesResult
+          try {
+            result = await searchMessages(trimmed, {
+              limit: 100,
+              offset: 0,
+              channelId,
+            })
+          } catch {
+            return
+          }
+
+          const mapped: MessageSearchResult[] = result.hits.map((hit) => ({
+            id: hit.id,
+            type: 'message' as const,
+            score: 1,
+            highlights: hit._formatted?.content_search
+              ? [hit._formatted.content_search]
+              : [],
+            channelId: hit.channel_id,
+            channelName: '',
+            authorId: hit.user_id ?? '',
+            authorName: '',
+            authorAvatar: null,
+            content: hit.content_search,
+            timestamp: new Date(hit.created_at),
+            threadId: hit.thread_id,
+            isPinned: hit.is_pinned ?? false,
+            isStarred: false,
+            reactions: [],
+            hasAttachments: false,
+          }))
+
+          set(
+            (s) => {
+              s.inChannelSearchResults = mapped
+              s.inChannelCurrentIndex = 0
+            },
+            false,
+            'search/performInChannelSearch/done'
+          )
+        },
 
         // Utility actions
         reset: () =>
