@@ -13,7 +13,7 @@ contact_links:
     url: https://github.com/nself-org/nchat/blob/main/DEPLOYMENT.md
     about: Get help with deployment issues
   - name: 🔒 Security Issue
-    url: https://github.com/nself-org/nchat/blob/main/SECURITY.md
+    url: https://github.com/nself-org/nchat/blob/main/.github/SECURITY.md
     about: Report a security vulnerability privately
   - name: 📧 Email Support
     url: mailto:support@nself.org

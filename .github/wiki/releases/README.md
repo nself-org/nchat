@@ -315,7 +315,7 @@ nself-chat follows [Semantic Versioning 2.0.0](https://semver.org/):
 - **[Version Comparison](../VERSION-COMPARISON.md)** - Compare v0.6.0, v0.7.0, v0.8.0 features
 - [Changelog](../CHANGELOG.md) - Complete version history
 - [Roadmap](../about/Roadmap.md) - Future plans
-- [Contributing](../CONTRIBUTING.md) - How to contribute
+- [Contributing](../Contributing.md) - How to contribute
 - Individual release upgrade guides for detailed instructions
 
 ## Support

@@ -162,7 +162,7 @@ Tested with:
 
 ### How do I add a new feature?
 
-1. Read [CONTRIBUTING.md](../CONTRIBUTING.md)
+1. Read [CONTRIBUTING.md](../Contributing.md)
 2. Create feature branch: `git checkout -b feature/my-feature`
 3. Implement with tests
 4. Run checks: `pnpm validate`
@@ -451,7 +451,7 @@ Many ways to contribute:
 - **Translation**: Add language support
 - **Community**: Help answer questions
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for details.
+See [CONTRIBUTING.md](../Contributing.md) for details.
 
 ### Do I need to sign a CLA?
 

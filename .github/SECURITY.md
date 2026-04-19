@@ -4,11 +4,10 @@
 
 We actively support the following versions of nself-chat with security updates:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.3.x   | :white_check_mark: |
-| 0.2.x   | :white_check_mark: |
-| 0.1.x   | :x:                |
+| Version     | Supported          |
+| ----------- | ------------------ |
+| 1.0.x (LTS) | :white_check_mark: |
+| < 1.0.0     | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -38,7 +37,13 @@ Please include the following information in your report:
 - **Acknowledgment**: Within 48 hours of your report
 - **Initial Assessment**: Within 5 business days
 - **Progress Updates**: Every 5 business days until resolution
-- **Disclosure Timeline**: We aim to address critical vulnerabilities within 30 days
+- **Disclosure Timeline**: We follow coordinated disclosure — please give us 90 days to patch before public disclosure. Critical vulnerabilities are patched on a priority basis.
+
+### Scope
+
+In scope: nself CLI, plugins, backend services, authentication, API endpoints, web apps.
+
+Out of scope: Third-party dependencies (report upstream), our hosted infrastructure (contact support@nself.org).
 
 ### Coordinated Disclosure
 
@@ -200,5 +205,5 @@ We appreciate security researchers who help keep nself-chat safe:
 
 ---
 
-**Last Updated**: January 30, 2026
-**Version**: 0.3.0
+**Last Updated**: April 19, 2026
+**Version**: 1.0.9 (LTS)

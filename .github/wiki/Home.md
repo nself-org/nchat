@@ -115,7 +115,7 @@ nself-chat/
 
 **For contributors and developers:**
 
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Contributing Guide](Contributing.md) - How to contribute
 - [Architecture Overview](Architecture-Overview.md) - System design
 - Code Standards (coming soon) - Coding conventions
 - Testing Guide (coming soon) - Testing strategy
@@ -175,7 +175,7 @@ nself-chat/
 ### For Developers
 
 1. Read [Architecture Overview](Architecture-Overview.md)
-2. Follow [Contributing Guide](CONTRIBUTING.md)
+2. Follow [Contributing Guide](Contributing.md)
 3. Review Code Standards (coming soon)
 4. Check [API Documentation](api/API.md)
 
@@ -221,7 +221,7 @@ nself-chat/
 - **Customize branding** → [White-Label Guide](features/White-Label-Guide.md)
 - **Build a mobile app** → Mobile Apps Guide (coming soon)
 - **Understand the architecture** → [Architecture Overview](Architecture-Overview.md)
-- **Contribute code** → [Contributing Guide](CONTRIBUTING.md)
+- **Contribute code** → [Contributing Guide](Contributing.md)
 - **Report a bug** → [GitHub Issues](https://github.com/nself-org/nchat/issues)
 - **Ask a question** → [GitHub Discussions](https://github.com/nself-org/nchat/discussions)
 
@@ -329,4 +329,4 @@ See [LICENSE](LICENSE.md) for full license text.
 
 ---
 
-**[📖 Browse Documentation](.)** | **[🚀 Quick Start](nself-cli/Quick-Start.md)** | **[📝 Changelog](CHANGELOG.md)** | **[🤝 Contributing](CONTRIBUTING.md)**
+**[📖 Browse Documentation](.)** | **[🚀 Quick Start](nself-cli/Quick-Start.md)** | **[📝 Changelog](CHANGELOG.md)** | **[🤝 Contributing](Contributing.md)**

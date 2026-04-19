@@ -187,7 +187,7 @@ See `.github/wiki/` for full documentation:
 - [Quick Start](.github/wiki/getting-started/Quick-Start.md)
 - [Architecture](.github/wiki/Architecture-Overview.md)
 - [Security](.github/wiki/SECURITY-RUNBOOK.md)
-- [Contributing](.github/wiki/CONTRIBUTING.md)
+- [Contributing](.github/wiki/Contributing.md)
 
 ---
 
@@ -207,7 +207,7 @@ See [Architecture Overview](.github/wiki/Architecture-Overview.md) for the full 
 
 ## Contributing
 
-Contributions welcome. See [Contributing Guide](.github/wiki/CONTRIBUTING.md) for setup, coding standards, and PR workflow.
+Contributions welcome. See [Contributing Guide](.github/wiki/Contributing.md) for setup, coding standards, and PR workflow.
 
 Before opening a PR:
 

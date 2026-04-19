@@ -165,7 +165,7 @@ Quick reference guide to find any documentation in the nself-chat project.
 
 | Document                                               | What's Inside         |
 | ------------------------------------------------------ | --------------------- |
-| [Contributing Guide](../CONTRIBUTING.md)               | How to contribute     |
+| [Contributing Guide](../Contributing.md)               | How to contribute     |
 | [Testing Guide](../guides/testing-guide.md)               | Testing strategies    |
 | [Utilities & Hooks](README.md)                  | Development utilities |
 | [Integration Examples](../guides/integration-examples.md) | Integration patterns  |
@@ -287,7 +287,7 @@ Quick reference guide to find any documentation in the nself-chat project.
 
 **For contributing:**
 
-1. [Contributing Guide](../CONTRIBUTING.md) - 20 minutes
+1. [Contributing Guide](../Contributing.md) - 20 minutes
 2. [Testing Guide](../guides/testing-guide.md) - 20 minutes
 3. [Utilities & Hooks](README.md) - 30 minutes
 
@@ -357,7 +357,7 @@ Quick reference guide to find any documentation in the nself-chat project.
 | Use 2FA                     | [2FA Quick Reference](../reference/2FA-Quick-Reference.md)                                                                           |
 | Set up search               | [Search Implementation](../guides/Search-Implementation.md)                                                                       |
 | Connect social media        | [Social Media Integration](../features/Social-Media-Integration.md)                                                                 |
-| Contribute code             | [Contributing Guide](../CONTRIBUTING.md)                                                                                |
+| Contribute code             | [Contributing Guide](../Contributing.md)                                                                                |
 
 ### By Time Available
 
@@ -422,7 +422,7 @@ Quick reference guide to find any documentation in the nself-chat project.
 
 - **Missing info?** [Open an issue](https://github.com/nself-org/nchat/issues)
 - **Need clarification?** [Start a discussion](https://github.com/nself-org/nchat/discussions)
-- **Found a typo?** [Submit a PR](../CONTRIBUTING.md)
+- **Found a typo?** [Submit a PR](../Contributing.md)
 
 ### Getting Help
 
