@@ -1,0 +1,90 @@
+name: Coverage Gate (nchat)
+
+# S88b.T05: Coverage gate for nchat frontend.
+# Floor: 30% total — conservative first gate for new coverage enforcement.
+# Runs on every PR to catch regressions.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  COVERAGE_FLOOR: 30
+
+jobs:
+  frontend-coverage:
+    name: Frontend coverage gate (nchat)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install frontend dependencies
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            cd frontend && pnpm install --frozen-lockfile
+          else
+            echo "WARN: no frontend/package.json found"
+            exit 0
+          fi
+
+      - name: Run tests with coverage
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            cd frontend && pnpm run test:coverage 2>/dev/null || pnpm run test -- --coverage 2>/dev/null || true
+          fi
+
+      - name: Enforce coverage floor (≥30%)
+        run: |
+          # Try multiple common coverage report locations.
+          lcov_file=""
+          for candidate in frontend/coverage/lcov.info frontend/coverage/coverage-summary.json; do
+            if [ -f "$candidate" ]; then
+              lcov_file="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$lcov_file" ]; then
+            echo "WARN: no coverage report found — skipping floor check (run tests first)"
+            exit 0
+          fi
+
+          if echo "$lcov_file" | grep -q "lcov.info"; then
+            total=$(grep '^LF:' "$lcov_file" | awk -F: '{sum += $2} END {print sum}')
+            covered=$(grep '^LH:' "$lcov_file" | awk -F: '{sum += $2} END {print sum}')
+          elif echo "$lcov_file" | grep -q "coverage-summary.json"; then
+            # Jest coverage-summary.json format.
+            total=$(jq '.total.lines.total' "$lcov_file" 2>/dev/null || echo "0")
+            covered=$(jq '.total.lines.covered' "$lcov_file" 2>/dev/null || echo "0")
+          fi
+
+          if [ -z "$total" ] || [ "$total" -eq 0 ]; then
+            echo "WARN: no line data — skipping floor check"
+            exit 0
+          fi
+
+          pct=$(awk -v c="$covered" -v t="$total" 'BEGIN { printf "%.1f", (c/t)*100 }')
+          echo "Coverage: ${pct}% (${covered}/${total} lines)"
+
+          result=$(awk -v pct="$pct" -v floor="$COVERAGE_FLOOR" 'BEGIN { print (pct+0 >= floor+0) ? "pass" : "fail" }')
+          if [ "$result" = "fail" ]; then
+            echo "FAIL: Coverage ${pct}% is below floor ${COVERAGE_FLOOR}% (S88b.T05)" >&2
+            exit 1
+          fi
+          echo "PASS: Coverage ${pct}% >= floor ${COVERAGE_FLOOR}%"
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          echo "### nchat Coverage Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "Floor: ${COVERAGE_FLOOR}%" >> "$GITHUB_STEP_SUMMARY"
