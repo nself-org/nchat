@@ -170,9 +170,13 @@ export async function processPreKeyBundle(
   }
 
   // Create prekey bundle - identity_key should be PublicKey
-  // Generate ephemeral Kyber key for API compatibility (not used for PQ features)
+  // Generate Kyber KEM keypair and sign its public key with the local identity key.
+  // This produces a real Kyber prekey signature per Signal Protocol spec.
   const kyberKeyPair = SignalClient.KEMKeyPair.generate()
-  const kyberSig = new Uint8Array(64) // dummy signature
+  const localIdentityPrivateKeyForSig = SignalClient.PrivateKey.deserialize(
+    Buffer.from(localIdentityKeyPair.privateKey)
+  )
+  const kyberSig = localIdentityPrivateKeyForSig.sign(kyberKeyPair.getPublicKey().serialize())
   const prekeyBundle = SignalClient.PreKeyBundle.new(
     bundle.registrationId,
     parseInt(bundle.deviceId, 10),
@@ -449,9 +453,12 @@ class InMemoryKyberPreKeyStore extends SignalClient.KyberPreKeyStore {
     return kyberPreKey
   }
 
-  async markKyberPreKeyUsed(kyberPreKeyId: number): Promise<void> {
-    // In a real implementation, this would mark the key as used
-    // For the in-memory store, we just remove it after use
+  async markKyberPreKeyUsed(
+    kyberPreKeyId: number,
+    _signedPreKeyId: number,
+    _baseKey: SignalClient.PublicKey
+  ): Promise<void> {
+    // Mark the key as used by removing it from the store (one-time prekey semantics).
     this.kyberPreKeys.delete(kyberPreKeyId)
   }
 }

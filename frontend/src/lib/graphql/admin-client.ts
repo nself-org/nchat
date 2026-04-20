@@ -52,9 +52,24 @@ function validateEnvironment(): {
   graphqlUrl: string
   adminSecret: string
 } {
-  // Skip validation during build
+  // Skip validation during build — allowed only in development with explicit opt-in.
+  // Production builds must never reach this path with the dummy secret.
   if (process.env.SKIP_ENV_VALIDATION === 'true') {
-    logger.warn('SKIP_ENV_VALIDATION is true, using dummy credentials for admin client')
+    if (process.env.NODE_ENV === 'production') {
+      // Build-time gate: fail loudly if the dummy secret would reach a production build.
+      // This is a second line of defence; next.config.js webpack check fires first.
+      throw new Error(
+        'CRITICAL: SKIP_ENV_VALIDATION cannot be used in production. ' +
+          'Set HASURA_ADMIN_SECRET and NEXT_PUBLIC_GRAPHQL_URL instead.'
+      )
+    }
+    if (process.env.NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET !== 'true') {
+      throw new Error(
+        'CRITICAL: SKIP_ENV_VALIDATION requires NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true in development. ' +
+          'Set HASURA_ADMIN_SECRET for a real backend, or set NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true for local builds.'
+      )
+    }
+    logger.warn('SKIP_ENV_VALIDATION is true, using dummy credentials for admin client (dev only)')
     return {
       graphqlUrl: 'http://localhost:8080/v1/graphql',
       adminSecret: 'dummy-secret-for-build-only-must-be-at-least-32-chars',

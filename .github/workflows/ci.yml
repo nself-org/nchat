@@ -106,6 +106,29 @@ jobs:
         run: pnpm format:check
         continue-on-error: true
 
+      # S09.T04 — Dummy buffer lint gate.
+      # Fails if any production E2EE or GraphQL source contains a bare `new Uint8Array(N) //`
+      # pattern without an immediate .fill() or assignment (zero-buffer sentinel).
+      # Test files are excluded from this check.
+      - name: Lint — no bare zero-buffer sentinels in E2EE/graphql production paths (S09.T04)
+        run: |
+          set +e
+          HITS=$(grep -rn \
+            --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules \
+            --exclude-dir=__tests__ \
+            --exclude="*.test.ts" --exclude="*.test.tsx" --exclude="*.spec.ts" \
+            'new Uint8Array([0-9]\+) //' \
+            src/lib/e2ee/ src/lib/graphql/ 2>/dev/null)
+          set -e
+          if [ -n "$HITS" ]; then
+            echo "BUILD GATE FIRED: bare zero-buffer sentinel(s) found in production E2EE/graphql paths:"
+            echo "$HITS"
+            echo "Use .fill(), crypto.getRandomValues(), or a meaningful initial value instead of a bare zero buffer with a comment."
+            exit 1
+          fi
+          echo "Zero-buffer sentinel check: PASS"
+
   type-check:
     name: Type Check
     runs-on: ubuntu-latest

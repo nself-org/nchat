@@ -2,6 +2,17 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
+// Build-time security gate: fail fast if the dummy admin secret would be bundled
+// into a production build. This prevents the secret from ever reaching runtime.
+// Fires before any webpack pass so the error surfaces immediately.
+if (process.env.NODE_ENV === 'production' && !process.env.HASURA_ADMIN_SECRET) {
+  throw new Error(
+    '[BUILD GATE FIRED] HASURA_ADMIN_SECRET must be set for production builds. ' +
+      'The dummy admin secret cannot be bundled into production. ' +
+      'Set HASURA_ADMIN_SECRET in your environment or CI secrets.'
+  )
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,

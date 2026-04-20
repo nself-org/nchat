@@ -62,7 +62,8 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
     '<rootDir>/.backend/',
     '<rootDir>/e2e/',
-    '<rootDir>/tests/',
+    // tests/e2ee/ is included for E2EE security unit tests (S09)
+    '<rootDir>/tests/(?!e2ee/).*',
     '<rootDir>/platforms/',
     '<rootDir>/src/__tests__/mocks/',
     '<rootDir>/src/__tests__/utils/',
