@@ -38,6 +38,10 @@ jobs:
       - name: Run ESLint with jsx-a11y rules
         run: pnpm lint
         continue-on-error: false
+        env:
+          # next lint loads next.config.js which has a build gate requiring this env var.
+          # CI uses a non-functional placeholder — no real Hasura instance is used during linting.
+          HASURA_ADMIN_SECRET: ci-lint-placeholder-not-a-real-secret
 
   a11y-unit:
     name: Accessibility Unit Tests (jest-axe)
@@ -106,6 +110,10 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'test'
+          # Satisfy next.config.js build gate: HASURA_ADMIN_SECRET must be set
+          # for production builds. CI uses a non-functional placeholder — the app
+          # never connects to a real Hasura instance during accessibility tests.
+          HASURA_ADMIN_SECRET: ci-test-placeholder-not-a-real-secret
 
       - name: Run Playwright accessibility tests
         run: pnpm --filter @nself-chat/web exec playwright test --grep "@a11y"
@@ -154,6 +162,10 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'test'
+          # Satisfy next.config.js build gate: HASURA_ADMIN_SECRET must be set
+          # for production builds. CI uses a non-functional placeholder — the app
+          # never connects to a real Hasura instance during Lighthouse tests.
+          HASURA_ADMIN_SECRET: ci-test-placeholder-not-a-real-secret
 
       - name: Start application
         run: |

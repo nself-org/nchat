@@ -101,6 +101,11 @@ jobs:
 
       - name: Run ESLint
         run: pnpm lint
+        env:
+          # next lint loads next.config.js which has a build gate requiring this env var.
+          # The value here is a non-functional CI placeholder — no real Hasura instance
+          # is used during linting.
+          HASURA_ADMIN_SECRET: ci-lint-placeholder-not-a-real-secret
 
       - name: Check formatting
         run: pnpm format:check
@@ -310,6 +315,10 @@ jobs:
         run: pnpm build
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
+          # Build gate in next.config.js requires HASURA_ADMIN_SECRET for production builds.
+          # CI uses a non-functional placeholder — the app never connects to a real Hasura
+          # instance during the build gate check.
+          HASURA_ADMIN_SECRET: ci-build-placeholder-not-a-real-secret
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

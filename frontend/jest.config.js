@@ -25,6 +25,10 @@ const customJestConfig = {
     '^bullmq$': '<rootDir>/src/__tests__/mocks/bullmq.ts',
     '^nanoid$': '<rootDir>/src/__tests__/mocks/nanoid.ts',
     '^yaml$': '<rootDir>/src/__tests__/mocks/yaml.ts',
+    // @signalapp/libsignal-client is a WASM/ESM module that cannot be loaded
+    // by Jest's CJS transform. Replace with a Node.js crypto-backed mock that
+    // preserves real Ed25519 semantics so E2EE unit tests remain meaningful.
+    '^@signalapp/libsignal-client$': '<rootDir>/src/__tests__/mocks/libsignal-client.ts',
   },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
