@@ -48,12 +48,13 @@ const customJestConfig = {
     '!src/instrumentation*.ts',
     '!src/sentry*.ts',
   ],
-  // Coverage thresholds — enforced at 40% minimum to prevent regressions.
-  // Baseline measured 2026-03-16 at ~26% (many store/service files untested).
-  // Roadmap: 50% by v1.0, 80% by v1.1. Increment thresholds as coverage grows.
+  // Coverage thresholds — ratcheted on each coverage-push session to prevent regressions.
+  // Baseline 2026-03-16: ~26% lines / ~20% branches.
+  // 2026-04-21 push: added ~700 tests across 13 utility modules; locked floor to 21% branches.
+  // Roadmap: 30% branches next session, 50% by v1.0, 80% by v1.1.
   coverageThreshold: {
     global: {
-      branches: 20,
+      branches: 21,
       functions: 22,
       lines: 25,
       statements: 25,
