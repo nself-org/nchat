@@ -213,7 +213,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Run tests
-        run: pnpm test --coverage --ci
+        run: pnpm test -- --coverage --ci
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
