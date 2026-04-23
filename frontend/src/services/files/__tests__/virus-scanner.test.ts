@@ -356,6 +356,325 @@ describe('VirusScannerService', () => {
   })
 })
 
+// ============================================================================
+// EICAR Test Virus Detection
+// The EICAR test string is a standardised, inert test file recognised by all
+// ClamAV-compatible scanners as a known test virus (EICAR-Test-File).
+// It is NOT a real virus and cannot cause harm.
+// ============================================================================
+
+// Standard EICAR test string (safe to store in source — it is just a text pattern)
+const EICAR_TEST_STRING =
+  'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+
+describe('EICAR test virus detection', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('EICAR string produces a File that can be passed to the scanner', () => {
+    const eicarFile = new File([EICAR_TEST_STRING], 'eicar.com', { type: 'text/plain' })
+
+    // Verify the file is well-formed
+    expect(eicarFile.name).toBe('eicar.com')
+    expect(eicarFile.size).toBeGreaterThan(0)
+    expect(eicarFile.size).toBe(EICAR_TEST_STRING.length)
+  })
+
+  it('scanner with backend=none treats EICAR as unscanned (no real scanner)', async () => {
+    // When no scanner backend is wired, we cannot detect EICAR — the test
+    // verifies the service returns scanned=false so callers know no scan ran.
+    const scanner = new VirusScannerService({
+      enabled: true,
+      backend: 'none',
+      blockOnScannerUnavailable: false,
+      quarantineInfected: true,
+      maxScanSize: 100 * 1024 * 1024,
+      timeout: 60000,
+    })
+
+    const eicarFile = new File([EICAR_TEST_STRING], 'eicar.com', { type: 'text/plain' })
+    const result = await scanner.scanFile(eicarFile, { fileName: 'eicar.com' })
+
+    // With backend=none the file is NOT scanned
+    expect(result.scanned).toBe(false)
+    // shouldBlock reflects the blockOnScannerUnavailable flag
+    expect(result.shouldBlock).toBe(false)
+  })
+
+  it('scanner with blockOnScannerUnavailable=true blocks EICAR when no backend is wired', async () => {
+    // Security-first default: if scanner unavailable, block the upload.
+    const scanner = new VirusScannerService({
+      enabled: true,
+      backend: 'none',
+      blockOnScannerUnavailable: true,
+      quarantineInfected: true,
+      maxScanSize: 100 * 1024 * 1024,
+      timeout: 60000,
+    })
+
+    const eicarFile = new File([EICAR_TEST_STRING], 'eicar.com', { type: 'text/plain' })
+    const result = await scanner.scanFile(eicarFile, { fileName: 'eicar.com' })
+
+    // Not scanned but blocked — file cannot pass through
+    expect(result.scanned).toBe(false)
+    expect(result.shouldBlock).toBe(true)
+  })
+
+
+
+  /**
+   * Runs a single ClamAV scan end-to-end with a scripted clamd response.
+   *
+   * We do NOT create a scanner before the scan — the scanner is built inside
+   * this helper so we can guarantee that our `MockSocket.mockReset()` call
+   * happens BEFORE the constructor fires its async health check. This prevents
+   * cross-test socket pollution.
+   */
+  async function runClamAVScan(
+    fileContent: string,
+    fileName: string,
+    clamdResponse: string,
+    blockOnUnavailable: boolean
+  ): Promise<import('../virus-scanner.service').VirusScanResult> {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const net = require('net')
+    const MockSocket = net.Socket as jest.Mock
+
+    // Track sockets created by THIS scan invocation only.
+    const sockets: Array<{
+      dataCallback: ((data: Buffer) => void) | null
+      endCallback: (() => void) | null
+    }> = []
+
+    // Reset before scanner construction so health-check + scan sockets both land here.
+    MockSocket.mockReset()
+    MockSocket.mockImplementation(() => {
+      const record = { dataCallback: null as ((data: Buffer) => void) | null, endCallback: null as (() => void) | null }
+      sockets.push(record)
+      return {
+        connect: jest.fn().mockImplementation((_p: number, _h: string, cb: () => void) => {
+          setTimeout(cb, 0)
+        }),
+        write: jest.fn(),
+        on: jest.fn().mockImplementation((event: string, cb: (...args: unknown[]) => void) => {
+          if (event === 'data') record.dataCallback = cb as (data: Buffer) => void
+          if (event === 'end') record.endCallback = cb
+        }),
+        destroy: jest.fn(),
+      }
+    })
+
+    // Create scanner NOW — health check fires asynchronously.
+    const scanner = new VirusScannerService({
+      enabled: true,
+      backend: 'clamav',
+      blockOnScannerUnavailable: blockOnUnavailable,
+      quarantineInfected: true,
+      maxScanSize: 100 * 1024 * 1024,
+      timeout: 5000,
+      clamav: { host: 'localhost', port: 3310 },
+    })
+
+    const file = new File([fileContent], fileName, { type: 'text/plain' })
+
+    // Wait for health-check socket(s) to be created + connected (setTimeout 0 fires)
+    // We yield twice so that setTimeout(cb, 0) inside connect fires for any health-check sockets.
+    await new Promise((r) => setTimeout(r, 5))
+
+    // Record how many sockets exist before the scan starts — these are health-check sockets.
+    const preCount = sockets.length
+
+    // Start the actual scan — this creates one more socket.
+    const scanPromise = scanner.scanFile(file, { fileName })
+
+    // Yield to let the scan socket's connect() fire and on() handlers register.
+    await new Promise((r) => setTimeout(r, 5))
+
+    // The scan socket is always the first socket after the pre-count.
+    const scanSocket = sockets[preCount]
+    if (!scanSocket) {
+      throw new Error(`Scan socket not created (sockets.length=${sockets.length}, preCount=${preCount})`)
+    }
+
+    // Emit the scripted clamd response on the scan socket only.
+    if (scanSocket.dataCallback) scanSocket.dataCallback(Buffer.from(clamdResponse))
+    if (scanSocket.endCallback) scanSocket.endCallback()
+
+    return scanPromise
+  }
+
+  it('ClamAV scanner marks EICAR as infected (mocked clamd response)', async () => {
+    // Simulate clamd returning the canonical EICAR FOUND response.
+    const result = await runClamAVScan(
+      EICAR_TEST_STRING,
+      'eicar.com',
+      'stream: Eicar-Test-Signature FOUND\0',
+      true
+    )
+
+    expect(result.scanned).toBe(true)
+    expect(result.clean).toBe(false)
+    expect(result.threats).toContain('Eicar-Test-Signature')
+    expect(result.shouldBlock).toBe(true)
+    expect(result.backend).toBe('clamav')
+  })
+
+  it('ClamAV scanner marks clean file as clean (mocked clamd response)', async () => {
+    // Simulate clamd returning the canonical OK response for a benign file.
+    const result = await runClamAVScan(
+      'Hello, this is a clean file.',
+      'document.txt',
+      'stream: OK\0',
+      true
+    )
+
+    expect(result.scanned).toBe(true)
+    expect(result.clean).toBe(true)
+    expect(result.threats).toHaveLength(0)
+    expect(result.shouldBlock).toBe(false)
+    expect(result.backend).toBe('clamav')
+  })
+})
+
+// ============================================================================
+// Scanner-down fallback — DEFAULT_REJECT
+// ============================================================================
+
+describe('scanner-down default-reject behaviour', () => {
+  const originalEnv = process.env
+
+  beforeEach(() => {
+    process.env = { ...originalEnv }
+    resetVirusScannerService()
+    jest.clearAllMocks()
+  })
+
+  afterAll(() => {
+    process.env = originalEnv
+  })
+
+  it('blockOnScannerUnavailable defaults to true when NCHAT_UPLOAD_SCAN_OPTIONAL is unset', () => {
+    process.env.FILE_ENABLE_VIRUS_SCAN = 'true'
+    process.env.CLAMAV_HOST = 'localhost'
+    delete process.env.NCHAT_UPLOAD_SCAN_OPTIONAL
+    delete process.env.VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE
+
+    const config = getScannerConfig()
+
+    expect(config.blockOnScannerUnavailable).toBe(true)
+  })
+
+  it('blockOnScannerUnavailable is false when NCHAT_UPLOAD_SCAN_OPTIONAL=true', () => {
+    process.env.FILE_ENABLE_VIRUS_SCAN = 'true'
+    process.env.CLAMAV_HOST = 'localhost'
+    process.env.NCHAT_UPLOAD_SCAN_OPTIONAL = 'true'
+    delete process.env.VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE
+
+    const config = getScannerConfig()
+
+    expect(config.blockOnScannerUnavailable).toBe(false)
+  })
+
+  it('VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE explicit false overrides default', () => {
+    process.env.FILE_ENABLE_VIRUS_SCAN = 'true'
+    process.env.CLAMAV_HOST = 'localhost'
+    process.env.VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE = 'false'
+    delete process.env.NCHAT_UPLOAD_SCAN_OPTIONAL
+
+    const config = getScannerConfig()
+
+    expect(config.blockOnScannerUnavailable).toBe(false)
+  })
+
+  it('scanner error with blockOnScannerUnavailable=true returns shouldBlock=true', async () => {
+    // Simulate ClamAV connection failure — scanner is down.
+    const net = await import('net')
+    const MockSocket = net.Socket as jest.Mock
+
+    let errorCallback: ((err: Error) => void) | null = null
+
+    MockSocket.mockReset()
+    MockSocket.mockImplementation(() => ({
+      connect: jest.fn().mockImplementation((_port: number, _host: string, _cb: () => void) => {
+        // Don't invoke connect cb — let the error event fire instead
+      }),
+      write: jest.fn(),
+      on: jest.fn().mockImplementation((event: string, cb: (...args: unknown[]) => void) => {
+        if (event === 'error') errorCallback = cb as (err: Error) => void
+      }),
+      destroy: jest.fn(),
+    }))
+
+    const scanner = new VirusScannerService({
+      enabled: true,
+      backend: 'clamav',
+      blockOnScannerUnavailable: true,
+      quarantineInfected: true,
+      maxScanSize: 100 * 1024 * 1024,
+      timeout: 5000,
+      clamav: { host: 'localhost', port: 3310 },
+    })
+
+    const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
+    const scanPromise = scanner.scanFile(file, { fileName: 'test.txt' })
+
+    await new Promise((r) => setTimeout(r, 20))
+
+    // Emit connection error (scanner down)
+    if (errorCallback) {
+      errorCallback(new Error('ECONNREFUSED: connection refused'))
+    }
+
+    const result = await scanPromise
+
+    expect(result.scanned).toBe(false)
+    expect(result.shouldBlock).toBe(true)
+    expect(result.error).toBeTruthy()
+  })
+
+  it('scanner error with blockOnScannerUnavailable=false returns shouldBlock=false', async () => {
+    const net = await import('net')
+    const MockSocket = net.Socket as jest.Mock
+
+    let errorCallback: ((err: Error) => void) | null = null
+
+    MockSocket.mockReset()
+    MockSocket.mockImplementation(() => ({
+      connect: jest.fn(),
+      write: jest.fn(),
+      on: jest.fn().mockImplementation((event: string, cb: (...args: unknown[]) => void) => {
+        if (event === 'error') errorCallback = cb as (err: Error) => void
+      }),
+      destroy: jest.fn(),
+    }))
+
+    const scanner = new VirusScannerService({
+      enabled: true,
+      backend: 'clamav',
+      blockOnScannerUnavailable: false,
+      quarantineInfected: true,
+      maxScanSize: 100 * 1024 * 1024,
+      timeout: 5000,
+      clamav: { host: 'localhost', port: 3310 },
+    })
+
+    const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
+    const scanPromise = scanner.scanFile(file, { fileName: 'test.txt' })
+
+    await new Promise((r) => setTimeout(r, 20))
+
+    if (errorCallback) {
+      errorCallback(new Error('ECONNREFUSED'))
+    }
+
+    const result = await scanPromise
+
+    expect(result.scanned).toBe(false)
+    expect(result.shouldBlock).toBe(false)
+  })
+})
+
 describe('ClamAV Integration', () => {
   it('should be tested with actual ClamAV server', () => {
     // This test is skipped unless CLAMAV_HOST is set
