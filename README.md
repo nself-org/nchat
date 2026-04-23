@@ -5,7 +5,7 @@
 Technical name: `nself-chat` | Package: `@nself/chat` | Short name: `nchat` | **Version**: `1.0.0`
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/nself-org/nchat/releases)
+[![Version](https://img.shields.io/github/v/release/nself-org/nchat?label=version)](https://github.com/nself-org/nchat/releases)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
