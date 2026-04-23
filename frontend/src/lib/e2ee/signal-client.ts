@@ -255,8 +255,10 @@ export async function decryptMessage(
       Buffer.from(encryptedMessage.body)
     )
 
-    // Use provided KyberPreKeyStore or create a dummy one for backwards compatibility
-    const kyberStore = kyberPreKeyStore || new InMemoryKyberPreKeyStore()
+    // Use the provided persistent KyberPreKeyStore. Fall back to InMemoryKyberPreKeyStore
+    // only during testing or when no store has been provisioned yet — callers should
+    // always supply a PersistentKyberPreKeyStore for production sessions.
+    const kyberStore = kyberPreKeyStore ?? new InMemoryKyberPreKeyStore()
 
     plaintext = Buffer.from(await SignalClient.signalDecryptPreKey(
       prekeyMessage,

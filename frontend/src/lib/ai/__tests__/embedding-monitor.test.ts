@@ -122,7 +122,7 @@ describe('EmbeddingMonitor.trackOperation', () => {
   })
   it('handles non-Error throws', async () => {
     const m = new EmbeddingMonitor()
-    // eslint-disable-next-line @typescript-eslint/no-throw-literal
+    // eslint-disable-next-line @typescript-eslint/only-throw-error
     await expect(m.trackOperation('embed', async () => { throw 'stringy-error' })).rejects.toBe('stringy-error')
     expect(m.getSummary().metricsCount.performance).toBe(1)
   })

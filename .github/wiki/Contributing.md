@@ -120,7 +120,7 @@ docs(readme): update installation instructions
 ### TypeScript
 
 - Use **TypeScript** for all new code
-- Enable strict mode (`"strict": true` in tsconfig.json)
+- TypeScript strict mode is enforced (`"strict": true` in tsconfig.json); all PRs must pass `pnpm tsc --noEmit`
 - Define proper types/interfaces (avoid `any`)
 - Use proper return types for functions
 

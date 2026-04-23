@@ -335,7 +335,7 @@ describe('CI Pipeline Configuration', () => {
       const lint = ciWorkflow.jobs.lint
       const lintStep = lint.steps.find((s: any) => s.name === 'Run ESLint')
       expect(lintStep).toBeDefined()
-      expect(lintStep.run).toBe('pnpm lint')
+      expect(lintStep.run).toBe('HASURA_ADMIN_SECRET=ci-lint-placeholder-not-a-real-secret pnpm lint')
     })
 
     it('should run format check with correct command', () => {

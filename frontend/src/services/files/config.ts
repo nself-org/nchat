@@ -397,7 +397,13 @@ export function getVirusScannerConfig(): VirusScannerConfig {
     enabled,
     backend,
     fallbackBackend: getEnv('VIRUS_SCANNER_FALLBACK') as VirusScannerConfig['fallbackBackend'],
-    blockOnScannerUnavailable: getEnvBool('VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE', false),
+    // Security-first: block by default when scanner is unavailable.
+    // Operators may opt out via VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE=false
+    // or the alias NCHAT_UPLOAD_SCAN_OPTIONAL=true.
+    blockOnScannerUnavailable: getEnvBool(
+      'VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE',
+      getEnv('NCHAT_UPLOAD_SCAN_OPTIONAL') !== 'true'
+    ),
     quarantineInfected: getEnvBool('VIRUS_SCANNER_QUARANTINE', true),
     maxScanSize: getEnvNumber(
       'VIRUS_SCANNER_MAX_SIZE',

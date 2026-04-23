@@ -34,6 +34,33 @@ import { logger } from '@/lib/logger'
 // ============================================================================
 
 /**
+ * Known-bad values that are never acceptable in any environment.
+ * These are dev-stub defaults that must never reach a real Hasura instance.
+ */
+const KNOWN_BAD_ADMIN_SECRETS = [
+  'dummy-admin-secret',
+  'dummy-secret-for-build-only-must-be-at-least-32-chars',
+  'hasura-admin-secret-dev',
+  'changeme',
+  'changeme123',
+  'secret',
+  'admin',
+]
+
+/**
+ * Returns true when the value is a known dev-stub that must be rejected.
+ */
+function isKnownBadSecret(secret: string): boolean {
+  const lower = secret.toLowerCase()
+  return (
+    KNOWN_BAD_ADMIN_SECRETS.includes(lower) ||
+    lower.startsWith('dummy') ||
+    lower.startsWith('test') ||
+    lower === ''
+  )
+}
+
+/**
  * Ensure this code only runs on the server
  */
 function enforceServerSide(): void {
@@ -53,11 +80,9 @@ function validateEnvironment(): {
   adminSecret: string
 } {
   // Skip validation during build — allowed only in development with explicit opt-in.
-  // Production builds must never reach this path with the dummy secret.
+  // SKIP_ENV_VALIDATION must NEVER be used in production.
   if (process.env.SKIP_ENV_VALIDATION === 'true') {
     if (process.env.NODE_ENV === 'production') {
-      // Build-time gate: fail loudly if the dummy secret would reach a production build.
-      // This is a second line of defence; next.config.js webpack check fires first.
       throw new Error(
         'CRITICAL: SKIP_ENV_VALIDATION cannot be used in production. ' +
           'Set HASURA_ADMIN_SECRET and NEXT_PUBLIC_GRAPHQL_URL instead.'
@@ -69,10 +94,13 @@ function validateEnvironment(): {
           'Set HASURA_ADMIN_SECRET for a real backend, or set NEXT_PUBLIC_ALLOW_DUMMY_ADMIN_SECRET=true for local builds.'
       )
     }
-    logger.warn('SKIP_ENV_VALIDATION is true, using dummy credentials for admin client (dev only)')
+    // Dev-only path: use a placeholder that Hasura will reject rather than a
+    // recognisable dummy string. Any actual Hasura call will fail with an auth
+    // error — that is intentional; this path is for build-time only.
+    logger.warn('SKIP_ENV_VALIDATION is true — admin client is build-time placeholder (dev only)')
     return {
-      graphqlUrl: 'http://localhost:8080/v1/graphql',
-      adminSecret: 'dummy-secret-for-build-only-must-be-at-least-32-chars',
+      graphqlUrl: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql',
+      adminSecret: '__build_time_placeholder__',
     }
   }
 
@@ -86,12 +114,19 @@ function validateEnvironment(): {
   if (!adminSecret) {
     throw new Error(
       'FATAL: HASURA_ADMIN_SECRET environment variable must be set. ' +
-        'This is required for server-side admin operations.'
+        'Generate with: openssl rand -hex 32'
     )
   }
 
-  if (process.env.NODE_ENV === 'production' && adminSecret.length < 32) {
-    throw new Error('FATAL: HASURA_ADMIN_SECRET must be at least 32 characters in production')
+  if (isKnownBadSecret(adminSecret)) {
+    throw new Error(
+      'FATAL: HASURA_ADMIN_SECRET is set to a known insecure dev-stub value. ' +
+        'Generate a real secret with: openssl rand -hex 32'
+    )
+  }
+
+  if (adminSecret.length < 32) {
+    throw new Error('FATAL: HASURA_ADMIN_SECRET must be at least 32 characters')
   }
 
   return { graphqlUrl, adminSecret }

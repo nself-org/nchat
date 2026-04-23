@@ -65,10 +65,6 @@ function LiveKitBundleUpsell() {
 // =============================================================================
 
 export default function CallPage() {
-  // Guard: livekit plugin must be installed
-  if (!nchatBundle.livekit) {
-    return <LiveKitBundleUpsell />
-  }
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
@@ -254,6 +250,11 @@ export default function CallPage() {
     },
     [declineCall]
   )
+
+  // Guard: livekit plugin must be installed (checked after all hooks)
+  if (!nchatBundle.livekit) {
+    return <LiveKitBundleUpsell />
+  }
 
   // Show loading state
   if (isConnecting) {

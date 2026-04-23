@@ -156,7 +156,13 @@ export function getScannerConfig(): ScannerConfig {
     enabled,
     backend,
     fallbackBackend: getEnv('VIRUS_SCANNER_FALLBACK') as ScannerBackend | undefined,
-    blockOnScannerUnavailable: getEnvBool('VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE', false),
+    // Security-first: block by default when scanner is unavailable.
+    // Set VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE=false (or NCHAT_UPLOAD_SCAN_OPTIONAL=true) to
+    // allow uploads when the scanner is down (operator opt-in only).
+    blockOnScannerUnavailable: getEnvBool(
+      'VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE',
+      getEnv('NCHAT_UPLOAD_SCAN_OPTIONAL') !== 'true'
+    ),
     quarantineInfected: getEnvBool('VIRUS_SCANNER_QUARANTINE', true),
     maxScanSize: getEnvNumber('VIRUS_SCANNER_MAX_SIZE', 100 * 1024 * 1024), // 100MB default
     timeout: getEnvNumber('VIRUS_SCANNER_TIMEOUT', 60000), // 60s default
@@ -336,7 +342,9 @@ export class VirusScannerService {
             clean: true,
             threats: [],
             backend: 'none',
-            shouldBlock: false,
+            // Honour blockOnScannerUnavailable — no scanner configured is the same
+            // failure class as scanner-down: security-first means block by default.
+            shouldBlock: this.config.blockOnScannerUnavailable,
             error: 'No scanner configured',
           }
       }
@@ -405,13 +413,17 @@ export class VirusScannerService {
             clearTimeout(timeoutId)
 
             // Parse ClamAV response
-            // Format: "stream: OK" or "stream: FOUND [virus name]"
-            const response = responseData.trim()
+            // ClamAV z-prefixed commands return null-terminated responses:
+            //   "stream: OK\0"             → clean
+            //   "stream: VirusName FOUND\0" → infected
+            // We strip null bytes before trimming whitespace so endsWith('OK')
+            // and includes('FOUND') work correctly in both cases.
+            const response = responseData.replace(/\0/g, '').trim()
             const isClean = response.endsWith('OK')
             const threats: string[] = []
 
             if (!isClean && response.includes('FOUND')) {
-              // Extract virus name
+              // Extract virus name from "stream: VirusName FOUND"
               const match = response.match(/stream:\s*(.+)\s*FOUND/)
               if (match) {
                 threats.push(match[1].trim())

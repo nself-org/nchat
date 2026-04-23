@@ -134,6 +134,11 @@ export class KEMKeyPair {
     return new KEMKeyPair(new KEMPublicKey(publicKey), new KEMPrivateKey(privateKey))
   }
 
+  static _fromParts(pub: KEMPublicKey, priv: KEMPrivateKey): KEMKeyPair {
+    // Internal factory used by KyberPreKeyRecord.deserialize.
+    return new KEMKeyPair(pub, priv)
+  }
+
   getPublicKey(): KEMPublicKey {
     return this._pub
   }
@@ -385,6 +390,81 @@ export async function processPreKeyBundle(
 ): Promise<void> {
   // In real impl, this initiates an X3DH session. In tests, bundle construction
   // already validates signatures. If we reach here, the bundle was valid.
+}
+
+// ---------------------------------------------------------------------------
+// KyberPreKeyRecord
+// ---------------------------------------------------------------------------
+
+export class KyberPreKeyRecord {
+  private _id: number
+  private _data: Buffer
+
+  constructor(id: number, keyPair: KEMKeyPair) {
+    this._id = id
+    // Serialize as: [4-byte id LE][32-byte pub][32-byte priv]
+    const idBuf = Buffer.alloc(4)
+    idBuf.writeUInt32LE(id, 0)
+    this._data = Buffer.concat([
+      idBuf,
+      keyPair.getPublicKey().serialize(),
+      keyPair.getPrivateKey().serialize(),
+    ])
+  }
+
+  static new(id: number, _timestamp: number, keyPair: KEMKeyPair): KyberPreKeyRecord {
+    return new KyberPreKeyRecord(id, keyPair)
+  }
+
+  id(): number {
+    return this._id
+  }
+
+  serialize(): Buffer {
+    return this._data
+  }
+
+  static deserialize(bytes: Buffer): KyberPreKeyRecord {
+    const id = bytes.readUInt32LE(0)
+    const pub = new KEMPublicKey(bytes.slice(4, 36))
+    const priv = new KEMPrivateKey(bytes.slice(36, 68))
+    const pair = KEMKeyPair._fromParts(pub, priv)
+    return new KyberPreKeyRecord(id, pair)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// KyberPreKeyStore (abstract base — matches libsignal interface)
+// ---------------------------------------------------------------------------
+
+export class KyberPreKeyStore {
+  async saveKyberPreKey(
+    _kyberPreKeyId: number,
+    _record: KyberPreKeyRecord
+  ): Promise<void> {
+    throw new Error('KyberPreKeyStore.saveKyberPreKey not implemented')
+  }
+
+  async getKyberPreKey(_kyberPreKeyId: number): Promise<KyberPreKeyRecord> {
+    throw new Error('KyberPreKeyStore.getKyberPreKey not implemented')
+  }
+
+  async markKyberPreKeyUsed(
+    _kyberPreKeyId: number,
+    _signedPreKeyId: number,
+    _baseKey: PublicKey
+  ): Promise<void> {
+    throw new Error('KyberPreKeyStore.markKyberPreKeyUsed not implemented')
+  }
+}
+
+// ---------------------------------------------------------------------------
+// IdentityChange enum
+// ---------------------------------------------------------------------------
+
+export enum IdentityChange {
+  NewOrUnchanged = 0,
+  ReplacedExisting = 1,
 }
 
 // ---------------------------------------------------------------------------
