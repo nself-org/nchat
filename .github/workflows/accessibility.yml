@@ -70,13 +70,11 @@ jobs:
 
       - name: Run accessibility unit tests
         run: pnpm --filter @nself-chat/web exec jest --testPathPattern="a11y|accessibility" --passWithNoTests --forceExit
-        continue-on-error: true
 
   a11y-e2e:
     name: Accessibility E2E Tests (Playwright + Axe)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    continue-on-error: true
     defaults:
       run:
         working-directory: frontend
@@ -111,7 +109,6 @@ jobs:
 
       - name: Run Playwright accessibility tests
         run: pnpm --filter @nself-chat/web exec playwright test --grep "@a11y"
-        continue-on-error: true
         env:
           CI: true
 
@@ -127,7 +124,6 @@ jobs:
     name: Lighthouse Accessibility Audit
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    continue-on-error: true
     defaults:
       run:
         working-directory: frontend
@@ -210,7 +206,6 @@ jobs:
       - name: Validate translation coverage
         working-directory: .
         run: pnpm --dir frontend tsx scripts/validate-translations.ts
-        continue-on-error: true
 
       - name: Generate translation report
         if: always()
