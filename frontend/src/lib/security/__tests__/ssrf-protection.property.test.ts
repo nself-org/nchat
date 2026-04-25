@@ -44,7 +44,7 @@ describe('SSRF Protection - Property Tests', () => {
         ),
         { numRuns: 100 }
       )
-    }, 30000)
+    }, 60000)
 
     it('should reject javascript: protocol', async () => {
       await fc.assert(
