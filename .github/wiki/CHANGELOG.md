@@ -306,3 +306,26 @@ No migration required. Simply update package version and restart.
 - [Documentation](https://github.com/nself-org/nchat/wiki)
 - [Release Notes](https://github.com/nself-org/nchat/releases)
 - [Issues](https://github.com/nself-org/nchat/issues)
+
+## v1.0.12 (P96 — 2026-04-25)
+
+### Added
+- Flutter ship-ready: l10n ARB files generated for all supported locales (en, ar, fr, de, es, id, ms, tr).
+- Brand assets updated to v1.0.12 icon set across iOS, Android, macOS, and web targets.
+- Auth SDK migration: replaced direct Hasura auth calls with nSelf auth SDK client.
+
+### Changed
+- nChat bundle price reflected in in-app upgrade prompt: $0.99/mo.
+- Minimum nSelf CLI version requirement bumped to v1.0.12 in backend README.
+
+
+## v1.0.12 (P96 — 2026-04-25)
+
+### Added
+- Flutter ship-ready: l10n ARB files generated for all supported locales (en, ar, fr, de, es, id, ms, tr).
+- Brand assets updated to v1.0.12 icon set across iOS, Android, macOS, and web targets.
+- Auth SDK migration: replaced direct Hasura auth calls with nSelf auth SDK client.
+
+### Changed
+- nChat bundle price reflected in in-app upgrade prompt: $0.99/mo.
+- Minimum nSelf CLI version requirement bumped to v1.0.12 in backend README.
