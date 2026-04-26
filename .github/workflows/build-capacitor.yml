@@ -45,15 +45,15 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 9
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
@@ -97,14 +97,14 @@ jobs:
 
       - name: Install Apple Certificate
         if: inputs.build_type == 'release'
-        uses: apple-actions/import-codesign-certs@v3
+        uses: apple-actions/import-codesign-certs@v7
         with:
           p12-file-base64: ${{ secrets.IOS_DIST_CERT }}
           p12-password: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
 
       - name: Install Provisioning Profile
         if: inputs.build_type == 'release'
-        uses: apple-actions/download-provisioning-profiles@v3
+        uses: apple-actions/download-provisioning-profiles@v6
         with:
           bundle-id: 'com.nself.chat'
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
@@ -128,7 +128,7 @@ jobs:
             -exportOptionsPlist ExportOptions.plist
 
       - name: Upload iOS artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: capacitor-ios-${{ inputs.build_type }}
           path: |
@@ -145,22 +145,22 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 9
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -206,7 +206,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Upload Android artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: capacitor-android-${{ inputs.build_type }}
           path: |
@@ -221,7 +221,7 @@ jobs:
     if: always() && (needs.build-ios.result == 'success' || needs.build-android.result == 'success')
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: capacitor-*
@@ -230,7 +230,7 @@ jobs:
         run: find artifacts -type f -name "*"
 
       - name: Upload combined artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: capacitor-all-platforms-${{ inputs.build_type }}
           path: artifacts/
