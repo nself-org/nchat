@@ -35,17 +35,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 9
 
@@ -56,7 +56,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-${{ hashFiles('frontend/pnpm-lock.yaml') }}
@@ -64,7 +64,7 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: Setup CocoaPods cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             frontend/platforms/mobile/ios/Pods
@@ -204,7 +204,7 @@ jobs:
 
       - name: Upload IPA artifact
         if: github.event.inputs.build_type == 'release' && github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nchat-ios-${{ env.VERSION }}-${{ env.BUILD_NUMBER }}
           path: frontend/platforms/mobile/ios/build/ipa/*.ipa
