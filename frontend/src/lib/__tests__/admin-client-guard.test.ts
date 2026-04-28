@@ -1,4 +1,8 @@
 /**
+ * @jest-environment node
+ */
+
+/**
  * Startup guard tests for admin-client.ts
  *
  * Verifies that validateEnvironment() throws on missing or known-bad secrets,
