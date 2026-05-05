@@ -1,4 +1,8 @@
 /**
+ * @jest-environment node
+ */
+
+/**
  * Startup guard tests for admin-client.ts
  *
  * Verifies that validateEnvironment() throws on missing or known-bad secrets,
@@ -9,8 +13,10 @@
  */
 
 // We need fresh module state per test — isolate modules and set env before require.
-// Jest runs these in Node env (testEnvironment is jsdom for UI, but lib tests
-// run server-side code so we directly manipulate process.env).
+// admin-client.ts is server-side only: it calls enforceServerSide() which throws
+// when typeof window !== 'undefined'. The default jest environment for this repo
+// is jsdom (which defines window), so this file overrides to `node` via the
+// @jest-environment docblock above.
 
 const VALID_SECRET = 'a'.repeat(32) // 32-char placeholder that passes length check
 

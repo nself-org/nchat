@@ -4,6 +4,11 @@
 # ============================================================================
 # One-line installation for nself-chat on your own server
 #
+# Uses nself CLI — see https://docs.nself.org/cli
+# Per nSelf-First doctrine: all backend operations go through `nself <cmd>`,
+# never raw `docker compose`. The CLI generates and manages the underlying
+# compose stack internally.
+#
 # Usage:
 #   Interactive:
 #     curl -fsSL https://raw.githubusercontent.com/yourusername/nself-chat/main/scripts/self-hosted-install.sh | bash
@@ -524,12 +529,12 @@ obtain_ssl_certificate() {
     sudo systemctl enable certbot.timer 2>/dev/null || true
     sudo systemctl start certbot.timer 2>/dev/null || true
 
-    # Create renewal hook to restart nginx
+    # Create renewal hook to restart nginx via nself CLI
     sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
     sudo tee /etc/letsencrypt/renewal-hooks/deploy/restart-nginx.sh << 'EOF'
 #!/bin/bash
 cd /opt/nself-chat
-docker compose -f docker-compose.production.yml restart nginx
+nself restart nginx
 EOF
     sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/restart-nginx.sh
 
@@ -567,21 +572,23 @@ start_services() {
 
     cd "$INSTALL_DIR"
 
-    # Build and start services
+    # Build and start services via nself CLI
+    # Monitoring bundle is enabled via NSELF_MONITORING_ENABLED env var
+    # (see nSelf-First doctrine G-004: monitoring is a first-class CLI feature).
     if [ "$ENABLE_MONITORING" = true ]; then
         log "Starting with monitoring enabled..."
-        docker compose -f docker-compose.production.yml \
-                      -f docker-compose.monitoring.yml up -d
-    else
-        docker compose -f docker-compose.production.yml up -d
+        export NSELF_MONITORING_ENABLED=true
     fi
+
+    nself build
+    nself start
 
     # Wait for services to be healthy
     log "Waiting for services to start..."
     sleep 30
 
     # Check service health
-    docker compose -f docker-compose.production.yml ps
+    nself status
 
     success "Services started"
 }
@@ -596,13 +603,13 @@ initialize_database() {
     log "Waiting for database to be ready..."
     sleep 10
 
-    # Run migrations
+    # Run migrations via nself CLI
     log "Running database migrations..."
-    docker compose -f docker-compose.production.yml exec -T nchat pnpm db:migrate || warn "Migrations failed - may need to run manually"
+    nself exec nchat pnpm db:migrate || warn "Migrations failed - may need to run manually"
 
-    # Seed initial data
+    # Seed initial data via nself CLI
     log "Seeding initial data..."
-    docker compose -f docker-compose.production.yml exec -T nchat pnpm db:seed || warn "Seeding failed - may need to run manually"
+    nself exec nchat pnpm db:seed || warn "Seeding failed - may need to run manually"
 
     success "Database initialized"
 }
@@ -625,9 +632,8 @@ INSTALL_DIR="/opt/nself-chat"
 
 cd "$INSTALL_DIR"
 
-# Backup database
-docker compose -f docker-compose.production.yml exec -T postgres \
-  pg_dump -U postgres nchat | gzip > ${BACKUP_DIR}/db-${TIMESTAMP}.sql.gz
+# Backup database via nself CLI
+nself exec postgres pg_dump -U postgres nchat | gzip > ${BACKUP_DIR}/db-${TIMESTAMP}.sql.gz
 
 # Backup volumes (uploads, etc.)
 docker run --rm \
@@ -675,7 +681,7 @@ cd /opt/nself-chat
 echo "=== nself-chat Diagnostics ==="
 echo ""
 echo "Services Status:"
-docker compose -f docker-compose.production.yml ps
+nself status
 echo ""
 echo "Disk Usage:"
 df -h /
@@ -687,7 +693,7 @@ echo "Docker Stats:"
 docker stats --no-stream
 echo ""
 echo "Recent Errors:"
-docker compose -f docker-compose.production.yml logs --tail=50 | grep -i error || echo "No recent errors"
+nself logs --tail=50 | grep -i error || echo "No recent errors"
 DIAG_EOF
 
     sudo chmod +x /usr/local/bin/diagnose-nchat
@@ -716,12 +722,13 @@ ${BLUE}Important files:${NC}
   Credentials: $INSTALL_DIR/CREDENTIALS.txt
   Backups: $BACKUP_DIR
 
-${BLUE}Management commands:${NC}
-  Status:      cd $INSTALL_DIR && docker compose -f docker-compose.production.yml ps
-  Logs:        cd $INSTALL_DIR && docker compose -f docker-compose.production.yml logs -f
-  Restart:     cd $INSTALL_DIR && docker compose -f docker-compose.production.yml restart
-  Stop:        cd $INSTALL_DIR && docker compose -f docker-compose.production.yml down
-  Start:       cd $INSTALL_DIR && docker compose -f docker-compose.production.yml up -d
+${BLUE}Management commands (via nself CLI):${NC}
+  Status:      cd $INSTALL_DIR && nself status
+  Logs:        cd $INSTALL_DIR && nself logs -f
+  Restart:     cd $INSTALL_DIR && nself restart
+  Stop:        cd $INSTALL_DIR && nself stop
+  Start:       cd $INSTALL_DIR && nself start
+  Update:      cd $INSTALL_DIR && nself update
   Backup:      sudo /usr/local/bin/backup-nchat
   Diagnose:    sudo /usr/local/bin/diagnose-nchat
 
