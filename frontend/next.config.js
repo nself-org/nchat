@@ -48,14 +48,52 @@ const nextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Tightened allowlist (SEC-T13): removed wildcard '**' hostname.
+    // Only allow localhost (dev), the self-hosted MinIO storage endpoint,
+    // Nhost storage (default nSelf auth/storage), and known CDN hosts.
+    // Operators running custom storage endpoints should set
+    // NEXT_PUBLIC_STORAGE_URL and add their hostname here.
     remotePatterns: [
+      // Local development — MinIO / direct backend
       {
         protocol: 'http',
         hostname: 'localhost',
       },
       {
+        protocol: 'http',
+        hostname: 'storage.localhost',
+      },
+      // Self-hosted nSelf storage (MinIO via nginx, any subdomain of local.nself.org)
+      {
         protocol: 'https',
-        hostname: '**',
+        hostname: '*.local.nself.org',
+      },
+      // nSelf managed cloud storage
+      {
+        protocol: 'https',
+        hostname: '*.nself.org',
+      },
+      // Nhost managed storage (default nSelf hosted backend)
+      {
+        protocol: 'https',
+        hostname: '*.nhost.run',
+      },
+      // User avatars / link unfurl previews — common public CDNs
+      {
+        protocol: 'https',
+        hostname: '*.gravatar.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.jsdelivr.net',
       },
     ],
     minimumCacheTTL: 60,
