@@ -1,0 +1,64 @@
+# nchat_channels — Chat channels (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_channels
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - workspace_id
+          - category_id
+          - name
+          - slug
+          - description
+          - topic
+          - type
+          - icon
+          - color
+          - position
+          - is_default
+          - is_readonly
+          - is_nsfw
+          - slowmode_seconds
+          - max_members
+          - retention_days
+          - created_by
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - name
+          - description
+          - topic
+          - icon
+          - color
+          - position
+          - is_readonly
+          - is_nsfw
+          - slowmode_seconds
+          - max_members
+          - retention_days
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

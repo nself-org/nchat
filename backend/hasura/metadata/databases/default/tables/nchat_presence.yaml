@@ -1,0 +1,41 @@
+# nchat_presence — User presence/online status (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_presence
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - user_id
+          - status
+          - custom_message
+          - device_info
+          - is_mobile
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - status
+          - custom_message
+          - last_heartbeat_at
+          - current_channel_id
+          - device_info
+          - is_mobile
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

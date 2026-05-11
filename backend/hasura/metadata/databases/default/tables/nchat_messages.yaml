@@ -1,0 +1,58 @@
+# nchat_messages — Chat messages (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_messages
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - channel_id
+          - user_id
+          - thread_id
+          - parent_message_id
+          - content
+          - content_html
+          - content_plain
+          - type
+          - metadata
+          - mentions
+          - mentioned_roles
+          - mentioned_channels
+          - embeds
+          - scheduled_at
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - content
+          - content_html
+          - content_plain
+          - metadata
+          - mentions
+          - embeds
+          - is_edited
+          - edited_at
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

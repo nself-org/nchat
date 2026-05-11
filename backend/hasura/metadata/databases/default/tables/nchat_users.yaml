@@ -1,0 +1,59 @@
+# nchat_users — Chat user accounts (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall (PPI Hard Rule 2026-04-20):
+#   source_account_id TEXT NOT NULL DEFAULT 'primary' — Multi-App Isolation column.
+#   Row filter enforced on all user-role reads/writes.
+#   Cloud multi-tenancy (tenant_id) is NOT used here.
+
+- table:
+    schema: public
+    name: nchat_users
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - email
+          - display_name
+          - username
+          - avatar_url
+          - status
+          - email_verified
+          - phone
+          - phone_verified
+          - locale
+          - timezone
+          - metadata
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - display_name
+          - username
+          - avatar_url
+          - status
+          - phone
+          - locale
+          - timezone
+          - metadata
+          - last_seen_at
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

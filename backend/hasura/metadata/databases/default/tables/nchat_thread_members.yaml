@@ -1,0 +1,43 @@
+# nchat_thread_members — Thread participation (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_thread_members
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - thread_id
+          - user_id
+          - is_subscribed
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - last_read_message_id
+          - last_read_at
+          - unread_count
+          - is_subscribed
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

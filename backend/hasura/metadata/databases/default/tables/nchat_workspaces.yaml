@@ -1,0 +1,63 @@
+# nchat_workspaces — Chat workspaces (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_workspaces
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - name
+          - slug
+          - description
+          - logo_url
+          - icon_url
+          - banner_url
+          - primary_color
+          - is_public
+          - is_discoverable
+          - allow_invites
+          - require_approval
+          - features
+          - max_members
+          - max_channels
+          - max_storage_bytes
+          - owner_id
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - name
+          - description
+          - logo_url
+          - icon_url
+          - banner_url
+          - primary_color
+          - is_public
+          - is_discoverable
+          - allow_invites
+          - require_approval
+          - features
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

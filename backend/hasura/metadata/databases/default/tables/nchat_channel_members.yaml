@@ -1,0 +1,52 @@
+# nchat_channel_members — Channel membership (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_channel_members
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - channel_id
+          - user_id
+          - role
+          - nickname
+          - can_read
+          - can_write
+          - notification_level
+          - invited_by
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - nickname
+          - notification_level
+          - is_muted
+          - muted_until
+          - last_read_message_id
+          - last_read_at
+          - unread_count
+          - mention_count
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

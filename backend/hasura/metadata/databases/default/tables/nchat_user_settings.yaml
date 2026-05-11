@@ -1,0 +1,75 @@
+# nchat_user_settings — Per-user chat preferences (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_user_settings
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - user_id
+          - notifications_enabled
+          - notification_sound
+          - notification_desktop
+          - notification_mobile
+          - notification_email
+          - notification_email_frequency
+          - quiet_hours_enabled
+          - quiet_hours_start
+          - quiet_hours_end
+          - show_online_status
+          - show_typing_indicator
+          - read_receipts
+          - allow_dm_from
+          - compact_mode
+          - theme
+          - font_size
+          - message_density
+          - keyboard_shortcuts_enabled
+          - custom_shortcuts
+          - reduce_motion
+          - high_contrast
+          - screen_reader_mode
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - notifications_enabled
+          - notification_sound
+          - notification_desktop
+          - notification_mobile
+          - notification_email
+          - notification_email_frequency
+          - quiet_hours_enabled
+          - quiet_hours_start
+          - quiet_hours_end
+          - show_online_status
+          - show_typing_indicator
+          - read_receipts
+          - allow_dm_from
+          - compact_mode
+          - theme
+          - font_size
+          - message_density
+          - keyboard_shortcuts_enabled
+          - custom_shortcuts
+          - reduce_motion
+          - high_contrast
+          - screen_reader_mode
+        filter:
+          source_account_id:
+            _eq: X-Source-Account

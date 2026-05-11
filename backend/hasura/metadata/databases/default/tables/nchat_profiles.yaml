@@ -1,0 +1,55 @@
+# nchat_profiles — User profile extensions (F-NCHAT-01 Wave-5B remediation)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+
+- table:
+    schema: public
+    name: nchat_profiles
+  select_permissions:
+    - role: user
+      permission:
+        columns: '*'
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - user_id
+          - bio
+          - title
+          - company
+          - location
+          - website
+          - social_links
+          - pronouns
+          - banner_url
+          - theme_preference
+          - custom_status
+          - custom_status_emoji
+          - custom_status_expires_at
+        check:
+          source_account_id:
+            _eq: X-Source-Account
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - bio
+          - title
+          - company
+          - location
+          - website
+          - social_links
+          - pronouns
+          - banner_url
+          - theme_preference
+          - custom_status
+          - custom_status_emoji
+          - custom_status_expires_at
+        filter:
+          source_account_id:
+            _eq: X-Source-Account
