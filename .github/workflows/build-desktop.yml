@@ -43,6 +43,7 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
           NEXT_PUBLIC_ENV: 'production'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
 
       - name: Build Electron TypeScript
         working-directory: frontend/platforms/desktop
@@ -98,6 +99,7 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
           NEXT_PUBLIC_ENV: 'production'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
 
       - name: Build Electron TypeScript
         working-directory: frontend/platforms/desktop
@@ -155,6 +157,7 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
           NEXT_PUBLIC_ENV: 'production'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
 
       - name: Build Electron TypeScript
         working-directory: frontend/platforms/desktop
