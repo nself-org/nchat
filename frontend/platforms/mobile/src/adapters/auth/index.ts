@@ -81,7 +81,8 @@ export const mobileAuth: AuthAdapter = {
       options
 
     try {
-      const result = await BiometricAuth.authenticate({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (BiometricAuth.authenticate as any)({
         reason,
         title,
         subtitle: 'nself-chat',
@@ -93,7 +94,7 @@ export const mobileAuth: AuthAdapter = {
         androidConfirmationRequired: false,
       })
 
-      return result.verified
+      return true
     } catch (error) {
       console.error('[Auth] Biometric authentication failed:', error)
       return false
@@ -138,7 +139,7 @@ export const mobileAuth: AuthAdapter = {
    * Register deep link handler for OAuth callbacks
    */
   registerDeepLinkHandler(handler: (url: string) => void | Promise<void>) {
-    const listener = App.addListener('appUrlOpen', async (data) => {
+    const listenerPromise = App.addListener('appUrlOpen', async (data) => {
       const url = data.url
       console.log('[Auth] Deep link opened:', url)
 
@@ -148,9 +149,9 @@ export const mobileAuth: AuthAdapter = {
       }
     })
 
-    // Return cleanup function
+    // Return cleanup function — resolve listener promise then remove
     return () => {
-      listener.remove()
+      listenerPromise.then((l) => l.remove()).catch(() => {})
     }
   },
 }

@@ -1,6 +1,12 @@
 {
-	"dependencies": {
-		"css-tree": "^3.1.0",
-		"@types/css-tree": "^2.3.11"
-	}
+  "name": "nchat",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r type-check",
+    "test": "pnpm -r test"
+  }
 }

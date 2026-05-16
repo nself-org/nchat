@@ -68,7 +68,7 @@ jest.mock('@capacitor/network', () => ({
 import { mobileStorage, typedStorage } from '../adapters/storage'
 import { mobileAuth, biometricHelpers } from '../adapters/auth'
 import { mobileNotifications } from '../adapters/notifications'
-import { mobileCamera, cameraHelpers } from '../adapters/camera'
+import { mobileCamera } from '../adapters/camera'
 import { mobileNetwork, networkHelpers } from '../adapters/network'
 
 import { Preferences } from '@capacitor/preferences'

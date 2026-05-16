@@ -5,6 +5,28 @@ All notable changes to ɳChat will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — P103 S04 Monorepo Scaffold
+
+### Added
+
+- **`@nself-chat/testing` package** (`packages/testing/`): stub package with empty exports — testing utilities added in S05+.
+- **`packages/core/src/logger/`**: stub logger (`debug`, `info`, `warn`, `error`) exported from `@nself-chat/core`.
+- **`packages/ui/src/styles.css`**: stub CSS entry point for UI package global styles.
+- **`tsconfig.json`** at monorepo root: shared base TypeScript compiler options extended by all platform tsconfigs.
+
+### Fixed
+
+- Mobile and desktop tsconfigs now correctly resolve `@nself-chat/*` paths to `../../../packages/*/src` (corrected from `../../packages/*/src`).
+- Mobile vite.config aliases corrected to three-level relative paths matching actual filesystem layout.
+- `frontend/platforms/mobile/tsconfig.json` now excludes `__tests__/**` from the production type-check pass.
+- Capacitor `addListener()` return type is `Promise<PluginListenerHandle>` — all 6 listener cleanup paths in `notifications`, `fcm`, and `network` adapters now resolve the promise before calling `.remove()`.
+- `BrowserWindow.fromWebContents(event.sender)` replaces deprecated `event.sender.getOwnerBrowserWindow()` in desktop ipc-handlers (4 call sites).
+- `ApolloProvider` in `App.tsx` now receives a `client` prop (stub client from `createApolloClient`).
+- Removed unused `React` import from 5 mobile source files (React 19 JSX transform).
+- Desktop vite.config `rollupOptions.external` prevents Electron/Node.js modules from being bundled into the browser renderer.
+
+---
+
 ## [1.0.0] — 2026-05-15
 
 First stable release. Full-featured self-hosted chat. ɳChat bundle (9 plugins) available at nself.org.

@@ -4,7 +4,7 @@
  * Handles communication between main and renderer processes
  */
 
-import { ipcMain, app, shell, desktopCapturer, clipboard, nativeImage } from 'electron'
+import { ipcMain, app, shell, desktopCapturer, clipboard, nativeImage, BrowserWindow } from 'electron'
 import { checkForUpdates } from './auto-updater'
 
 /**
@@ -28,12 +28,12 @@ export function setupIpcHandlers(): void {
 
   // Window controls
   ipcMain.on('window:minimize', (event) => {
-    const window = event.sender.getOwnerBrowserWindow()
+    const window = BrowserWindow.fromWebContents(event.sender)
     window?.minimize()
   })
 
   ipcMain.on('window:maximize', (event) => {
-    const window = event.sender.getOwnerBrowserWindow()
+    const window = BrowserWindow.fromWebContents(event.sender)
     if (window?.isMaximized()) {
       window.restore()
     } else {
@@ -42,12 +42,12 @@ export function setupIpcHandlers(): void {
   })
 
   ipcMain.on('window:close', (event) => {
-    const window = event.sender.getOwnerBrowserWindow()
+    const window = BrowserWindow.fromWebContents(event.sender)
     window?.close()
   })
 
   ipcMain.handle('window:is-maximized', (event) => {
-    const window = event.sender.getOwnerBrowserWindow()
+    const window = BrowserWindow.fromWebContents(event.sender)
     return window?.isMaximized() ?? false
   })
 

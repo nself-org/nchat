@@ -619,6 +619,54 @@ subscription OnNewMessage($channelId: uuid!) {
 
 ---
 
+## Shared Packages (Monorepo)
+
+Six workspace packages under `packages/` provide shared logic consumed by the web frontend, Electron desktop, and Capacitor mobile platforms.
+
+| Package | npm name | Status | Depends on |
+|---------|----------|--------|------------|
+| `packages/core` | `@nself-chat/core` | Active — logger stub, shared types, utils | (none) |
+| `packages/api` | `@nself-chat/api` | Active — Apollo client factory, ApolloProvider re-export | `@nself-chat/core` |
+| `packages/state` | `@nself-chat/state` | Active — Zustand stores | `@nself-chat/core`, `@nself-chat/api` |
+| `packages/ui` | `@nself-chat/ui` | Active — shared React components, global CSS | `@nself-chat/core` |
+| `packages/config` | `@nself-chat/config` | Active — runtime configuration | `@nself-chat/core` |
+| `packages/testing` | `@nself-chat/testing` | Stub — testing utilities added in future sprint | (none) |
+
+### Dependency Direction
+
+Packages are strictly layered. Dependencies only flow downward:
+
+```
+@nself-chat/state  ──> @nself-chat/api  ──> @nself-chat/core
+@nself-chat/ui     ──────────────────────────────────────────> @nself-chat/core
+@nself-chat/config ──────────────────────────────────────────> @nself-chat/core
+@nself-chat/testing ──> (no workspace deps)
+```
+
+No package may import from `frontend/` or from a platform (`desktop/`, `mobile/`). Platforms consume packages — never the reverse.
+
+### Build
+
+Packages are resolved via Vite aliases (source-level) during platform builds — no pre-build step required for local development. Each package ships `src/index.ts` as its source entry.
+
+```bash
+# Build all packages (TypeScript declarations + JS)
+pnpm --filter "@nself-chat/*" build
+
+# Build specific platform (resolves packages via vite aliases)
+pnpm --filter @nself-chat/desktop build
+pnpm --filter @nself-chat/mobile build
+```
+
+### Adding a New Package
+
+1. Create `packages/<name>/` with `package.json` (`name: "@nself-chat/<name>"`), `src/index.ts`, and `tsconfig.json` extending `../../tsconfig.json`.
+2. Add `"@nself-chat/<name>": "workspace:*"` to any consumer's `package.json` `dependencies`.
+3. Add a vite alias in the consumer's `vite.config.ts`: `'@nself-chat/<name>': resolve(__dirname, '../../packages/<name>/src')`.
+4. Add a `paths` entry in the consumer's `tsconfig.json`: `"@nself-chat/<name>/*": ["../../../packages/<name>/src/*"]`.
+
+---
+
 ## Backend Services
 
 ### nSelf CLI Services
