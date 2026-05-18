@@ -60,11 +60,14 @@ jobs:
           HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Start production server
+        # next start loads next.config.js which has a build gate requiring HASURA_ADMIN_SECRET.
+        # CI uses a non-functional placeholder — the app never connects to a real Hasura instance.
         run: pnpm start &
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'production'
           NODE_ENV: 'production'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Wait for server
         # 180 s timeout — slow CI runners (ubuntu-latest) can take 2+ minutes to start
