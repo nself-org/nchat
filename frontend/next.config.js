@@ -27,6 +27,14 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  // isomorphic-dompurify imports jsdom on the server side. jsdom reads its own
+  // browser/default-stylesheet.css at module init via readFileSync. When Next.js
+  // bundles jsdom for the server, the relative path resolution breaks and the
+  // build fails with ENOENT during page data collection for routes that import
+  // the message formatter service. Marking jsdom (and its canvas peer) as server
+  // externals causes Node.js to load them natively, preserving the correct
+  // __dirname-relative path and eliminating the ENOENT entirely.
+  serverExternalPackages: ['jsdom', 'canvas'],
   experimental: {
     // Optimize package imports to reduce bundle size
     optimizePackageImports: [
@@ -45,12 +53,6 @@ const nextConfig = {
       'framer-motion',
     ],
     // instrumentation.js is available by default in Next.js 15+
-    // Disable CSS chunking to prevent ENOENT on browser/default-stylesheet.css.
-    // Next.js 15.5+ CssChunkingPlugin extracts global CSS into a separate
-    // browser/ chunk; the server-side page data collector then tries to read
-    // that file synchronously and fails with ENOENT. Setting to false disables
-    // the plugin so the file is never created and never looked up.
-    cssChunking: false,
   },
   images: {
     formats: ['image/avif', 'image/webp'],
