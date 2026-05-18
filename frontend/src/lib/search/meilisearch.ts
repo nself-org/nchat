@@ -175,7 +175,8 @@ async function searchViaProxy(
     params.set('user_id', options.userId)
   }
 
-  const response = await fetch(`/api/plugins/search/search?${params.toString()}`)
+  const searchUrl = `/api/plugins/search/search?${params.toString()}`
+  const response = await fetch(searchUrl)
 
   if (!response.ok) {
     const text = await response.text()

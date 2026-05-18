@@ -248,7 +248,8 @@ export function useJobQueue(): UseJobQueueReturn {
         params.set('offset', filters.offset.toString())
       }
 
-      const response = await fetch(`/api/jobs?${params.toString()}`)
+      const jobsUrl = `/api/jobs?${params.toString()}`
+      const response = await fetch(jobsUrl)
 
       if (!response.ok) {
         const data = await response.json()

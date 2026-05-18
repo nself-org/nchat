@@ -198,12 +198,17 @@ export async function GET() {
 
 // OPTIONS for CORS
 export async function OPTIONS() {
+  // Restrict CORS to the configured app URL instead of wildcard.
+  // Wildcard allows any origin to read embedding responses (cross-site data
+  // exfiltration). See: CWE-346 / P96 SEC finding sec-nchat-cors-wildcard.
+  const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL ?? ''
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Vary': 'Origin',
     },
   })
 }

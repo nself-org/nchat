@@ -166,7 +166,8 @@ export function useMeetingScheduler(
         if (filters?.startDate) params.set('startDate', filters.startDate)
         if (filters?.endDate) params.set('endDate', filters.endDate)
 
-        const response = await fetch(`/api/meetings?${params.toString()}`)
+        const meetingsUrl = `/api/meetings?${params.toString()}`
+        const response = await fetch(meetingsUrl)
         const data = await response.json()
 
         if (data.success) {

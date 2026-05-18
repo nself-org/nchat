@@ -185,7 +185,8 @@ export function useReminders(options: UseRemindersOptions = {}): UseRemindersRet
         if (currentFilters.limit) params.set('limit', String(currentFilters.limit))
         if (currentFilters.offset) params.set('offset', String(currentFilters.offset))
 
-        const response = await fetch(`/api/reminders?${params.toString()}`)
+        const remindersUrl = `/api/reminders?${params.toString()}`
+        const response = await fetch(remindersUrl)
 
         if (!response.ok) {
           throw new Error('Failed to fetch reminders')

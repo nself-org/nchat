@@ -357,7 +357,9 @@ export function useJobStatus(
         params.set('queue', queueHint)
       }
 
-      const response = await fetch(`/api/jobs/${jobId}${params.toString() ? `?${params}` : ''}`, {
+      const qs = params.toString()
+      const cancelUrl = `/api/jobs/${jobId}${qs ? `?${qs}` : ''}`
+      const response = await fetch(cancelUrl, {
         method: 'DELETE',
       })
 
@@ -455,7 +457,9 @@ export function useJobsStatus(
           const params = new URLSearchParams()
           if (queueHint) params.set('queue', queueHint)
 
-          const response = await fetch(`/api/jobs/${jobId}${params.toString() ? `?${params}` : ''}`)
+          const jobQs = params.toString()
+          const jobUrl = `/api/jobs/${jobId}${jobQs ? `?${jobQs}` : ''}`
+          const response = await fetch(jobUrl)
 
           if (response.ok) {
             const data = await response.json()

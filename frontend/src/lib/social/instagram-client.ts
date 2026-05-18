@@ -55,7 +55,8 @@ export class InstagramClient implements SocialAPIClient {
       code,
     })
 
-    const response = await fetch(`${FACEBOOK_GRAPH_BASE}/oauth/access_token?${params.toString()}`)
+    const authUrl = `${FACEBOOK_GRAPH_BASE}/oauth/access_token?${params.toString()}`
+    const response = await fetch(authUrl)
 
     if (!response.ok) {
       const error = await response.text()
@@ -83,7 +84,8 @@ export class InstagramClient implements SocialAPIClient {
       fb_exchange_token: shortToken,
     })
 
-    const response = await fetch(`${FACEBOOK_GRAPH_BASE}/oauth/access_token?${params.toString()}`)
+    const exchangeUrl = `${FACEBOOK_GRAPH_BASE}/oauth/access_token?${params.toString()}`
+    const response = await fetch(exchangeUrl)
 
     if (!response.ok) {
       throw new Error('Failed to exchange for long-lived token')
