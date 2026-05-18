@@ -5,7 +5,11 @@
  * Tests construct minimal plain-object state and call selectors directly.
  */
 
-import type { ActivityStore, ActivityState, ActivityUnreadCounts } from "../activity-store";
+import type {
+  ActivityStore,
+  ActivityState,
+  ActivityUnreadCounts,
+} from "../activity-store";
 import {
   selectActivities,
   selectUnreadTotal,
@@ -17,7 +21,10 @@ import {
   selectIsActivityPanelOpen,
 } from "../activity-store";
 
-import type { ActivityCategory, ActivityPreferences } from "@/lib/activity/activity-types";
+import type {
+  ActivityCategory,
+  ActivityPreferences,
+} from "@/lib/activity/activity-types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -168,7 +175,9 @@ describe("selectHasNewActivity", () => {
   });
 
   it("returns true when there is new activity", () => {
-    expect(selectHasNewActivity(makeState({ hasNewActivity: true }))).toBe(true);
+    expect(selectHasNewActivity(makeState({ hasNewActivity: true }))).toBe(
+      true,
+    );
   });
 });
 

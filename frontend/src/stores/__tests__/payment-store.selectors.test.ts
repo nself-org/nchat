@@ -5,7 +5,12 @@
  * Tests construct minimal plain-object state and call selectors directly.
  */
 
-import type { PaymentStore, Subscription, PaymentMethod, Invoice } from "../payment-store";
+import type {
+  PaymentStore,
+  Subscription,
+  PaymentMethod,
+  Invoice,
+} from "../payment-store";
 import {
   selectSubscription,
   selectIsSubscribed,
@@ -115,7 +120,9 @@ describe("selectPaymentMethods", () => {
 
   it("returns the paymentMethods array", () => {
     const paymentMethods = [makePaymentMethod()];
-    expect(selectPaymentMethods(makeState({ paymentMethods }))).toBe(paymentMethods);
+    expect(selectPaymentMethods(makeState({ paymentMethods }))).toBe(
+      paymentMethods,
+    );
   });
 });
 
@@ -131,7 +138,9 @@ describe("selectDefaultPaymentMethod", () => {
   it("returns undefined when defaultPaymentMethodId does not match any method", () => {
     const paymentMethods = [makePaymentMethod({ id: "pm_1" })];
     expect(
-      selectDefaultPaymentMethod(makeState({ paymentMethods, defaultPaymentMethodId: "pm_999" })),
+      selectDefaultPaymentMethod(
+        makeState({ paymentMethods, defaultPaymentMethodId: "pm_999" }),
+      ),
     ).toBeUndefined();
   });
 
@@ -139,7 +148,9 @@ describe("selectDefaultPaymentMethod", () => {
     const pm = makePaymentMethod({ id: "pm_1" });
     const paymentMethods = [pm, makePaymentMethod({ id: "pm_2" })];
     expect(
-      selectDefaultPaymentMethod(makeState({ paymentMethods, defaultPaymentMethodId: "pm_1" })),
+      selectDefaultPaymentMethod(
+        makeState({ paymentMethods, defaultPaymentMethodId: "pm_1" }),
+      ),
     ).toBe(pm);
   });
 });
@@ -155,7 +166,13 @@ describe("selectInvoices", () => {
 
   it("returns the invoices array", () => {
     const invoices = [
-      { id: "inv_1", amount: 999, currency: "usd", status: "paid", createdAt: new Date() } as never,
+      {
+        id: "inv_1",
+        amount: 999,
+        currency: "usd",
+        status: "paid",
+        createdAt: new Date(),
+      } as never,
     ];
     expect(selectInvoices(makeState({ invoices }))).toBe(invoices);
   });
@@ -171,6 +188,8 @@ describe("selectIsCheckoutInProgress", () => {
   });
 
   it("returns true when checkout is in progress", () => {
-    expect(selectIsCheckoutInProgress(makeState({ isCheckoutInProgress: true }))).toBe(true);
+    expect(
+      selectIsCheckoutInProgress(makeState({ isCheckoutInProgress: true })),
+    ).toBe(true);
   });
 });

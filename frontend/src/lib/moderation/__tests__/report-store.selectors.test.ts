@@ -22,7 +22,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeUserReport(overrides?: Partial<Record<string, unknown>>): UserReport {
+function makeUserReport(
+  overrides?: Partial<Record<string, unknown>>,
+): UserReport {
   return {
     id: "ur1",
     reporterId: "u1",
@@ -36,7 +38,9 @@ function makeUserReport(overrides?: Partial<Record<string, unknown>>): UserRepor
   } as UserReport;
 }
 
-function makeMessageReport(overrides?: Partial<Record<string, unknown>>): MessageReport {
+function makeMessageReport(
+  overrides?: Partial<Record<string, unknown>>,
+): MessageReport {
   return {
     id: "mr1",
     reporterId: "u1",
@@ -131,7 +135,9 @@ describe("selectMessageReports", () => {
 
   it("returns the messageReports array", () => {
     const messageReports = [makeMessageReport()];
-    expect(selectMessageReports(makeState({ messageReports }))).toBe(messageReports);
+    expect(selectMessageReports(makeState({ messageReports }))).toBe(
+      messageReports,
+    );
   });
 });
 
@@ -146,8 +152,13 @@ describe("selectAllReports", () => {
 
   it("merges user and message reports into one sorted array", () => {
     const ur = makeUserReport({ id: "ur1", createdAt: "2024-01-01T00:00:00Z" });
-    const mr = makeMessageReport({ id: "mr1", createdAt: "2024-01-02T00:00:00Z" });
-    const result = selectAllReports(makeState({ userReports: [ur], messageReports: [mr] }));
+    const mr = makeMessageReport({
+      id: "mr1",
+      createdAt: "2024-01-02T00:00:00Z",
+    });
+    const result = selectAllReports(
+      makeState({ userReports: [ur], messageReports: [mr] }),
+    );
     expect(result).toHaveLength(2);
     // Most recent first (mr has the later date)
     expect(result[0].id).toBe("mr1");
@@ -176,16 +187,18 @@ describe("selectPendingReportsCount", () => {
       makeUserReport({ status: "pending" }),
       makeUserReport({ id: "ur2", status: "resolved" }),
     ];
-    const messageReports = [
-      makeMessageReport({ status: "pending" }),
-    ];
-    expect(selectPendingReportsCount(makeState({ userReports, messageReports }))).toBe(2);
+    const messageReports = [makeMessageReport({ status: "pending" })];
+    expect(
+      selectPendingReportsCount(makeState({ userReports, messageReports })),
+    ).toBe(2);
   });
 
   it("returns 0 when all reports are non-pending", () => {
     const userReports = [makeUserReport({ status: "resolved" })];
     const messageReports = [makeMessageReport({ status: "dismissed" })];
-    expect(selectPendingReportsCount(makeState({ userReports, messageReports }))).toBe(0);
+    expect(
+      selectPendingReportsCount(makeState({ userReports, messageReports })),
+    ).toBe(0);
   });
 });
 
@@ -292,7 +305,9 @@ describe("selectFilters", () => {
   });
 
   it("returns the active filters when set", () => {
-    const result = selectFilters(makeState({ statusFilter: "pending", typeFilter: "user" }));
+    const result = selectFilters(
+      makeState({ statusFilter: "pending", typeFilter: "user" }),
+    );
     expect(result.status).toBe("pending");
     expect(result.type).toBe("user");
   });

@@ -137,9 +137,7 @@ function makeAccessibility(
   } as AccessibilitySettings;
 }
 
-function makeLanguage(
-  overrides?: Partial<LanguageSettings>,
-): LanguageSettings {
+function makeLanguage(overrides?: Partial<LanguageSettings>): LanguageSettings {
   return {
     language: "en",
     timezone: "UTC",
@@ -151,9 +149,7 @@ function makeLanguage(
   } as LanguageSettings;
 }
 
-function makeAdvanced(
-  overrides?: Partial<AdvancedSettings>,
-): AdvancedSettings {
+function makeAdvanced(overrides?: Partial<AdvancedSettings>): AdvancedSettings {
   return {
     developerMode: false,
     showDebugInfo: false,
@@ -439,7 +435,10 @@ describe("selectMutedChannels", () => {
     const settings = makeSettings({
       notifications: makeNotifications({ mutedChannels: ["ch1", "ch2"] }),
     });
-    expect(selectMutedChannels(makeState({ settings }))).toEqual(["ch1", "ch2"]);
+    expect(selectMutedChannels(makeState({ settings }))).toEqual([
+      "ch1",
+      "ch2",
+    ]);
   });
 });
 
@@ -511,9 +510,9 @@ describe("selectIsSaving", () => {
 
 describe("selectActiveCategory", () => {
   it("returns the active category", () => {
-    expect(selectActiveCategory(makeState({ activeCategory: "appearance" }))).toBe(
-      "appearance",
-    );
+    expect(
+      selectActiveCategory(makeState({ activeCategory: "appearance" })),
+    ).toBe("appearance");
   });
 
   it("returns a different category when set", () => {
@@ -533,7 +532,9 @@ describe("selectSearchQuery", () => {
   });
 
   it("returns the search query when set", () => {
-    expect(selectSearchQuery(makeState({ searchQuery: "notif" }))).toBe("notif");
+    expect(selectSearchQuery(makeState({ searchQuery: "notif" }))).toBe(
+      "notif",
+    );
   });
 });
 
@@ -547,9 +548,9 @@ describe("selectHasUnsavedChanges", () => {
   });
 
   it("returns true when there are unsaved changes", () => {
-    expect(selectHasUnsavedChanges(makeState({ hasUnsavedChanges: true }))).toBe(
-      true,
-    );
+    expect(
+      selectHasUnsavedChanges(makeState({ hasUnsavedChanges: true })),
+    ).toBe(true);
   });
 });
 
@@ -563,7 +564,9 @@ describe("selectSyncStatus", () => {
   });
 
   it("returns pending when syncing", () => {
-    expect(selectSyncStatus(makeState({ syncStatus: "pending" }))).toBe("pending");
+    expect(selectSyncStatus(makeState({ syncStatus: "pending" }))).toBe(
+      "pending",
+    );
   });
 
   it("returns error when sync failed", () => {
@@ -581,7 +584,9 @@ describe("selectError", () => {
   });
 
   it("returns the error message", () => {
-    expect(selectError(makeState({ error: "Save failed" }))).toBe("Save failed");
+    expect(selectError(makeState({ error: "Save failed" }))).toBe(
+      "Save failed",
+    );
   });
 });
 

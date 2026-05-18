@@ -103,7 +103,12 @@ function makePoll(overrides?: Partial<Record<string, unknown>>) {
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-01-01T00:00:00Z",
     closed_at: null,
-    creator: { id: "u1", username: "alice", display_name: "Alice", avatar_url: null },
+    creator: {
+      id: "u1",
+      username: "alice",
+      display_name: "Alice",
+      avatar_url: null,
+    },
     total_votes: 0,
     ...overrides,
   } as never;
@@ -253,7 +258,9 @@ describe("selectViewingResultsFor", () => {
   });
 
   it("returns the poll id when viewing results", () => {
-    expect(selectViewingResultsFor(makeState({ viewingResultsFor: "p99" }))).toBe("p99");
+    expect(
+      selectViewingResultsFor(makeState({ viewingResultsFor: "p99" })),
+    ).toBe("p99");
   });
 });
 

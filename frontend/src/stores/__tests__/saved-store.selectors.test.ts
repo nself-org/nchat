@@ -170,8 +170,8 @@ describe("selectError", () => {
   });
 
   it("returns the error string when set", () => {
-    expect(selectError(makeState({ error: "Failed to load saved messages" }))).toBe(
-      "Failed to load saved messages",
-    );
+    expect(
+      selectError(makeState({ error: "Failed to load saved messages" })),
+    ).toBe("Failed to load saved messages");
   });
 });

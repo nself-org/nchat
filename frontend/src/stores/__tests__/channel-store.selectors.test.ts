@@ -147,7 +147,9 @@ describe("selectActiveChannel", () => {
   it("returns the active channel when present", () => {
     const ch = makeChannel({ id: "ch1" });
     const channels = new Map([["ch1", ch]]);
-    const result = selectActiveChannel(makeState({ channels, activeChannelId: "ch1" }));
+    const result = selectActiveChannel(
+      makeState({ channels, activeChannelId: "ch1" }),
+    );
     expect(result).toBe(ch);
   });
 });
@@ -164,7 +166,10 @@ describe("selectChannelList", () => {
   it("returns all channels as an array", () => {
     const ch1 = makeChannel({ id: "ch1" });
     const ch2 = makeChannel({ id: "ch2", name: "random" });
-    const channels = new Map([["ch1", ch1], ["ch2", ch2]]);
+    const channels = new Map([
+      ["ch1", ch1],
+      ["ch2", ch2],
+    ]);
     const result = selectChannelList(makeState({ channels }));
     expect(result).toHaveLength(2);
     expect(result).toContain(ch1);
@@ -183,9 +188,17 @@ describe("selectPublicChannels", () => {
 
   it("returns only non-archived public channels", () => {
     const pub = makeChannel({ id: "ch1", type: "public", isArchived: false });
-    const archivedPub = makeChannel({ id: "ch2", type: "public", isArchived: true });
+    const archivedPub = makeChannel({
+      id: "ch2",
+      type: "public",
+      isArchived: true,
+    });
     const priv = makeChannel({ id: "ch3", type: "private", isArchived: false });
-    const channels = new Map([["ch1", pub], ["ch2", archivedPub], ["ch3", priv]]);
+    const channels = new Map([
+      ["ch1", pub],
+      ["ch2", archivedPub],
+      ["ch3", priv],
+    ]);
     const result = selectPublicChannels(makeState({ channels }));
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(pub);
@@ -203,9 +216,17 @@ describe("selectPrivateChannels", () => {
 
   it("returns only non-archived private channels", () => {
     const priv = makeChannel({ id: "ch1", type: "private", isArchived: false });
-    const archivedPriv = makeChannel({ id: "ch2", type: "private", isArchived: true });
+    const archivedPriv = makeChannel({
+      id: "ch2",
+      type: "private",
+      isArchived: true,
+    });
     const pub = makeChannel({ id: "ch3", type: "public", isArchived: false });
-    const channels = new Map([["ch1", priv], ["ch2", archivedPriv], ["ch3", pub]]);
+    const channels = new Map([
+      ["ch1", priv],
+      ["ch2", archivedPriv],
+      ["ch3", pub],
+    ]);
     const result = selectPrivateChannels(makeState({ channels }));
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(priv);
@@ -224,9 +245,18 @@ describe("selectDirectMessages", () => {
   it("returns direct and group channels that are not archived", () => {
     const dm = makeChannel({ id: "ch1", type: "direct", isArchived: false });
     const group = makeChannel({ id: "ch2", type: "group", isArchived: false });
-    const archivedDm = makeChannel({ id: "ch3", type: "direct", isArchived: true });
+    const archivedDm = makeChannel({
+      id: "ch3",
+      type: "direct",
+      isArchived: true,
+    });
     const pub = makeChannel({ id: "ch4", type: "public", isArchived: false });
-    const channels = new Map([["ch1", dm], ["ch2", group], ["ch3", archivedDm], ["ch4", pub]]);
+    const channels = new Map([
+      ["ch1", dm],
+      ["ch2", group],
+      ["ch3", archivedDm],
+      ["ch4", pub],
+    ]);
     const result = selectDirectMessages(makeState({ channels }));
     expect(result).toHaveLength(2);
     expect(result).toContain(dm);
@@ -248,9 +278,14 @@ describe("selectStarredChannels", () => {
   it("returns only starred channels", () => {
     const ch1 = makeChannel({ id: "ch1" });
     const ch2 = makeChannel({ id: "ch2" });
-    const channels = new Map([["ch1", ch1], ["ch2", ch2]]);
+    const channels = new Map([
+      ["ch1", ch1],
+      ["ch2", ch2],
+    ]);
     const starredChannels = new Set(["ch1"]);
-    const result = selectStarredChannels(makeState({ channels, starredChannels }));
+    const result = selectStarredChannels(
+      makeState({ channels, starredChannels }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(ch1);
   });
@@ -268,7 +303,10 @@ describe("selectMutedChannels", () => {
   it("returns only muted channels", () => {
     const ch1 = makeChannel({ id: "ch1" });
     const ch2 = makeChannel({ id: "ch2" });
-    const channels = new Map([["ch1", ch1], ["ch2", ch2]]);
+    const channels = new Map([
+      ["ch1", ch1],
+      ["ch2", ch2],
+    ]);
     const mutedChannels = new Set(["ch2"]);
     const result = selectMutedChannels(makeState({ channels, mutedChannels }));
     expect(result).toHaveLength(1);
@@ -288,10 +326,15 @@ describe("selectRecentChannels", () => {
   it("returns channels in recent order, filtering missing ids", () => {
     const ch1 = makeChannel({ id: "ch1" });
     const ch2 = makeChannel({ id: "ch2" });
-    const channels = new Map([["ch1", ch1], ["ch2", ch2]]);
+    const channels = new Map([
+      ["ch1", ch1],
+      ["ch2", ch2],
+    ]);
     // "missing" id should be filtered out
     const recentChannels = ["ch2", "ch1", "missing"];
-    const result = selectRecentChannels(makeState({ channels, recentChannels }));
+    const result = selectRecentChannels(
+      makeState({ channels, recentChannels }),
+    );
     expect(result).toHaveLength(2);
     expect(result[0]).toBe(ch2);
     expect(result[1]).toBe(ch1);
@@ -311,9 +354,15 @@ describe("selectVisibleChannels", () => {
     const visible = makeChannel({ id: "ch1", isArchived: false });
     const hidden = makeChannel({ id: "ch2", isArchived: false });
     const archived = makeChannel({ id: "ch3", isArchived: true });
-    const channels = new Map([["ch1", visible], ["ch2", hidden], ["ch3", archived]]);
+    const channels = new Map([
+      ["ch1", visible],
+      ["ch2", hidden],
+      ["ch3", archived],
+    ]);
     const hiddenChannels = new Set(["ch2"]);
-    const result = selectVisibleChannels(makeState({ channels, hiddenChannels }));
+    const result = selectVisibleChannels(
+      makeState({ channels, hiddenChannels }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(visible);
   });
@@ -368,12 +417,16 @@ describe("selectIsChannelMuted", () => {
 
   it("returns true when channel is muted", () => {
     const mutedChannels = new Set(["ch1"]);
-    expect(selectIsChannelMuted("ch1")(makeState({ mutedChannels }))).toBe(true);
+    expect(selectIsChannelMuted("ch1")(makeState({ mutedChannels }))).toBe(
+      true,
+    );
   });
 
   it("returns false for a different channel id", () => {
     const mutedChannels = new Set(["ch2"]);
-    expect(selectIsChannelMuted("ch1")(makeState({ mutedChannels }))).toBe(false);
+    expect(selectIsChannelMuted("ch1")(makeState({ mutedChannels }))).toBe(
+      false,
+    );
   });
 });
 
@@ -388,7 +441,9 @@ describe("selectIsChannelStarred", () => {
 
   it("returns true when channel is starred", () => {
     const starredChannels = new Set(["ch1"]);
-    expect(selectIsChannelStarred("ch1")(makeState({ starredChannels }))).toBe(true);
+    expect(selectIsChannelStarred("ch1")(makeState({ starredChannels }))).toBe(
+      true,
+    );
   });
 });
 
@@ -403,6 +458,8 @@ describe("selectIsChannelPinned", () => {
 
   it("returns true when channel is pinned", () => {
     const pinnedChannels = new Set(["ch1"]);
-    expect(selectIsChannelPinned("ch1")(makeState({ pinnedChannels }))).toBe(true);
+    expect(selectIsChannelPinned("ch1")(makeState({ pinnedChannels }))).toBe(
+      true,
+    );
   });
 });

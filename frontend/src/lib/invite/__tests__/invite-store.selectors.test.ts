@@ -57,7 +57,9 @@ describe("selectIsCreateModalOpen", () => {
   });
 
   it("returns true when modal is open", () => {
-    expect(selectIsCreateModalOpen(makeState({ isCreateModalOpen: true }))).toBe(true);
+    expect(
+      selectIsCreateModalOpen(makeState({ isCreateModalOpen: true })),
+    ).toBe(true);
   });
 });
 
@@ -72,7 +74,9 @@ describe("selectCreateModalOptions", () => {
 
   it("returns the modal options when set", () => {
     const options = { type: "workspace", channelId: null } as never;
-    expect(selectCreateModalOptions(makeState({ createModalOptions: options }))).toBe(options);
+    expect(
+      selectCreateModalOptions(makeState({ createModalOptions: options })),
+    ).toBe(options);
   });
 });
 
@@ -101,7 +105,9 @@ describe("selectCreatedInvite", () => {
 
   it("returns the created invite when set", () => {
     const invite = { id: "inv1", code: "ABC123", type: "workspace" } as never;
-    expect(selectCreatedInvite(makeState({ createdInvite: invite }))).toBe(invite);
+    expect(selectCreatedInvite(makeState({ createdInvite: invite }))).toBe(
+      invite,
+    );
   });
 });
 
@@ -137,7 +143,9 @@ describe("selectInvitePreview", () => {
       isLoading: false,
       error: null,
     } as never;
-    expect(selectInvitePreview(makeState({ invitePreview: preview }))).toBe(preview);
+    expect(selectInvitePreview(makeState({ invitePreview: preview }))).toBe(
+      preview,
+    );
   });
 });
 
@@ -196,7 +204,9 @@ describe("selectRecentInvites", () => {
 
   it("returns the recentInvites array", () => {
     const recentInvites = [{ id: "inv1", code: "ABC" } as never];
-    expect(selectRecentInvites(makeState({ recentInvites }))).toBe(recentInvites);
+    expect(selectRecentInvites(makeState({ recentInvites }))).toBe(
+      recentInvites,
+    );
   });
 });
 
@@ -211,7 +221,9 @@ describe("selectActiveInvites", () => {
 
   it("returns the activeInvites array", () => {
     const activeInvites = [{ id: "inv2", code: "XYZ" } as never];
-    expect(selectActiveInvites(makeState({ activeInvites }))).toBe(activeInvites);
+    expect(selectActiveInvites(makeState({ activeInvites }))).toBe(
+      activeInvites,
+    );
   });
 });
 
@@ -225,7 +237,9 @@ describe("selectIsLoadingInvites", () => {
   });
 
   it("returns true when loading invites", () => {
-    expect(selectIsLoadingInvites(makeState({ isLoadingInvites: true }))).toBe(true);
+    expect(selectIsLoadingInvites(makeState({ isLoadingInvites: true }))).toBe(
+      true,
+    );
   });
 });
 

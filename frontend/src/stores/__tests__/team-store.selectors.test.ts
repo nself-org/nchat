@@ -153,9 +153,9 @@ describe("selectIsLoadingMembers", () => {
   });
 
   it("returns true when loading", () => {
-    expect(
-      selectIsLoadingMembers(makeState({ isLoadingMembers: true })),
-    ).toBe(true);
+    expect(selectIsLoadingMembers(makeState({ isLoadingMembers: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -200,7 +200,9 @@ describe("selectInviteLinks", () => {
   });
 
   it("returns the invite links array", () => {
-    const inviteLinks = [{ id: "link1", url: "https://example.com/invite/abc" } as InviteLink];
+    const inviteLinks = [
+      { id: "link1", url: "https://example.com/invite/abc" } as InviteLink,
+    ];
     expect(selectInviteLinks(makeState({ inviteLinks }))).toBe(inviteLinks);
   });
 });
@@ -258,8 +260,6 @@ describe("selectExportRequests", () => {
       { id: "exp1", status: "pending" } as TeamExportResult,
       { id: "exp2", status: "completed" } as TeamExportResult,
     ];
-    expect(
-      selectExportRequests(makeState({ exportRequests })),
-    ).toHaveLength(2);
+    expect(selectExportRequests(makeState({ exportRequests }))).toHaveLength(2);
   });
 });

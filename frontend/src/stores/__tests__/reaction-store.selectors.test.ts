@@ -5,7 +5,12 @@
  * Tests construct minimal plain-object state and call selectors directly.
  */
 
-import type { ReactionStore, ReactionPickerState, CustomEmoji, ReactionUsage } from "../reaction-store";
+import type {
+  ReactionStore,
+  ReactionPickerState,
+  CustomEmoji,
+  ReactionUsage,
+} from "../reaction-store";
 import {
   selectRecentReactions,
   selectQuickReactions,
@@ -22,7 +27,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makePicker(overrides?: Partial<ReactionPickerState>): ReactionPickerState {
+function makePicker(
+  overrides?: Partial<ReactionPickerState>,
+): ReactionPickerState {
   return {
     isOpen: false,
     targetMessageId: null,
@@ -34,7 +41,9 @@ function makePicker(overrides?: Partial<ReactionPickerState>): ReactionPickerSta
   };
 }
 
-function makeState(overrides?: Partial<Record<string, unknown>>): ReactionStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): ReactionStore {
   const defaultState = {
     recentReactions: [] as string[],
     frequentReactions: new Map<string, ReactionUsage>(),
@@ -60,7 +69,9 @@ describe("selectRecentReactions", () => {
 
   it("returns the recentReactions array", () => {
     const recentReactions = ["👍", "❤️"];
-    expect(selectRecentReactions(makeState({ recentReactions }))).toBe(recentReactions);
+    expect(selectRecentReactions(makeState({ recentReactions }))).toBe(
+      recentReactions,
+    );
   });
 });
 
@@ -77,7 +88,9 @@ describe("selectQuickReactions", () => {
 
   it("returns the quickReactions array", () => {
     const quickReactions = ["👍", "❤️", "🔥"];
-    expect(selectQuickReactions(makeState({ quickReactions }))).toBe(quickReactions);
+    expect(selectQuickReactions(makeState({ quickReactions }))).toBe(
+      quickReactions,
+    );
   });
 });
 
@@ -91,7 +104,9 @@ describe("selectSkinTone", () => {
   });
 
   it("returns the skin tone when set", () => {
-    expect(selectSkinTone(makeState({ skinTone: "1F3FB" as never }))).toBe("1F3FB");
+    expect(selectSkinTone(makeState({ skinTone: "1F3FB" as never }))).toBe(
+      "1F3FB",
+    );
   });
 });
 
@@ -151,9 +166,24 @@ describe("selectCustomEmojis", () => {
   });
 
   it("returns array of all custom emojis", () => {
-    const emoji1 = { id: "e1", name: "wave", shortcode: ":wave:", url: "/wave.png", createdAt: "2024-01-01" } as never;
-    const emoji2 = { id: "e2", name: "fire", shortcode: ":fire:", url: "/fire.png", createdAt: "2024-01-01" } as never;
-    const customEmojis = new Map([["e1", emoji1], ["e2", emoji2]]);
+    const emoji1 = {
+      id: "e1",
+      name: "wave",
+      shortcode: ":wave:",
+      url: "/wave.png",
+      createdAt: "2024-01-01",
+    } as never;
+    const emoji2 = {
+      id: "e2",
+      name: "fire",
+      shortcode: ":fire:",
+      url: "/fire.png",
+      createdAt: "2024-01-01",
+    } as never;
+    const customEmojis = new Map([
+      ["e1", emoji1],
+      ["e2", emoji2],
+    ]);
     const result = selectCustomEmojis(makeState({ customEmojis }));
     expect(result).toHaveLength(2);
     expect(result).toContain(emoji1);
@@ -171,19 +201,57 @@ describe("selectCustomEmojisByCategory", () => {
   });
 
   it("returns only emojis for the specified category", () => {
-    const emoji1 = { id: "e1", name: "wave", shortcode: ":wave:", url: "/w.png", category: "fun", createdAt: "2024-01-01" } as never;
-    const emoji2 = { id: "e2", name: "star", shortcode: ":star:", url: "/s.png", category: "work", createdAt: "2024-01-01" } as never;
-    const emoji3 = { id: "e3", name: "fire", shortcode: ":fire:", url: "/f.png", category: "fun", createdAt: "2024-01-01" } as never;
-    const customEmojis = new Map([["e1", emoji1], ["e2", emoji2], ["e3", emoji3]]);
-    const result = selectCustomEmojisByCategory("fun")(makeState({ customEmojis }));
+    const emoji1 = {
+      id: "e1",
+      name: "wave",
+      shortcode: ":wave:",
+      url: "/w.png",
+      category: "fun",
+      createdAt: "2024-01-01",
+    } as never;
+    const emoji2 = {
+      id: "e2",
+      name: "star",
+      shortcode: ":star:",
+      url: "/s.png",
+      category: "work",
+      createdAt: "2024-01-01",
+    } as never;
+    const emoji3 = {
+      id: "e3",
+      name: "fire",
+      shortcode: ":fire:",
+      url: "/f.png",
+      category: "fun",
+      createdAt: "2024-01-01",
+    } as never;
+    const customEmojis = new Map([
+      ["e1", emoji1],
+      ["e2", emoji2],
+      ["e3", emoji3],
+    ]);
+    const result = selectCustomEmojisByCategory("fun")(
+      makeState({ customEmojis }),
+    );
     expect(result).toHaveLength(2);
-    expect(result.every((e: { category: string }) => e.category === "fun")).toBe(true);
+    expect(
+      result.every((e: { category: string }) => e.category === "fun"),
+    ).toBe(true);
   });
 
   it("returns empty array when no emojis match the category", () => {
-    const emoji1 = { id: "e1", name: "wave", shortcode: ":wave:", url: "/w.png", category: "fun", createdAt: "2024-01-01" } as never;
+    const emoji1 = {
+      id: "e1",
+      name: "wave",
+      shortcode: ":wave:",
+      url: "/w.png",
+      category: "fun",
+      createdAt: "2024-01-01",
+    } as never;
     const customEmojis = new Map([["e1", emoji1]]);
-    expect(selectCustomEmojisByCategory("work")(makeState({ customEmojis }))).toEqual([]);
+    expect(
+      selectCustomEmojisByCategory("work")(makeState({ customEmojis })),
+    ).toEqual([]);
   });
 });
 

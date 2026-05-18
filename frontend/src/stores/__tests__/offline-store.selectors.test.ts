@@ -31,7 +31,13 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeSyncState(overrides?: Partial<{ status: string; progress: number; lastSyncAt: Date | null }>) {
+function makeSyncState(
+  overrides?: Partial<{
+    status: string;
+    progress: number;
+    lastSyncAt: Date | null;
+  }>,
+) {
   return {
     status: "idle" as never,
     progress: 0,
@@ -89,7 +95,9 @@ describe("selectQueuedActions", () => {
 
   it("returns the queuedActions array", () => {
     const queuedActions = [{ id: "a1", status: "pending" } as never];
-    expect(selectQueuedActions(makeState({ queuedActions }))).toBe(queuedActions);
+    expect(selectQueuedActions(makeState({ queuedActions }))).toBe(
+      queuedActions,
+    );
   });
 });
 
@@ -104,7 +112,9 @@ describe("selectPendingMessages", () => {
 
   it("returns the pendingMessages array", () => {
     const pendingMessages = [{ id: "m1", channelId: "c1" } as never];
-    expect(selectPendingMessages(makeState({ pendingMessages }))).toBe(pendingMessages);
+    expect(selectPendingMessages(makeState({ pendingMessages }))).toBe(
+      pendingMessages,
+    );
   });
 });
 
@@ -118,7 +128,9 @@ describe("selectQueueProcessing", () => {
   });
 
   it("returns true when queue is processing", () => {
-    expect(selectQueueProcessing(makeState({ queueProcessing: true }))).toBe(true);
+    expect(selectQueueProcessing(makeState({ queueProcessing: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -182,7 +194,9 @@ describe("selectSyncStatus", () => {
 
   it("returns the current sync status", () => {
     const sync = makeSyncState({ status: "syncing" as never });
-    expect(selectSyncStatus(makeState({ sync: sync as never }))).toBe("syncing");
+    expect(selectSyncStatus(makeState({ sync: sync as never }))).toBe(
+      "syncing",
+    );
   });
 });
 
@@ -233,7 +247,9 @@ describe("selectLastSyncAt", () => {
   it("returns the last sync timestamp", () => {
     const lastSyncAt = new Date("2024-01-15T12:00:00Z");
     const sync = makeSyncState({ lastSyncAt });
-    expect(selectLastSyncAt(makeState({ sync: sync as never }))).toBe(lastSyncAt);
+    expect(selectLastSyncAt(makeState({ sync: sync as never }))).toBe(
+      lastSyncAt,
+    );
   });
 });
 
@@ -273,7 +289,9 @@ describe("selectCachedChannelIds", () => {
 
   it("returns the cached channel ids array", () => {
     const cachedChannelIds = ["c1", "c2", "c3"];
-    expect(selectCachedChannelIds(makeState({ cachedChannelIds }))).toBe(cachedChannelIds);
+    expect(selectCachedChannelIds(makeState({ cachedChannelIds }))).toBe(
+      cachedChannelIds,
+    );
   });
 });
 
@@ -310,7 +328,9 @@ describe("selectHasPendingChanges", () => {
   it("returns true when both queues have items", () => {
     const queuedActions = [{ id: "a1" } as never];
     const pendingMessages = [{ id: "m1", channelId: "c1" } as never];
-    expect(selectHasPendingChanges(makeState({ queuedActions, pendingMessages }))).toBe(true);
+    expect(
+      selectHasPendingChanges(makeState({ queuedActions, pendingMessages })),
+    ).toBe(true);
   });
 });
 
@@ -329,14 +349,20 @@ describe("selectPendingMessagesByChannel", () => {
       { id: "m2", channelId: "c2" } as never,
       { id: "m3", channelId: "c1" } as never,
     ];
-    const result = selectPendingMessagesByChannel("c1")(makeState({ pendingMessages }));
+    const result = selectPendingMessagesByChannel("c1")(
+      makeState({ pendingMessages }),
+    );
     expect(result).toHaveLength(2);
-    expect(result.every((m: { channelId: string }) => m.channelId === "c1")).toBe(true);
+    expect(
+      result.every((m: { channelId: string }) => m.channelId === "c1"),
+    ).toBe(true);
   });
 
   it("returns empty array when no messages match the channel", () => {
     const pendingMessages = [{ id: "m1", channelId: "c2" } as never];
-    expect(selectPendingMessagesByChannel("c1")(makeState({ pendingMessages }))).toEqual([]);
+    expect(
+      selectPendingMessagesByChannel("c1")(makeState({ pendingMessages })),
+    ).toEqual([]);
   });
 });
 
@@ -355,8 +381,12 @@ describe("selectQueuedActionsByChannel", () => {
       { id: "a2", channelId: "c2", status: "pending" } as never,
       { id: "a3", channelId: "c1", status: "failed" } as never,
     ];
-    const result = selectQueuedActionsByChannel("c1")(makeState({ queuedActions }));
+    const result = selectQueuedActionsByChannel("c1")(
+      makeState({ queuedActions }),
+    );
     expect(result).toHaveLength(2);
-    expect(result.every((a: { channelId: string }) => a.channelId === "c1")).toBe(true);
+    expect(
+      result.every((a: { channelId: string }) => a.channelId === "c1"),
+    ).toBe(true);
   });
 });

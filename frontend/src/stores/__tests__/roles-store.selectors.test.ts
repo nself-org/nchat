@@ -95,7 +95,9 @@ describe("selectSelectedRole", () => {
 
   it("returns undefined when selectedRoleId has no matching role", () => {
     expect(
-      selectSelectedRole(makeState({ selectedRoleId: "missing", rolesById: {} })),
+      selectSelectedRole(
+        makeState({ selectedRoleId: "missing", rolesById: {} }),
+      ),
     ).toBeUndefined();
   });
 
@@ -206,7 +208,9 @@ describe("selectBulkAssignment", () => {
       progress: 50,
       errors: [],
     } as never;
-    expect(selectBulkAssignment(makeState({ bulkAssignment }))).toBe(bulkAssignment);
+    expect(selectBulkAssignment(makeState({ bulkAssignment }))).toBe(
+      bulkAssignment,
+    );
   });
 });
 

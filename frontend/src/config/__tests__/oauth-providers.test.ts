@@ -206,9 +206,7 @@ describe("github provider spot-checks", () => {
   });
 
   it("uses GitHub OAuth authUrl", () => {
-    expect(provider.authUrl).toBe(
-      "https://github.com/login/oauth/authorize",
-    );
+    expect(provider.authUrl).toBe("https://github.com/login/oauth/authorize");
   });
 
   it("has read:user and user:email scopes", () => {
@@ -225,9 +223,7 @@ describe("discord provider spot-checks", () => {
   });
 
   it("uses Discord OAuth2 authUrl", () => {
-    expect(provider.authUrl).toBe(
-      "https://discord.com/api/oauth2/authorize",
-    );
+    expect(provider.authUrl).toBe("https://discord.com/api/oauth2/authorize");
   });
 
   it("has identify and email scopes", () => {

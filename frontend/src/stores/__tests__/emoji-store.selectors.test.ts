@@ -340,9 +340,9 @@ describe("selectCustomEmojisLoaded", () => {
   });
 
   it("returns true when loaded", () => {
-    expect(selectCustomEmojisLoaded(makeState({ customEmojisLoaded: true }))).toBe(
-      true,
-    );
+    expect(
+      selectCustomEmojisLoaded(makeState({ customEmojisLoaded: true })),
+    ).toBe(true);
   });
 });
 
@@ -607,9 +607,9 @@ describe("selectCurrentAutocompleteSuggestion", () => {
       suggestions: [s0, s1],
       selectedIndex: 1,
     });
-    expect(selectCurrentAutocompleteSuggestion(makeState({ autocomplete }))).toBe(
-      s1,
-    );
+    expect(
+      selectCurrentAutocompleteSuggestion(makeState({ autocomplete })),
+    ).toBe(s1);
   });
 
   it("returns null when selectedIndex is out of bounds", () => {
@@ -617,7 +617,9 @@ describe("selectCurrentAutocompleteSuggestion", () => {
       suggestions: [],
       selectedIndex: 5,
     });
-    expect(selectCurrentAutocompleteSuggestion(makeState({ autocomplete }))).toBeNull();
+    expect(
+      selectCurrentAutocompleteSuggestion(makeState({ autocomplete })),
+    ).toBeNull();
   });
 
   it("returns first suggestion when selectedIndex is 0", () => {
@@ -633,9 +635,9 @@ describe("selectCurrentAutocompleteSuggestion", () => {
       suggestions: [s0],
       selectedIndex: 0,
     });
-    expect(selectCurrentAutocompleteSuggestion(makeState({ autocomplete }))).toBe(
-      s0,
-    );
+    expect(
+      selectCurrentAutocompleteSuggestion(makeState({ autocomplete })),
+    ).toBe(s0);
   });
 });
 
@@ -661,7 +663,10 @@ describe("selectPickerTarget", () => {
   });
 
   it("returns just the messageId when channelId is null", () => {
-    const picker = makePicker({ targetMessageId: "msg1", targetChannelId: null });
+    const picker = makePicker({
+      targetMessageId: "msg1",
+      targetChannelId: null,
+    });
     const target = selectPickerTarget(makeState({ picker }));
     expect(target.messageId).toBe("msg1");
     expect(target.channelId).toBeNull();

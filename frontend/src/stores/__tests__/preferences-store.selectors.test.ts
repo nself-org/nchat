@@ -38,7 +38,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeDisplay(overrides?: Partial<DisplayPreferences>): DisplayPreferences {
+function makeDisplay(
+  overrides?: Partial<DisplayPreferences>,
+): DisplayPreferences {
   return {
     theme: "system",
     accentColor: "#6366f1",
@@ -103,7 +105,9 @@ function makeSound(overrides?: Partial<SoundPreferences>): SoundPreferences {
   };
 }
 
-function makeAccessibility(overrides?: Partial<AccessibilityPreferences>): AccessibilityPreferences {
+function makeAccessibility(
+  overrides?: Partial<AccessibilityPreferences>,
+): AccessibilityPreferences {
   return {
     highContrast: false,
     largeClickTargets: false,
@@ -114,7 +118,9 @@ function makeAccessibility(overrides?: Partial<AccessibilityPreferences>): Acces
   };
 }
 
-function makePrivacy(overrides?: Partial<PrivacyPreferences>): PrivacyPreferences {
+function makePrivacy(
+  overrides?: Partial<PrivacyPreferences>,
+): PrivacyPreferences {
   return {
     showOnlineStatus: true,
     showTypingIndicator: true,
@@ -160,11 +166,15 @@ describe("selectTheme", () => {
   });
 
   it("returns the configured theme", () => {
-    expect(selectTheme(makeState({ display: makeDisplay({ theme: "dark" }) }))).toBe("dark");
+    expect(
+      selectTheme(makeState({ display: makeDisplay({ theme: "dark" }) })),
+    ).toBe("dark");
   });
 
   it("returns light theme", () => {
-    expect(selectTheme(makeState({ display: makeDisplay({ theme: "light" }) }))).toBe("light");
+    expect(
+      selectTheme(makeState({ display: makeDisplay({ theme: "light" }) })),
+    ).toBe("light");
   });
 });
 
@@ -178,7 +188,11 @@ describe("selectAccentColor", () => {
   });
 
   it("returns a custom accent color", () => {
-    expect(selectAccentColor(makeState({ display: makeDisplay({ accentColor: "#ff0000" }) }))).toBe("#ff0000");
+    expect(
+      selectAccentColor(
+        makeState({ display: makeDisplay({ accentColor: "#ff0000" }) }),
+      ),
+    ).toBe("#ff0000");
   });
 });
 
@@ -192,11 +206,19 @@ describe("selectMessageDensity", () => {
   });
 
   it("returns compact density", () => {
-    expect(selectMessageDensity(makeState({ display: makeDisplay({ messageDensity: "compact" }) }))).toBe("compact");
+    expect(
+      selectMessageDensity(
+        makeState({ display: makeDisplay({ messageDensity: "compact" }) }),
+      ),
+    ).toBe("compact");
   });
 
   it("returns spacious density", () => {
-    expect(selectMessageDensity(makeState({ display: makeDisplay({ messageDensity: "spacious" }) }))).toBe("spacious");
+    expect(
+      selectMessageDensity(
+        makeState({ display: makeDisplay({ messageDensity: "spacious" }) }),
+      ),
+    ).toBe("spacious");
   });
 });
 
@@ -210,11 +232,19 @@ describe("selectFontSize", () => {
   });
 
   it("returns small font size", () => {
-    expect(selectFontSize(makeState({ display: makeDisplay({ fontSize: "small" }) }))).toBe("small");
+    expect(
+      selectFontSize(
+        makeState({ display: makeDisplay({ fontSize: "small" }) }),
+      ),
+    ).toBe("small");
   });
 
   it("returns large font size", () => {
-    expect(selectFontSize(makeState({ display: makeDisplay({ fontSize: "large" }) }))).toBe("large");
+    expect(
+      selectFontSize(
+        makeState({ display: makeDisplay({ fontSize: "large" }) }),
+      ),
+    ).toBe("large");
   });
 });
 
@@ -341,7 +371,9 @@ describe("selectKeyboardShortcuts", () => {
       makeShortcut({ id: "goto-channel" }),
       makeShortcut({ id: "goto-search", keys: ["mod", "/"] }),
     ];
-    expect(selectKeyboardShortcuts(makeState({ keyboardShortcuts: shortcuts }))).toBe(shortcuts);
+    expect(
+      selectKeyboardShortcuts(makeState({ keyboardShortcuts: shortcuts })),
+    ).toBe(shortcuts);
   });
 });
 
@@ -351,7 +383,9 @@ describe("selectKeyboardShortcuts", () => {
 
 describe("selectKeyboardShortcutsByCategory", () => {
   it("returns empty array when no shortcuts", () => {
-    expect(selectKeyboardShortcutsByCategory("navigation")(makeState())).toEqual([]);
+    expect(
+      selectKeyboardShortcutsByCategory("navigation")(makeState()),
+    ).toEqual([]);
   });
 
   it("returns shortcuts matching the given category", () => {
@@ -359,7 +393,9 @@ describe("selectKeyboardShortcutsByCategory", () => {
     const nav2 = makeShortcut({ id: "goto-search", category: "navigation" });
     const msg = makeShortcut({ id: "edit-message", category: "messages" });
     const shortcuts = [nav1, nav2, msg];
-    const result = selectKeyboardShortcutsByCategory("navigation")(makeState({ keyboardShortcuts: shortcuts }));
+    const result = selectKeyboardShortcutsByCategory("navigation")(
+      makeState({ keyboardShortcuts: shortcuts }),
+    );
     expect(result).toHaveLength(2);
     expect(result[0]).toBe(nav1);
     expect(result[1]).toBe(nav2);
@@ -367,7 +403,11 @@ describe("selectKeyboardShortcutsByCategory", () => {
 
   it("returns empty array for unknown category", () => {
     const shortcuts = [makeShortcut({ category: "navigation" })];
-    expect(selectKeyboardShortcutsByCategory("unknown")(makeState({ keyboardShortcuts: shortcuts }))).toEqual([]);
+    expect(
+      selectKeyboardShortcutsByCategory("unknown")(
+        makeState({ keyboardShortcuts: shortcuts }),
+      ),
+    ).toEqual([]);
   });
 });
 
@@ -383,13 +423,19 @@ describe("selectKeyboardShortcut", () => {
   it("returns the shortcut with the matching id", () => {
     const target = makeShortcut({ id: "goto-search", keys: ["mod", "/"] });
     const shortcuts = [makeShortcut({ id: "goto-channel" }), target];
-    const result = selectKeyboardShortcut("goto-search")(makeState({ keyboardShortcuts: shortcuts }));
+    const result = selectKeyboardShortcut("goto-search")(
+      makeState({ keyboardShortcuts: shortcuts }),
+    );
     expect(result).toBe(target);
   });
 
   it("returns undefined for unknown id", () => {
     const shortcuts = [makeShortcut({ id: "goto-channel" })];
-    expect(selectKeyboardShortcut("missing")(makeState({ keyboardShortcuts: shortcuts }))).toBeUndefined();
+    expect(
+      selectKeyboardShortcut("missing")(
+        makeState({ keyboardShortcuts: shortcuts }),
+      ),
+    ).toBeUndefined();
   });
 });
 
@@ -406,7 +452,9 @@ describe("selectEnabledKeyboardShortcuts", () => {
     const enabled = makeShortcut({ id: "goto-channel", enabled: true });
     const disabled = makeShortcut({ id: "goto-search", enabled: false });
     const shortcuts = [enabled, disabled];
-    const result = selectEnabledKeyboardShortcuts(makeState({ keyboardShortcuts: shortcuts }));
+    const result = selectEnabledKeyboardShortcuts(
+      makeState({ keyboardShortcuts: shortcuts }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(enabled);
   });
@@ -416,7 +464,11 @@ describe("selectEnabledKeyboardShortcuts", () => {
       makeShortcut({ id: "s1", enabled: true }),
       makeShortcut({ id: "s2", enabled: true }),
     ];
-    expect(selectEnabledKeyboardShortcuts(makeState({ keyboardShortcuts: shortcuts }))).toHaveLength(2);
+    expect(
+      selectEnabledKeyboardShortcuts(
+        makeState({ keyboardShortcuts: shortcuts }),
+      ),
+    ).toHaveLength(2);
   });
 });
 
@@ -430,6 +482,8 @@ describe("selectPreferencesOpen", () => {
   });
 
   it("returns true when preferences are open", () => {
-    expect(selectPreferencesOpen(makeState({ preferencesOpen: true }))).toBe(true);
+    expect(selectPreferencesOpen(makeState({ preferencesOpen: true }))).toBe(
+      true,
+    );
   });
 });

@@ -26,7 +26,11 @@ import {
   selectFilteredMeetings,
 } from "../meeting-store";
 
-import type { Meeting, MeetingFilters, Huddle } from "@/lib/meetings/meeting-types";
+import type {
+  Meeting,
+  MeetingFilters,
+  Huddle,
+} from "@/lib/meetings/meeting-types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -354,10 +358,7 @@ describe("selectRemoteParticipants", () => {
   });
 
   it("returns remote participants from room state", () => {
-    const remoteParticipants = [
-      { userId: "u2" },
-      { userId: "u3" },
-    ] as never[];
+    const remoteParticipants = [{ userId: "u2" }, { userId: "u3" }] as never[];
     const roomState = { remoteParticipants } as never;
     expect(selectRemoteParticipants(makeState({ roomState }))).toBe(
       remoteParticipants,
@@ -407,9 +408,9 @@ describe("selectSelectedMeetingCount", () => {
 
   it("returns the number of selected meetings", () => {
     const selectedMeetingIds = new Set(["m1", "m2", "m3"]);
-    expect(
-      selectSelectedMeetingCount(makeState({ selectedMeetingIds })),
-    ).toBe(3);
+    expect(selectSelectedMeetingCount(makeState({ selectedMeetingIds }))).toBe(
+      3,
+    );
   });
 });
 

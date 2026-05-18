@@ -10,7 +10,12 @@
  *     calculateAnnualSavings, formatPrice
  */
 
-import { UsageTracker, requirePlanFeature, requirePlanTier, incrementUsage } from "../usage-tracker";
+import {
+  UsageTracker,
+  requirePlanFeature,
+  requirePlanTier,
+  incrementUsage,
+} from "../usage-tracker";
 import {
   PLANS,
   DEFAULT_PLAN,
@@ -59,7 +64,13 @@ describe("billing-plans constants", () => {
   });
 
   it("PLANS has all five tiers", () => {
-    expect(Object.keys(PLANS)).toEqual(["free", "starter", "pro", "business", "enterprise"]);
+    expect(Object.keys(PLANS)).toEqual([
+      "free",
+      "starter",
+      "pro",
+      "business",
+      "enterprise",
+    ]);
   });
 
   it("each plan has an id matching its tier key", () => {
@@ -92,7 +103,13 @@ describe("getAllPlans", () => {
   it("returns an array with all five plans", () => {
     const plans = getAllPlans();
     expect(plans).toHaveLength(5);
-    expect(plans.map((p) => p.id)).toEqual(["free", "starter", "pro", "business", "enterprise"]);
+    expect(plans.map((p) => p.id)).toEqual([
+      "free",
+      "starter",
+      "pro",
+      "business",
+      "enterprise",
+    ]);
   });
 });
 
@@ -156,19 +173,25 @@ describe("formatPrice", () => {
 describe("UsageTracker.isFeatureAllowed", () => {
   it("returns false for boolean feature not enabled on free tier", () => {
     expect(UsageTracker.isFeatureAllowed("free", "customBranding")).toBe(false);
-    expect(UsageTracker.isFeatureAllowed("free", "advancedAnalytics")).toBe(false);
+    expect(UsageTracker.isFeatureAllowed("free", "advancedAnalytics")).toBe(
+      false,
+    );
     expect(UsageTracker.isFeatureAllowed("free", "screenSharing")).toBe(false);
   });
 
   it("returns true for boolean feature enabled on free tier", () => {
     expect(UsageTracker.isFeatureAllowed("free", "dataExport")).toBe(true);
-    expect(UsageTracker.isFeatureAllowed("free", "videoConferencing")).toBe(true);
+    expect(UsageTracker.isFeatureAllowed("free", "videoConferencing")).toBe(
+      true,
+    );
     expect(UsageTracker.isFeatureAllowed("free", "voiceMessages")).toBe(true);
   });
 
   it("returns true for features unlocked on pro tier", () => {
     expect(UsageTracker.isFeatureAllowed("pro", "customBranding")).toBe(true);
-    expect(UsageTracker.isFeatureAllowed("pro", "advancedAnalytics")).toBe(true);
+    expect(UsageTracker.isFeatureAllowed("pro", "advancedAnalytics")).toBe(
+      true,
+    );
     expect(UsageTracker.isFeatureAllowed("pro", "ssoIntegration")).toBe(true);
     expect(UsageTracker.isFeatureAllowed("pro", "whiteLabel")).toBe(true);
   });
@@ -180,9 +203,15 @@ describe("UsageTracker.isFeatureAllowed", () => {
   });
 
   it("enterprise unlocks all boolean features", () => {
-    expect(UsageTracker.isFeatureAllowed("enterprise", "tokenGating")).toBe(true);
-    expect(UsageTracker.isFeatureAllowed("enterprise", "cryptoPayments")).toBe(true);
-    expect(UsageTracker.isFeatureAllowed("enterprise", "nftIntegration")).toBe(true);
+    expect(UsageTracker.isFeatureAllowed("enterprise", "tokenGating")).toBe(
+      true,
+    );
+    expect(UsageTracker.isFeatureAllowed("enterprise", "cryptoPayments")).toBe(
+      true,
+    );
+    expect(UsageTracker.isFeatureAllowed("enterprise", "nftIntegration")).toBe(
+      true,
+    );
     expect(UsageTracker.isFeatureAllowed("enterprise", "sla")).toBe(true);
   });
 });
@@ -212,7 +241,9 @@ describe("UsageTracker.getLimit", () => {
 
   it("returns correct limits for starter tier", () => {
     expect(UsageTracker.getLimit("starter", "maxUsers")).toBe(50);
-    expect(UsageTracker.getLimit("starter", "maxMessagesPerMonth")).toBe(100000);
+    expect(UsageTracker.getLimit("starter", "maxMessagesPerMonth")).toBe(
+      100000,
+    );
     expect(UsageTracker.getLimit("starter", "maxStorageGB")).toBe(50);
   });
 });
@@ -298,12 +329,18 @@ describe("UsageTracker.calculateWarnings", () => {
     const usage = makeUsage({ users: 9, channels: 4 });
     const warnings = UsageTracker.calculateWarnings("free", usage);
     expect(warnings.length).toBeGreaterThanOrEqual(2);
-    expect(warnings[0].percentage).toBeGreaterThanOrEqual(warnings[1].percentage);
+    expect(warnings[0].percentage).toBeGreaterThanOrEqual(
+      warnings[1].percentage,
+    );
   });
 
   it("skips unlimited features (enterprise)", () => {
     // enterprise has null limits — should produce no warnings
-    const usage = makeUsage({ users: 99999, channels: 99999, messages: 99999999 });
+    const usage = makeUsage({
+      users: 99999,
+      channels: 99999,
+      messages: 99999999,
+    });
     const warnings = UsageTracker.calculateWarnings("enterprise", usage);
     expect(warnings).toHaveLength(0);
   });
@@ -324,7 +361,12 @@ describe("UsageTracker.calculateWarnings", () => {
 
 describe("UsageTracker.hasExceededLimits", () => {
   it("returns false when all usage is below limits", () => {
-    const usage = makeUsage({ users: 5, channels: 3, messages: 100, storageGB: 1 });
+    const usage = makeUsage({
+      users: 5,
+      channels: 3,
+      messages: 100,
+      storageGB: 1,
+    });
     expect(UsageTracker.hasExceededLimits("free", usage)).toBe(false);
   });
 
@@ -339,7 +381,11 @@ describe("UsageTracker.hasExceededLimits", () => {
   });
 
   it("returns false for enterprise (all limits null)", () => {
-    const usage = makeUsage({ users: 999999, channels: 99999, messages: 9999999 });
+    const usage = makeUsage({
+      users: 999999,
+      channels: 99999,
+      messages: 9999999,
+    });
     expect(UsageTracker.hasExceededLimits("enterprise", usage)).toBe(false);
   });
 });
@@ -557,7 +603,13 @@ describe("incrementUsage", () => {
   });
 
   it("works for storageGB, bots, integrations, aiMinutes, aiQueries", () => {
-    const usage = makeUsage({ storageGB: 1.5, bots: 0, integrations: 2, aiMinutes: 10, aiQueries: 50 });
+    const usage = makeUsage({
+      storageGB: 1.5,
+      bots: 0,
+      integrations: 2,
+      aiMinutes: 10,
+      aiQueries: 50,
+    });
     expect(incrementUsage(usage, "storageGB", 0.5).storageGB).toBeCloseTo(2.0);
     expect(incrementUsage(usage, "bots", 2).bots).toBe(2);
     expect(incrementUsage(usage, "integrations", 1).integrations).toBe(3);

@@ -145,16 +145,10 @@ export default function RootLayout({
         {/* DNS prefetch for API endpoints — only rendered when the env var is set
             so we never emit an empty href="" which violates WCAG (axe: empty-href) */}
         {process.env.NEXT_PUBLIC_GRAPHQL_URL && (
-          <link
-            rel="dns-prefetch"
-            href={process.env.NEXT_PUBLIC_GRAPHQL_URL}
-          />
+          <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_GRAPHQL_URL} />
         )}
         {process.env.NEXT_PUBLIC_AUTH_URL && (
-          <link
-            rel="dns-prefetch"
-            href={process.env.NEXT_PUBLIC_AUTH_URL}
-          />
+          <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_AUTH_URL} />
         )}
 
         {/* iOS splash screens - generated for common device sizes */}

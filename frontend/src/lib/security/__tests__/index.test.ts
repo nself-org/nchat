@@ -283,7 +283,10 @@ describe("logSecurityEvent", () => {
     expect(mockLogger.error).toHaveBeenCalledWith(
       "[SECURITY CRITICAL]",
       undefined,
-      expect.objectContaining({ event: "critical-test-event", level: "critical" }),
+      expect.objectContaining({
+        event: "critical-test-event",
+        level: "critical",
+      }),
     );
   });
 
@@ -302,7 +305,10 @@ describe("logSecurityEvent", () => {
     expect(mockLogger.warn).toHaveBeenCalledTimes(1);
     expect(mockLogger.warn).toHaveBeenCalledWith(
       "[SECURITY WARNING]",
-      expect.objectContaining({ event: "warning-test-event", level: "warning" }),
+      expect.objectContaining({
+        event: "warning-test-event",
+        level: "warning",
+      }),
     );
     expect(mockLogger.error).not.toHaveBeenCalled();
   });

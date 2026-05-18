@@ -25,7 +25,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeState(overrides?: Partial<CommandPaletteState>): CommandPaletteStore {
+function makeState(
+  overrides?: Partial<CommandPaletteState>,
+): CommandPaletteStore {
   const defaultState: CommandPaletteState = {
     isOpen: false,
     query: "",
@@ -108,19 +110,23 @@ describe("selectSelectedCommand", () => {
   it("returns the command at selectedIndex", () => {
     const cmd0 = { id: "c0", name: "First" } as never;
     const cmd1 = { id: "c1", name: "Second" } as never;
-    const result = selectSelectedCommand(makeState({
-      filteredCommands: [cmd0, cmd1],
-      selectedIndex: 1,
-    }));
+    const result = selectSelectedCommand(
+      makeState({
+        filteredCommands: [cmd0, cmd1],
+        selectedIndex: 1,
+      }),
+    );
     expect(result).toBe(cmd1);
   });
 
   it("returns null when selectedIndex is out of bounds", () => {
     const cmd0 = { id: "c0", name: "Only" } as never;
-    const result = selectSelectedCommand(makeState({
-      filteredCommands: [cmd0],
-      selectedIndex: 5,
-    }));
+    const result = selectSelectedCommand(
+      makeState({
+        filteredCommands: [cmd0],
+        selectedIndex: 5,
+      }),
+    );
     expect(result).toBeNull();
   });
 });
@@ -136,7 +142,9 @@ describe("selectFilteredCommands", () => {
 
   it("returns the filteredCommands array", () => {
     const filteredCommands = [{ id: "c1", name: "Go to channel" } as never];
-    expect(selectFilteredCommands(makeState({ filteredCommands }))).toBe(filteredCommands);
+    expect(selectFilteredCommands(makeState({ filteredCommands }))).toBe(
+      filteredCommands,
+    );
   });
 });
 
@@ -151,7 +159,9 @@ describe("selectRecentCommands", () => {
 
   it("returns the recentCommands array", () => {
     const recentCommands = [{ id: "r1", name: "Recent action" } as never];
-    expect(selectRecentCommands(makeState({ recentCommands }))).toBe(recentCommands);
+    expect(selectRecentCommands(makeState({ recentCommands }))).toBe(
+      recentCommands,
+    );
   });
 });
 
@@ -179,7 +189,9 @@ describe("selectError", () => {
   });
 
   it("returns the error string when set", () => {
-    expect(selectError(makeState({ error: "Search failed" }))).toBe("Search failed");
+    expect(selectError(makeState({ error: "Search failed" }))).toBe(
+      "Search failed",
+    );
   });
 });
 

@@ -50,7 +50,9 @@ function makeUserPresence(overrides?: Partial<UserPresence>): UserPresence {
   };
 }
 
-function makeState(overrides?: Partial<Record<string, unknown>>): PresenceStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): PresenceStore {
   const defaultState: PresenceState = {
     myStatus: "online",
     myCustomStatus: null,
@@ -97,7 +99,11 @@ function makeState(overrides?: Partial<Record<string, unknown>>): PresenceStore 
     reset: () => undefined,
     cleanupExpired: () => undefined,
   };
-  return { ...defaultState, ...stubs, ...overrides } as unknown as PresenceStore;
+  return {
+    ...defaultState,
+    ...stubs,
+    ...overrides,
+  } as unknown as PresenceStore;
 }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +128,9 @@ describe("selectMyPresence", () => {
 
   it("reflects custom status when set", () => {
     const customStatus = { emoji: "🎯", text: "Focusing" };
-    const result = selectMyPresence(makeState({ myCustomStatus: customStatus }));
+    const result = selectMyPresence(
+      makeState({ myCustomStatus: customStatus }),
+    );
     expect(result.customStatus).toBe(customStatus);
   });
 });
@@ -152,9 +160,9 @@ describe("selectMyCustomStatus", () => {
 
   it("returns the custom status when set", () => {
     const customStatus = { emoji: "🏠", text: "Working remotely" };
-    expect(selectMyCustomStatus(makeState({ myCustomStatus: customStatus }))).toBe(
-      customStatus,
-    );
+    expect(
+      selectMyCustomStatus(makeState({ myCustomStatus: customStatus })),
+    ).toBe(customStatus);
   });
 });
 
@@ -208,22 +216,30 @@ describe("selectIsUserOnline", () => {
   });
 
   it("returns true for online status", () => {
-    const presenceMap = { u2: makeUserPresence({ userId: "u2", status: "online" }) };
+    const presenceMap = {
+      u2: makeUserPresence({ userId: "u2", status: "online" }),
+    };
     expect(selectIsUserOnline("u2")(makeState({ presenceMap }))).toBe(true);
   });
 
   it("returns true for dnd status", () => {
-    const presenceMap = { u2: makeUserPresence({ userId: "u2", status: "dnd" }) };
+    const presenceMap = {
+      u2: makeUserPresence({ userId: "u2", status: "dnd" }),
+    };
     expect(selectIsUserOnline("u2")(makeState({ presenceMap }))).toBe(true);
   });
 
   it("returns false for away status", () => {
-    const presenceMap = { u2: makeUserPresence({ userId: "u2", status: "away" }) };
+    const presenceMap = {
+      u2: makeUserPresence({ userId: "u2", status: "away" }),
+    };
     expect(selectIsUserOnline("u2")(makeState({ presenceMap }))).toBe(false);
   });
 
   it("returns false for offline status", () => {
-    const presenceMap = { u2: makeUserPresence({ userId: "u2", status: "offline" }) };
+    const presenceMap = {
+      u2: makeUserPresence({ userId: "u2", status: "offline" }),
+    };
     expect(selectIsUserOnline("u2")(makeState({ presenceMap }))).toBe(false);
   });
 });
@@ -333,14 +349,18 @@ describe("selectIsAnyoneTyping", () => {
 
   it("returns false when context exists but has no users", () => {
     const typingMap = { "channel:c1": {} };
-    expect(selectIsAnyoneTyping("channel:c1")(makeState({ typingMap }))).toBe(false);
+    expect(selectIsAnyoneTyping("channel:c1")(makeState({ typingMap }))).toBe(
+      false,
+    );
   });
 
   it("returns true when at least one user is typing", () => {
     const typingMap = {
       "channel:c1": { u1: makeTypingStatus({ userId: "u1" }) },
     };
-    expect(selectIsAnyoneTyping("channel:c1")(makeState({ typingMap }))).toBe(true);
+    expect(selectIsAnyoneTyping("channel:c1")(makeState({ typingMap }))).toBe(
+      true,
+    );
   });
 });
 

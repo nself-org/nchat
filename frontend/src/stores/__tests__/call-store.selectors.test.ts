@@ -60,7 +60,9 @@ function makeActiveCall(overrides?: Partial<ActiveCall>): ActiveCall {
   };
 }
 
-function makeHistoryEntry(overrides?: Partial<CallHistoryEntry>): CallHistoryEntry {
+function makeHistoryEntry(
+  overrides?: Partial<CallHistoryEntry>,
+): CallHistoryEntry {
   return {
     id: "h1",
     type: "voice",
@@ -321,7 +323,10 @@ describe("selectParticipantCount", () => {
       connectionState: "connected" as const,
     };
     const p2 = { ...p1, id: "p2", name: "Bob" };
-    const participants = new Map([["p1", p1], ["p2", p2]]);
+    const participants = new Map([
+      ["p1", p1],
+      ["p2", p2],
+    ]);
     const activeCall = makeActiveCall({ participants });
     expect(selectParticipantCount(makeState({ activeCall }))).toBe(2);
   });
@@ -338,7 +343,9 @@ describe("selectIncomingCalls", () => {
 
   it("returns the incoming calls array", () => {
     const incomingCalls = [makeIncomingCall()];
-    expect(selectIncomingCalls(makeState({ incomingCalls }))).toBe(incomingCalls);
+    expect(selectIncomingCalls(makeState({ incomingCalls }))).toBe(
+      incomingCalls,
+    );
   });
 });
 

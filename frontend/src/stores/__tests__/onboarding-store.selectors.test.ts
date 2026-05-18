@@ -5,7 +5,10 @@
  * Tests construct minimal plain-object state and call selectors directly.
  */
 
-import type { OnboardingStore, OnboardingStoreState } from "../onboarding-store";
+import type {
+  OnboardingStore,
+  OnboardingStoreState,
+} from "../onboarding-store";
 import {
   selectOnboarding,
   selectTour,
@@ -151,9 +154,9 @@ describe("selectFeatureDiscovery", () => {
       seenTips: [],
       dismissedTips: [],
     } as unknown as FeatureDiscoveryState;
-    expect(
-      selectFeatureDiscovery(makeState({ featureDiscovery })),
-    ).toBe(featureDiscovery);
+    expect(selectFeatureDiscovery(makeState({ featureDiscovery }))).toBe(
+      featureDiscovery,
+    );
   });
 });
 
@@ -253,9 +256,9 @@ describe("selectSelectedChannels", () => {
 
   it("returns the selected channel ids", () => {
     const selectedChannels = ["ch1", "ch2", "ch3"];
-    expect(
-      selectSelectedChannels(makeState({ selectedChannels })),
-    ).toBe(selectedChannels);
+    expect(selectSelectedChannels(makeState({ selectedChannels }))).toBe(
+      selectedChannels,
+    );
   });
 });
 
@@ -273,9 +276,9 @@ describe("selectTeamInvitations", () => {
       { email: "alice@example.com", role: "member" } as TeamInvitation,
       { email: "bob@example.com", role: "admin" } as TeamInvitation,
     ];
-    expect(
-      selectTeamInvitations(makeState({ teamInvitations })),
-    ).toBe(teamInvitations);
+    expect(selectTeamInvitations(makeState({ teamInvitations }))).toBe(
+      teamInvitations,
+    );
   });
 });
 

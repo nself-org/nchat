@@ -176,10 +176,22 @@ describe("selectFilteredUsers", () => {
   });
 
   it("filters by searchQuery matching displayName", () => {
-    const alice = makeUser({ id: "u1", displayName: "Alice", username: "alice", email: "alice@test.com" });
-    const bob = makeUser({ id: "u2", displayName: "Bob", username: "bob", email: "bob@test.com" });
+    const alice = makeUser({
+      id: "u1",
+      displayName: "Alice",
+      username: "alice",
+      email: "alice@test.com",
+    });
+    const bob = makeUser({
+      id: "u2",
+      displayName: "Bob",
+      username: "bob",
+      email: "bob@test.com",
+    });
     const users = { u1: alice, u2: bob };
-    const result = selectFilteredUsers(makeState({ users, searchQuery: "alice" }));
+    const result = selectFilteredUsers(
+      makeState({ users, searchQuery: "alice" }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(alice);
   });
@@ -188,7 +200,9 @@ describe("selectFilteredUsers", () => {
     const admin = makeUser({ id: "u1", role: "admin" });
     const member = makeUser({ id: "u2", role: "member" });
     const users = { u1: admin, u2: member };
-    const result = selectFilteredUsers(makeState({ users, roleFilter: "admin" }));
+    const result = selectFilteredUsers(
+      makeState({ users, roleFilter: "admin" }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(admin);
   });
@@ -197,7 +211,9 @@ describe("selectFilteredUsers", () => {
     const online = makeUser({ id: "u1", presence: "online" });
     const offline = makeUser({ id: "u2", presence: "offline" });
     const users = { u1: online, u2: offline };
-    const result = selectFilteredUsers(makeState({ users, presenceFilter: "online" }));
+    const result = selectFilteredUsers(
+      makeState({ users, presenceFilter: "online" }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(online);
   });

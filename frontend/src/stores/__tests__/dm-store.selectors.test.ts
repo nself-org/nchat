@@ -169,7 +169,10 @@ describe("selectDMList", () => {
   it("returns all DMs as an array", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     expect(selectDMList(makeState({ dms }))).toHaveLength(2);
   });
 });
@@ -182,7 +185,10 @@ describe("selectDirectDMs", () => {
   it("returns only DMs of type 'direct'", () => {
     const dm1 = makeDM({ id: "dm1", type: "direct" });
     const dm2 = makeDM({ id: "dm2", type: "group" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectDirectDMs(makeState({ dms }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -190,7 +196,9 @@ describe("selectDirectDMs", () => {
 
   it("returns empty array when no direct DMs", () => {
     const dm = makeDM({ id: "dm1", type: "group" });
-    expect(selectDirectDMs(makeState({ dms: new Map([["dm1", dm]]) }))).toHaveLength(0);
+    expect(
+      selectDirectDMs(makeState({ dms: new Map([["dm1", dm]]) })),
+    ).toHaveLength(0);
   });
 });
 
@@ -202,7 +210,10 @@ describe("selectGroupDMs", () => {
   it("returns only DMs of type 'group'", () => {
     const dm1 = makeDM({ id: "dm1", type: "direct" });
     const dm2 = makeDM({ id: "dm2", type: "group" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectGroupDMs(makeState({ dms }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm2");
@@ -217,7 +228,10 @@ describe("selectStarredDMs", () => {
   it("returns only starred DMs", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const starredDMs = new Set(["dm1"]);
     const result = selectStarredDMs(makeState({ dms, starredDMs }));
     expect(result).toHaveLength(1);
@@ -226,7 +240,9 @@ describe("selectStarredDMs", () => {
 
   it("returns empty array when nothing starred", () => {
     const dm = makeDM({ id: "dm1" });
-    expect(selectStarredDMs(makeState({ dms: new Map([["dm1", dm]]) }))).toHaveLength(0);
+    expect(
+      selectStarredDMs(makeState({ dms: new Map([["dm1", dm]]) })),
+    ).toHaveLength(0);
   });
 });
 
@@ -238,7 +254,10 @@ describe("selectMutedDMs", () => {
   it("returns only muted DMs", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const mutedDMs = new Set(["dm2"]);
     const result = selectMutedDMs(makeState({ dms, mutedDMs }));
     expect(result).toHaveLength(1);
@@ -254,7 +273,10 @@ describe("selectArchivedDMs", () => {
   it("returns only archived DMs", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const archivedDMs = new Set(["dm1"]);
     const result = selectArchivedDMs(makeState({ dms, archivedDMs }));
     expect(result).toHaveLength(1);
@@ -269,8 +291,14 @@ describe("selectArchivedDMs", () => {
 describe("selectActiveDMs", () => {
   it("returns only DMs with status='active'", () => {
     const dm1 = makeDM({ id: "dm1", status: "active" });
-    const dm2 = makeDM({ id: "dm2", status: "archived" as DirectMessage["status"] });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dm2 = makeDM({
+      id: "dm2",
+      status: "archived" as DirectMessage["status"],
+    });
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectActiveDMs(makeState({ dms }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -286,7 +314,11 @@ describe("selectUnreadDMs", () => {
     const dm1 = makeDM({ id: "dm1", unreadCount: 3 });
     const dm2 = makeDM({ id: "dm2", unreadCount: 0 });
     const dm3 = makeDM({ id: "dm3" }); // unreadCount defaults to 0
-    const dms = new Map([["dm1", dm1], ["dm2", dm2], ["dm3", dm3]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+      ["dm3", dm3],
+    ]);
     const result = selectUnreadDMs(makeState({ dms }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -301,7 +333,10 @@ describe("selectRecentDMs", () => {
   it("returns recent DMs in order", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const recentDMs = ["dm2", "dm1"];
     const result = selectRecentDMs(makeState({ dms, recentDMs }));
     expect(result).toHaveLength(2);
@@ -439,8 +474,14 @@ describe("selectMediaItems", () => {
 describe("selectFilteredDMs", () => {
   it("returns active DMs by default (filterType='all')", () => {
     const dm1 = makeDM({ id: "dm1", status: "active" });
-    const dm2 = makeDM({ id: "dm2", status: "archived" as DirectMessage["status"] });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dm2 = makeDM({
+      id: "dm2",
+      status: "archived" as DirectMessage["status"],
+    });
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(makeState({ dms }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -449,7 +490,10 @@ describe("selectFilteredDMs", () => {
   it("filters by 'unread'", () => {
     const dm1 = makeDM({ id: "dm1", unreadCount: 5 });
     const dm2 = makeDM({ id: "dm2", unreadCount: 0 });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(makeState({ dms, filterType: "unread" }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -458,7 +502,10 @@ describe("selectFilteredDMs", () => {
   it("filters by 'starred'", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(
       makeState({ dms, filterType: "starred", starredDMs: new Set(["dm2"]) }),
     );
@@ -469,7 +516,10 @@ describe("selectFilteredDMs", () => {
   it("filters by 'archived'", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(
       makeState({ dms, filterType: "archived", archivedDMs: new Set(["dm1"]) }),
     );
@@ -480,7 +530,10 @@ describe("selectFilteredDMs", () => {
   it("filters by 'muted'", () => {
     const dm1 = makeDM({ id: "dm1" });
     const dm2 = makeDM({ id: "dm2" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(
       makeState({ dms, filterType: "muted", mutedDMs: new Set(["dm2"]) }),
     );
@@ -491,7 +544,10 @@ describe("selectFilteredDMs", () => {
   it("applies search query by name", () => {
     const dm1 = makeDM({ id: "dm1", name: "Alice", status: "active" });
     const dm2 = makeDM({ id: "dm2", name: "Bob", status: "active" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(makeState({ dms, searchQuery: "ali" }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -506,7 +562,10 @@ describe("selectFilteredDMs", () => {
       ],
     });
     const dm2 = makeDM({ id: "dm2", status: "active", participants: [] });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(makeState({ dms, searchQuery: "char" }));
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("dm1");
@@ -515,8 +574,13 @@ describe("selectFilteredDMs", () => {
   it("sorts by 'alphabetical'", () => {
     const dm1 = makeDM({ id: "dm1", name: "Zebra", status: "active" });
     const dm2 = makeDM({ id: "dm2", name: "Apple", status: "active" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
-    const result = selectFilteredDMs(makeState({ dms, sortType: "alphabetical" }));
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
+    const result = selectFilteredDMs(
+      makeState({ dms, sortType: "alphabetical" }),
+    );
     expect(result[0].name).toBe("Apple");
     expect(result[1].name).toBe("Zebra");
   });
@@ -524,7 +588,10 @@ describe("selectFilteredDMs", () => {
   it("sorts by 'unread' (descending)", () => {
     const dm1 = makeDM({ id: "dm1", unreadCount: 2, status: "active" });
     const dm2 = makeDM({ id: "dm2", unreadCount: 10, status: "active" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(makeState({ dms, sortType: "unread" }));
     expect(result[0].id).toBe("dm2");
     expect(result[1].id).toBe("dm1");
@@ -535,7 +602,10 @@ describe("selectFilteredDMs", () => {
     const newer = new Date(Date.now() - 1_000).toISOString();
     const dm1 = makeDM({ id: "dm1", lastMessageAt: older, status: "active" });
     const dm2 = makeDM({ id: "dm2", lastMessageAt: newer, status: "active" });
-    const dms = new Map([["dm1", dm1], ["dm2", dm2]]);
+    const dms = new Map([
+      ["dm1", dm1],
+      ["dm2", dm2],
+    ]);
     const result = selectFilteredDMs(makeState({ dms, sortType: "recent" }));
     expect(result[0].id).toBe("dm2");
   });

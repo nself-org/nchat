@@ -29,7 +29,9 @@ const DEFAULT_FILTERS = {
   featured: false,
 };
 
-function makeState(overrides?: Partial<Record<string, unknown>>): AppDirectoryStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): AppDirectoryStore {
   const defaultState = {
     apps: new Map(),
     categories: [],
@@ -63,7 +65,10 @@ describe("selectAllApps", () => {
   it("returns all apps from the map", () => {
     const app1 = { id: "a1", name: "Chat Bot" } as never;
     const app2 = { id: "a2", name: "Scheduler" } as never;
-    const apps = new Map([["a1", app1], ["a2", app2]]);
+    const apps = new Map([
+      ["a1", app1],
+      ["a2", app2],
+    ]);
     const result = selectAllApps(makeState({ apps }));
     expect(result).toHaveLength(2);
     expect(result).toContain(app1);
@@ -100,7 +105,9 @@ describe("selectSearchResults", () => {
 
   it("returns the searchResults array", () => {
     const searchResults = [{ app: { id: "a1" } } as never];
-    expect(selectSearchResults(makeState({ searchResults }))).toBe(searchResults);
+    expect(selectSearchResults(makeState({ searchResults }))).toBe(
+      searchResults,
+    );
   });
 });
 
@@ -154,7 +161,9 @@ describe("selectActiveCategory", () => {
   });
 
   it("returns null when activeCategory does not match any category", () => {
-    expect(selectActiveCategory(makeState({ activeCategory: "nonexistent" }))).toBeNull();
+    expect(
+      selectActiveCategory(makeState({ activeCategory: "nonexistent" })),
+    ).toBeNull();
   });
 });
 

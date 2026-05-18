@@ -193,7 +193,9 @@ describe("selectIsLoadingUsers", () => {
   });
 
   it("returns true when loading", () => {
-    expect(selectIsLoadingUsers(makeState({ isLoadingUsers: true }))).toBe(true);
+    expect(selectIsLoadingUsers(makeState({ isLoadingUsers: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -241,9 +243,7 @@ describe("selectSelectedUserSessions", () => {
   it("returns sessions", () => {
     const sessions = [{ id: "s1", device: "Chrome" }] as never[];
     expect(
-      selectSelectedUserSessions(
-        makeState({ selectedUserSessions: sessions }),
-      ),
+      selectSelectedUserSessions(makeState({ selectedUserSessions: sessions })),
     ).toBe(sessions);
   });
 });
@@ -304,7 +304,9 @@ describe("selectInviteLinks", () => {
   });
 
   it("returns invite links", () => {
-    const inviteLinks = [{ id: "link1", url: "https://example.com/invite/abc" }] as never[];
+    const inviteLinks = [
+      { id: "link1", url: "https://example.com/invite/abc" },
+    ] as never[];
     expect(selectInviteLinks(makeState({ inviteLinks }))).toBe(inviteLinks);
   });
 });
@@ -396,7 +398,12 @@ describe("selectRoles", () => {
 
   it("returns roles array", () => {
     const roles = [
-      { id: "r1", name: "admin", permissions: ["read", "write"], isDefault: false },
+      {
+        id: "r1",
+        name: "admin",
+        permissions: ["read", "write"],
+        isDefault: false,
+      },
     ];
     expect(selectRoles(makeState({ roles }))).toBe(roles);
   });
@@ -413,9 +420,9 @@ describe("selectSelectedUserIds", () => {
 
   it("returns selected user ids", () => {
     const selectedUserIds = ["u1", "u2", "u3"];
-    expect(
-      selectSelectedUserIds(makeState({ selectedUserIds })),
-    ).toBe(selectedUserIds);
+    expect(selectSelectedUserIds(makeState({ selectedUserIds }))).toBe(
+      selectedUserIds,
+    );
   });
 });
 
@@ -429,9 +436,9 @@ describe("selectIsSelectionMode", () => {
   });
 
   it("returns true when in selection mode", () => {
-    expect(
-      selectIsSelectionMode(makeState({ isSelectionMode: true })),
-    ).toBe(true);
+    expect(selectIsSelectionMode(makeState({ isSelectionMode: true }))).toBe(
+      true,
+    );
   });
 });
 

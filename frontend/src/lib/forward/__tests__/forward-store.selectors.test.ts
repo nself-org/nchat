@@ -65,7 +65,9 @@ describe("selectMessageToForward", () => {
 
   it("returns the message when set", () => {
     const message = { id: "m1", content: "Hello" } as never;
-    expect(selectMessageToForward(makeState({ messageToForward: message }))).toBe(message);
+    expect(
+      selectMessageToForward(makeState({ messageToForward: message })),
+    ).toBe(message);
   });
 });
 
@@ -80,9 +82,9 @@ describe("selectSelectedDestinations", () => {
 
   it("returns the selected destinations array", () => {
     const selectedDestinations = [{ id: "d1", name: "Channel A" } as never];
-    expect(selectSelectedDestinations(makeState({ selectedDestinations }))).toBe(
-      selectedDestinations,
-    );
+    expect(
+      selectSelectedDestinations(makeState({ selectedDestinations })),
+    ).toBe(selectedDestinations);
   });
 });
 
@@ -96,10 +98,7 @@ describe("selectSelectedCount", () => {
   });
 
   it("returns the count of selected destinations", () => {
-    const selectedDestinations = [
-      { id: "d1" } as never,
-      { id: "d2" } as never,
-    ];
+    const selectedDestinations = [{ id: "d1" } as never, { id: "d2" } as never];
     expect(selectSelectedCount(makeState({ selectedDestinations }))).toBe(2);
   });
 });
@@ -155,9 +154,9 @@ describe("selectRecentDestinations", () => {
 
   it("returns the recent destinations array", () => {
     const recentDestinations = [{ id: "d1", name: "Channel A" } as never];
-    expect(
-      selectRecentDestinations(makeState({ recentDestinations })),
-    ).toBe(recentDestinations);
+    expect(selectRecentDestinations(makeState({ recentDestinations }))).toBe(
+      recentDestinations,
+    );
   });
 });
 
@@ -186,7 +185,9 @@ describe("selectForwardResults", () => {
 
   it("returns the forward results array", () => {
     const forwardResults = [{ destinationId: "d1", success: true } as never];
-    expect(selectForwardResults(makeState({ forwardResults }))).toBe(forwardResults);
+    expect(selectForwardResults(makeState({ forwardResults }))).toBe(
+      forwardResults,
+    );
   });
 });
 
@@ -204,12 +205,16 @@ describe("selectHasSuccessfulForwards", () => {
       { destinationId: "d1", success: true } as never,
       { destinationId: "d2", success: false } as never,
     ];
-    expect(selectHasSuccessfulForwards(makeState({ forwardResults }))).toBe(true);
+    expect(selectHasSuccessfulForwards(makeState({ forwardResults }))).toBe(
+      true,
+    );
   });
 
   it("returns false when all forwards failed", () => {
     const forwardResults = [{ destinationId: "d1", success: false } as never];
-    expect(selectHasSuccessfulForwards(makeState({ forwardResults }))).toBe(false);
+    expect(selectHasSuccessfulForwards(makeState({ forwardResults }))).toBe(
+      false,
+    );
   });
 });
 
@@ -223,9 +228,7 @@ describe("selectHasFailedForwards", () => {
   });
 
   it("returns true when at least one forward failed", () => {
-    const forwardResults = [
-      { destinationId: "d1", success: false } as never,
-    ];
+    const forwardResults = [{ destinationId: "d1", success: false } as never];
     expect(selectHasFailedForwards(makeState({ forwardResults }))).toBe(true);
   });
 
@@ -279,7 +282,11 @@ describe("selectCanForward", () => {
     const message = { id: "m1" } as never;
     expect(
       selectCanForward(
-        makeState({ messageToForward: message, selectedDestinations, isForwarding: true }),
+        makeState({
+          messageToForward: message,
+          selectedDestinations,
+          isForwarding: true,
+        }),
       ),
     ).toBe(false);
   });
@@ -289,7 +296,11 @@ describe("selectCanForward", () => {
     const message = { id: "m1" } as never;
     expect(
       selectCanForward(
-        makeState({ messageToForward: message, selectedDestinations, isForwarding: false }),
+        makeState({
+          messageToForward: message,
+          selectedDestinations,
+          isForwarding: false,
+        }),
       ),
     ).toBe(true);
   });

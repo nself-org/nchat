@@ -141,9 +141,9 @@ describe("selectError", () => {
   });
 
   it("returns the error string when set", () => {
-    expect(selectError(makeState({ error: "Failed to load blocked users" }))).toBe(
-      "Failed to load blocked users",
-    );
+    expect(
+      selectError(makeState({ error: "Failed to load blocked users" })),
+    ).toBe("Failed to load blocked users");
   });
 });
 
@@ -178,7 +178,10 @@ describe("selectBlockedCount", () => {
   });
 
   it("returns the number of blocked users", () => {
-    const blockedUsers = [makeBlockedUser(), makeBlockedUser({ id: "bu2", blockedUserId: "u3" })];
+    const blockedUsers = [
+      makeBlockedUser(),
+      makeBlockedUser({ id: "bu2", blockedUserId: "u3" }),
+    ];
     expect(selectBlockedCount(makeState({ blockedUsers }))).toBe(2);
   });
 });
@@ -230,8 +233,13 @@ describe("selectShouldHideContent", () => {
 
   it("returns false when hideBlockedMessages is off even if user is blocked", () => {
     const blockedUserIds = new Set(["u2"]);
-    const settings: BlockSettings = { ...defaultSettings, hideBlockedMessages: false };
-    const check = selectShouldHideContent(makeState({ blockedUserIds, settings }));
+    const settings: BlockSettings = {
+      ...defaultSettings,
+      hideBlockedMessages: false,
+    };
+    const check = selectShouldHideContent(
+      makeState({ blockedUserIds, settings }),
+    );
     expect(check("u2")).toBe(false);
   });
 });
@@ -255,7 +263,9 @@ describe("selectShouldPreventDM", () => {
   it("returns false when preventDMs is off even if user is blocked", () => {
     const blockedUserIds = new Set(["u2"]);
     const settings: BlockSettings = { ...defaultSettings, preventDMs: false };
-    const check = selectShouldPreventDM(makeState({ blockedUserIds, settings }));
+    const check = selectShouldPreventDM(
+      makeState({ blockedUserIds, settings }),
+    );
     expect(check("u2")).toBe(false);
   });
 });
@@ -273,8 +283,13 @@ describe("selectShouldHideFromList", () => {
 
   it("returns true when hideFromMemberList is on and user is blocked", () => {
     const blockedUserIds = new Set(["u2"]);
-    const settings: BlockSettings = { ...defaultSettings, hideFromMemberList: true };
-    const check = selectShouldHideFromList(makeState({ blockedUserIds, settings }));
+    const settings: BlockSettings = {
+      ...defaultSettings,
+      hideFromMemberList: true,
+    };
+    const check = selectShouldHideFromList(
+      makeState({ blockedUserIds, settings }),
+    );
     expect(check("u2")).toBe(true);
     expect(check("u3")).toBe(false);
   });

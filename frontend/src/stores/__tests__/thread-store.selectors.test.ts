@@ -111,8 +111,13 @@ describe("selectThreadList", () => {
   it("returns threads in threadIds order", () => {
     const t1 = makeThread({ id: "t1" });
     const t2 = makeThread({ id: "t2" });
-    const threads = new Map([["t1", t1], ["t2", t2]]);
-    const result = selectThreadList(makeState({ threads, threadIds: ["t2", "t1"] }));
+    const threads = new Map([
+      ["t1", t1],
+      ["t2", t2],
+    ]);
+    const result = selectThreadList(
+      makeState({ threads, threadIds: ["t2", "t1"] }),
+    );
     expect(result).toHaveLength(2);
     expect(result[0]).toBe(t2);
     expect(result[1]).toBe(t1);
@@ -121,7 +126,9 @@ describe("selectThreadList", () => {
   it("skips ids that are not in the threads map", () => {
     const t1 = makeThread({ id: "t1" });
     const threads = new Map([["t1", t1]]);
-    const result = selectThreadList(makeState({ threads, threadIds: ["t1", "missing"] }));
+    const result = selectThreadList(
+      makeState({ threads, threadIds: ["t1", "missing"] }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(t1);
   });
@@ -139,9 +146,14 @@ describe("selectFollowedThreads", () => {
   it("returns threads for followed ids", () => {
     const t1 = makeThread({ id: "t1" });
     const t2 = makeThread({ id: "t2" });
-    const threads = new Map([["t1", t1], ["t2", t2]]);
+    const threads = new Map([
+      ["t1", t1],
+      ["t2", t2],
+    ]);
     const followedThreadIds = new Set(["t1"]);
-    const result = selectFollowedThreads(makeState({ threads, followedThreadIds }));
+    const result = selectFollowedThreads(
+      makeState({ threads, followedThreadIds }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(t1);
   });
@@ -159,7 +171,10 @@ describe("selectUnreadThreads", () => {
   it("returns threads with unreadCount > 0", () => {
     const t1 = makeThread({ id: "t1", unreadCount: 3 });
     const t2 = makeThread({ id: "t2", unreadCount: 0 });
-    const threads = new Map([["t1", t1], ["t2", t2]]);
+    const threads = new Map([
+      ["t1", t1],
+      ["t2", t2],
+    ]);
     const unreadThreadIds = new Set(["t1", "t2"]);
     const result = selectUnreadThreads(makeState({ threads, unreadThreadIds }));
     expect(result).toHaveLength(1);
@@ -180,7 +195,11 @@ describe("selectThreadsByChannel", () => {
     const t1 = makeThread({ id: "t1", channelId: "c1" });
     const t2 = makeThread({ id: "t2", channelId: "c2" });
     const t3 = makeThread({ id: "t3", channelId: "c1" });
-    const threads = new Map([["t1", t1], ["t2", t2], ["t3", t3]]);
+    const threads = new Map([
+      ["t1", t1],
+      ["t2", t2],
+      ["t3", t3],
+    ]);
     const result = selectThreadsByChannel("c1")(makeState({ threads }));
     expect(result).toHaveLength(2);
     expect(result.every((t: Thread) => t.channelId === "c1")).toBe(true);
@@ -204,15 +223,28 @@ describe("selectThreadMessagesForThread", () => {
 
   it("returns empty array when thread has no messages", () => {
     const threadMessages = new Map([["t1", new Map<string, ThreadMessage>()]]);
-    expect(selectThreadMessagesForThread("t1")(makeState({ threadMessages }))).toEqual([]);
+    expect(
+      selectThreadMessagesForThread("t1")(makeState({ threadMessages })),
+    ).toEqual([]);
   });
 
   it("returns messages sorted by createdAt ascending", () => {
-    const msg1 = makeThreadMessage({ id: "msg1", createdAt: "2024-01-01T02:00:00Z" });
-    const msg2 = makeThreadMessage({ id: "msg2", createdAt: "2024-01-01T01:00:00Z" });
-    const msgMap = new Map([["msg1", msg1], ["msg2", msg2]]);
+    const msg1 = makeThreadMessage({
+      id: "msg1",
+      createdAt: "2024-01-01T02:00:00Z",
+    });
+    const msg2 = makeThreadMessage({
+      id: "msg2",
+      createdAt: "2024-01-01T01:00:00Z",
+    });
+    const msgMap = new Map([
+      ["msg1", msg1],
+      ["msg2", msg2],
+    ]);
     const threadMessages = new Map([["t1", msgMap]]);
-    const result = selectThreadMessagesForThread("t1")(makeState({ threadMessages }));
+    const result = selectThreadMessagesForThread("t1")(
+      makeState({ threadMessages }),
+    );
     expect(result).toHaveLength(2);
     expect(result[0]).toBe(msg2); // earlier createdAt first
     expect(result[1]).toBe(msg1);
@@ -230,12 +262,16 @@ describe("selectIsThreadFollowed", () => {
 
   it("returns true when thread is in followedThreadIds", () => {
     const followedThreadIds = new Set(["t1"]);
-    expect(selectIsThreadFollowed("t1")(makeState({ followedThreadIds }))).toBe(true);
+    expect(selectIsThreadFollowed("t1")(makeState({ followedThreadIds }))).toBe(
+      true,
+    );
   });
 
   it("returns false when thread is not in followedThreadIds", () => {
     const followedThreadIds = new Set(["t2"]);
-    expect(selectIsThreadFollowed("t1")(makeState({ followedThreadIds }))).toBe(false);
+    expect(selectIsThreadFollowed("t1")(makeState({ followedThreadIds }))).toBe(
+      false,
+    );
   });
 });
 
@@ -255,7 +291,9 @@ describe("selectIsThreadMuted", () => {
 
   it("returns false when thread is not muted", () => {
     const mutedThreadIds = new Set(["t2"]);
-    expect(selectIsThreadMuted("t1")(makeState({ mutedThreadIds }))).toBe(false);
+    expect(selectIsThreadMuted("t1")(makeState({ mutedThreadIds }))).toBe(
+      false,
+    );
   });
 });
 
@@ -270,12 +308,16 @@ describe("selectHasMoreThreadMessages", () => {
 
   it("returns false when explicitly set to false", () => {
     const hasMoreMessages = new Map([["t1", false]]);
-    expect(selectHasMoreThreadMessages("t1")(makeState({ hasMoreMessages }))).toBe(false);
+    expect(
+      selectHasMoreThreadMessages("t1")(makeState({ hasMoreMessages })),
+    ).toBe(false);
   });
 
   it("returns true when explicitly set to true", () => {
     const hasMoreMessages = new Map([["t1", true]]);
-    expect(selectHasMoreThreadMessages("t1")(makeState({ hasMoreMessages }))).toBe(true);
+    expect(
+      selectHasMoreThreadMessages("t1")(makeState({ hasMoreMessages })),
+    ).toBe(true);
   });
 });
 
@@ -289,6 +331,8 @@ describe("selectTotalUnreadThreadCount", () => {
   });
 
   it("returns the totalUnreadCount value", () => {
-    expect(selectTotalUnreadThreadCount(makeState({ totalUnreadCount: 7 }))).toBe(7);
+    expect(
+      selectTotalUnreadThreadCount(makeState({ totalUnreadCount: 7 })),
+    ).toBe(7);
   });
 });

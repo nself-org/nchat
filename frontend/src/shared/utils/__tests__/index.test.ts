@@ -372,9 +372,7 @@ describe("extractUrls", () => {
   });
 
   it("extracts multiple urls", () => {
-    const result = extractUrls(
-      "https://example.com and https://another.org",
-    );
+    const result = extractUrls("https://example.com and https://another.org");
     expect(result).toHaveLength(2);
   });
 });
@@ -584,16 +582,14 @@ describe("sortByDate", () => {
 describe("isMobileUserAgent", () => {
   it("returns true for Android user agent", () => {
     expect(
-      isMobileUserAgent(
-        "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36",
-      ),
+      isMobileUserAgent("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36"),
     ).toBe(true);
   });
 
   it("returns true for iPhone user agent", () => {
-    expect(
-      isMobileUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)"),
-    ).toBe(true);
+    expect(isMobileUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)")).toBe(
+      true,
+    );
   });
 
   it("returns false for desktop user agent", () => {
@@ -628,9 +624,9 @@ describe("parseUrlParams", () => {
   });
 
   it("decodes URL-encoded params", () => {
-    expect(
-      parseUrlParams("https://example.com?name=hello%20world"),
-    ).toEqual({ name: "hello world" });
+    expect(parseUrlParams("https://example.com?name=hello%20world")).toEqual({
+      name: "hello world",
+    });
   });
 
   it("handles param with no value", () => {
@@ -704,7 +700,7 @@ describe("getFileExtension", () => {
     expect(getFileExtension("archive.tar.gz")).toBe("gz");
   });
 
-  it('returns empty string for no extension', () => {
+  it("returns empty string for no extension", () => {
     expect(getFileExtension("README")).toBe("");
   });
 

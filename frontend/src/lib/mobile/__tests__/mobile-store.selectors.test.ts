@@ -91,9 +91,9 @@ describe("selectCanGoBack", () => {
   });
 
   it("returns true when viewStack has more than one entry", () => {
-    expect(
-      selectCanGoBack(makeState({ viewStack: ["channels", "dms"] })),
-    ).toBe(true);
+    expect(selectCanGoBack(makeState({ viewStack: ["channels", "dms"] }))).toBe(
+      true,
+    );
   });
 
   it("returns false when viewStack is empty", () => {
@@ -111,7 +111,9 @@ describe("selectKeyboardVisible", () => {
   });
 
   it("returns true when keyboard is visible", () => {
-    expect(selectKeyboardVisible(makeState({ keyboardVisible: true }))).toBe(true);
+    expect(selectKeyboardVisible(makeState({ keyboardVisible: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -197,7 +199,9 @@ describe("selectBottomNavVisible", () => {
   });
 
   it("returns false when bottom nav is hidden", () => {
-    expect(selectBottomNavVisible(makeState({ bottomNavVisible: false }))).toBe(false);
+    expect(selectBottomNavVisible(makeState({ bottomNavVisible: false }))).toBe(
+      false,
+    );
   });
 });
 

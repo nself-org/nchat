@@ -254,7 +254,9 @@ describe("getComplementary", () => {
   it("shifts hue by 180 degrees", () => {
     const original = hexToHsl("#ff0000"); // red: h=0
     const comp = hexToHsl(getComplementary("#ff0000"));
-    expect(Math.abs(comp.h - ((original.h + 180) % 360))).toBeLessThanOrEqual(2);
+    expect(Math.abs(comp.h - ((original.h + 180) % 360))).toBeLessThanOrEqual(
+      2,
+    );
   });
 
   it("returns a hex string", () => {
@@ -300,8 +302,8 @@ describe("getTriadic", () => {
     const [a, b] = getTriadic("#ff0000");
     const hslA = hexToHsl(a);
     const hslB = hexToHsl(b);
-    expect(Math.abs(hslA.h - (base.h + 120) % 360)).toBeLessThanOrEqual(2);
-    expect(Math.abs(hslB.h - (base.h + 240) % 360)).toBeLessThanOrEqual(2);
+    expect(Math.abs(hslA.h - ((base.h + 120) % 360))).toBeLessThanOrEqual(2);
+    expect(Math.abs(hslB.h - ((base.h + 240) % 360))).toBeLessThanOrEqual(2);
   });
 });
 

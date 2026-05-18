@@ -59,7 +59,9 @@ describe("selectInstalledBots", () => {
 
   it("returns the installedBots array", () => {
     const installedBots = [{ id: "b1" } as never];
-    expect(selectInstalledBots(makeState({ installedBots }))).toBe(installedBots);
+    expect(selectInstalledBots(makeState({ installedBots }))).toBe(
+      installedBots,
+    );
   });
 });
 
@@ -73,7 +75,9 @@ describe("selectInstalledBotsLoading", () => {
   });
 
   it("returns true when loading", () => {
-    expect(selectInstalledBotsLoading(makeState({ installedBotsLoading: true }))).toBe(true);
+    expect(
+      selectInstalledBotsLoading(makeState({ installedBotsLoading: true })),
+    ).toBe(true);
   });
 });
 
@@ -88,7 +92,9 @@ describe("selectMarketplaceBots", () => {
 
   it("returns the marketplaceBots array", () => {
     const marketplaceBots = [{ id: "m1" } as never];
-    expect(selectMarketplaceBots(makeState({ marketplaceBots }))).toBe(marketplaceBots);
+    expect(selectMarketplaceBots(makeState({ marketplaceBots }))).toBe(
+      marketplaceBots,
+    );
   });
 });
 
@@ -102,7 +108,9 @@ describe("selectMarketplaceLoading", () => {
   });
 
   it("returns true when marketplace is loading", () => {
-    expect(selectMarketplaceLoading(makeState({ marketplaceLoading: true }))).toBe(true);
+    expect(
+      selectMarketplaceLoading(makeState({ marketplaceLoading: true })),
+    ).toBe(true);
   });
 });
 
@@ -161,7 +169,9 @@ describe("selectAddBotModalOpen", () => {
   });
 
   it("returns true when add-bot modal is open", () => {
-    expect(selectAddBotModalOpen(makeState({ addBotModalOpen: true }))).toBe(true);
+    expect(selectAddBotModalOpen(makeState({ addBotModalOpen: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -175,7 +185,9 @@ describe("selectSettingsModalOpen", () => {
   });
 
   it("returns true when settings modal is open", () => {
-    expect(selectSettingsModalOpen(makeState({ settingsModalOpen: true }))).toBe(true);
+    expect(
+      selectSettingsModalOpen(makeState({ settingsModalOpen: true })),
+    ).toBe(true);
   });
 });
 
@@ -189,6 +201,8 @@ describe("selectMarketplaceOpen", () => {
   });
 
   it("returns true when marketplace panel is open", () => {
-    expect(selectMarketplaceOpen(makeState({ marketplaceOpen: true }))).toBe(true);
+    expect(selectMarketplaceOpen(makeState({ marketplaceOpen: true }))).toBe(
+      true,
+    );
   });
 });

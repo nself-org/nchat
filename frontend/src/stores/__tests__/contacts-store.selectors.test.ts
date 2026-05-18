@@ -5,7 +5,13 @@
  * Tests construct minimal plain-object state and call selectors directly.
  */
 
-import type { ContactsStore, ContactsState, ContactWithUser, ContactInviteWithUsers, ContactFilters } from "../contacts-store";
+import type {
+  ContactsStore,
+  ContactsState,
+  ContactWithUser,
+  ContactInviteWithUsers,
+  ContactFilters,
+} from "../contacts-store";
 import {
   selectContacts,
   selectContactsCount,
@@ -41,12 +47,19 @@ function makeContact(overrides?: Partial<ContactWithUser>): ContactWithUser {
     relationship: "friend" as never,
     status: "active" as never,
     addedAt: "2026-01-01T00:00:00Z",
-    user: { id: "u2", displayName: "Alice", username: "alice", avatarUrl: null },
+    user: {
+      id: "u2",
+      displayName: "Alice",
+      username: "alice",
+      avatarUrl: null,
+    },
     ...overrides,
   } as ContactWithUser;
 }
 
-function makeInvite(overrides?: Partial<ContactInviteWithUsers>): ContactInviteWithUsers {
+function makeInvite(
+  overrides?: Partial<ContactInviteWithUsers>,
+): ContactInviteWithUsers {
   return {
     id: "inv1",
     senderId: "u1",
@@ -123,7 +136,11 @@ describe("selectContactsCount", () => {
   });
 
   it("returns length of contacts array", () => {
-    const contacts = [makeContact({ id: "c1" }), makeContact({ id: "c2" }), makeContact({ id: "c3" })];
+    const contacts = [
+      makeContact({ id: "c1" }),
+      makeContact({ id: "c2" }),
+      makeContact({ id: "c3" }),
+    ];
     expect(selectContactsCount(makeState({ contacts }))).toBe(3);
   });
 });
@@ -140,13 +157,18 @@ describe("selectFavoriteContacts", () => {
   it("returns only favorite contacts", () => {
     const fav = makeContact({ id: "c1", isFavorite: true });
     const nonFav = makeContact({ id: "c2", isFavorite: false });
-    const result = selectFavoriteContacts(makeState({ contacts: [fav, nonFav] }));
+    const result = selectFavoriteContacts(
+      makeState({ contacts: [fav, nonFav] }),
+    );
     expect(result).toHaveLength(1);
     expect(result[0]).toBe(fav);
   });
 
   it("returns empty array when none are favorites", () => {
-    const contacts = [makeContact({ isFavorite: false }), makeContact({ id: "c2", isFavorite: false })];
+    const contacts = [
+      makeContact({ isFavorite: false }),
+      makeContact({ id: "c2", isFavorite: false }),
+    ];
     expect(selectFavoriteContacts(makeState({ contacts }))).toEqual([]);
   });
 });
@@ -162,7 +184,9 @@ describe("selectSentInvites", () => {
 
   it("returns sent invites", () => {
     const invite = makeInvite({ id: "inv1" });
-    expect(selectSentInvites(makeState({ sentInvites: [invite] }))).toEqual([invite]);
+    expect(selectSentInvites(makeState({ sentInvites: [invite] }))).toEqual([
+      invite,
+    ]);
   });
 });
 
@@ -177,7 +201,9 @@ describe("selectReceivedInvites", () => {
 
   it("returns received invites", () => {
     const invite = makeInvite({ id: "inv2" });
-    expect(selectReceivedInvites(makeState({ receivedInvites: [invite] }))).toEqual([invite]);
+    expect(
+      selectReceivedInvites(makeState({ receivedInvites: [invite] })),
+    ).toEqual([invite]);
   });
 });
 
@@ -233,7 +259,9 @@ describe("selectBlockedContacts", () => {
 
   it("returns blocked contacts array", () => {
     const blocked = [{ id: "b1", blockedUserId: "u3" }] as never[];
-    expect(selectBlockedContacts(makeState({ blockedContacts: blocked }))).toBe(blocked);
+    expect(selectBlockedContacts(makeState({ blockedContacts: blocked }))).toBe(
+      blocked,
+    );
   });
 });
 
@@ -267,7 +295,9 @@ describe("selectDiscoveryResults", () => {
 
   it("returns discovery results", () => {
     const results = [{ userId: "u5", displayName: "Bob" }] as never[];
-    expect(selectDiscoveryResults(makeState({ discoveryResults: results }))).toBe(results);
+    expect(
+      selectDiscoveryResults(makeState({ discoveryResults: results })),
+    ).toBe(results);
   });
 });
 
@@ -281,7 +311,9 @@ describe("selectIsLoadingContacts", () => {
   });
 
   it("returns true when loading", () => {
-    expect(selectIsLoadingContacts(makeState({ isLoadingContacts: true }))).toBe(true);
+    expect(
+      selectIsLoadingContacts(makeState({ isLoadingContacts: true })),
+    ).toBe(true);
   });
 });
 
@@ -295,7 +327,9 @@ describe("selectContactsError", () => {
   });
 
   it("returns the error string", () => {
-    expect(selectContactsError(makeState({ contactsError: "Network error" }))).toBe("Network error");
+    expect(
+      selectContactsError(makeState({ contactsError: "Network error" })),
+    ).toBe("Network error");
   });
 });
 
@@ -309,7 +343,9 @@ describe("selectSelectedContactId", () => {
   });
 
   it("returns the selected contact id", () => {
-    expect(selectSelectedContactId(makeState({ selectedContactId: "c1" }))).toBe("c1");
+    expect(
+      selectSelectedContactId(makeState({ selectedContactId: "c1" })),
+    ).toBe("c1");
   });
 });
 
@@ -330,7 +366,10 @@ describe("selectSelectedContact", () => {
   });
 
   it("returns undefined when selectedContactId is set but not in map", () => {
-    const state = makeState({ selectedContactId: "missing", contactsById: new Map() });
+    const state = makeState({
+      selectedContactId: "missing",
+      contactsById: new Map(),
+    });
     expect(selectSelectedContact(state)).toBeUndefined();
   });
 });
@@ -362,7 +401,9 @@ describe("selectIsInviteModalOpen", () => {
   });
 
   it("returns true when modal is open", () => {
-    expect(selectIsInviteModalOpen(makeState({ isInviteModalOpen: true }))).toBe(true);
+    expect(
+      selectIsInviteModalOpen(makeState({ isInviteModalOpen: true })),
+    ).toBe(true);
   });
 });
 
@@ -376,7 +417,9 @@ describe("selectIsBlockModalOpen", () => {
   });
 
   it("returns true when modal is open", () => {
-    expect(selectIsBlockModalOpen(makeState({ isBlockModalOpen: true }))).toBe(true);
+    expect(selectIsBlockModalOpen(makeState({ isBlockModalOpen: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -390,7 +433,9 @@ describe("selectIsQRScannerOpen", () => {
   });
 
   it("returns true when scanner is open", () => {
-    expect(selectIsQRScannerOpen(makeState({ isQRScannerOpen: true }))).toBe(true);
+    expect(selectIsQRScannerOpen(makeState({ isQRScannerOpen: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -404,7 +449,12 @@ describe("selectModalTarget", () => {
   });
 
   it("returns the modal target user", () => {
-    const target = { id: "u2", displayName: "Alice", username: "alice", avatarUrl: null } as never;
+    const target = {
+      id: "u2",
+      displayName: "Alice",
+      username: "alice",
+      avatarUrl: null,
+    } as never;
     expect(selectModalTarget(makeState({ modalTarget: target }))).toBe(target);
   });
 });

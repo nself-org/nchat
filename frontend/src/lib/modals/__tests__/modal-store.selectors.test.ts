@@ -67,7 +67,9 @@ describe("selectIsAnyModalOpen", () => {
   });
 
   it("returns true when a modal is open", () => {
-    expect(selectIsAnyModalOpen(makeState({ isAnyModalOpen: true }))).toBe(true);
+    expect(selectIsAnyModalOpen(makeState({ isAnyModalOpen: true }))).toBe(
+      true,
+    );
   });
 });
 

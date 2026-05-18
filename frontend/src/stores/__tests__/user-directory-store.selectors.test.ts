@@ -27,7 +27,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeState(overrides?: Partial<Record<string, unknown>>): UserDirectoryStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): UserDirectoryStore {
   const defaultState = {
     viewMode: "grid",
     sortField: "displayName",
@@ -68,7 +70,9 @@ describe("selectViewMode", () => {
   });
 
   it("returns org-chart when set", () => {
-    expect(selectViewMode(makeState({ viewMode: "org-chart" }))).toBe("org-chart");
+    expect(selectViewMode(makeState({ viewMode: "org-chart" }))).toBe(
+      "org-chart",
+    );
   });
 });
 
@@ -82,7 +86,9 @@ describe("selectSearchQuery", () => {
   });
 
   it("returns the current search query", () => {
-    expect(selectSearchQuery(makeState({ searchQuery: "alice" }))).toBe("alice");
+    expect(selectSearchQuery(makeState({ searchQuery: "alice" }))).toBe(
+      "alice",
+    );
   });
 });
 
@@ -110,7 +116,9 @@ describe("selectRoleFilter", () => {
   });
 
   it("returns the current role filter", () => {
-    expect(selectRoleFilter(makeState({ roleFilter: "admin" as never }))).toBe("admin");
+    expect(selectRoleFilter(makeState({ roleFilter: "admin" as never }))).toBe(
+      "admin",
+    );
   });
 });
 
@@ -124,7 +132,9 @@ describe("selectPresenceFilter", () => {
   });
 
   it("returns the current presence filter", () => {
-    expect(selectPresenceFilter(makeState({ presenceFilter: "online" as never }))).toBe("online");
+    expect(
+      selectPresenceFilter(makeState({ presenceFilter: "online" as never })),
+    ).toBe("online");
   });
 });
 
@@ -138,7 +148,9 @@ describe("selectSelectedUserId", () => {
   });
 
   it("returns the selected user id when set", () => {
-    expect(selectSelectedUserId(makeState({ selectedUserId: "u1" }))).toBe("u1");
+    expect(selectSelectedUserId(makeState({ selectedUserId: "u1" }))).toBe(
+      "u1",
+    );
   });
 });
 
@@ -152,7 +164,9 @@ describe("selectViewingProfileId", () => {
   });
 
   it("returns the viewing profile id when set", () => {
-    expect(selectViewingProfileId(makeState({ viewingProfileId: "u2" }))).toBe("u2");
+    expect(selectViewingProfileId(makeState({ viewingProfileId: "u2" }))).toBe(
+      "u2",
+    );
   });
 });
 
@@ -196,7 +210,9 @@ describe("selectIsLoadingDirectory", () => {
   });
 
   it("returns true when loading directory", () => {
-    expect(selectIsLoadingDirectory(makeState({ isLoadingDirectory: true }))).toBe(true);
+    expect(
+      selectIsLoadingDirectory(makeState({ isLoadingDirectory: true })),
+    ).toBe(true);
   });
 });
 
@@ -210,7 +226,9 @@ describe("selectIsLoadingProfile", () => {
   });
 
   it("returns true when loading profile", () => {
-    expect(selectIsLoadingProfile(makeState({ isLoadingProfile: true }))).toBe(true);
+    expect(selectIsLoadingProfile(makeState({ isLoadingProfile: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -224,9 +242,11 @@ describe("selectDirectoryError", () => {
   });
 
   it("returns the error string when set", () => {
-    expect(selectDirectoryError(makeState({ directoryError: "Failed to load users" }))).toBe(
-      "Failed to load users",
-    );
+    expect(
+      selectDirectoryError(
+        makeState({ directoryError: "Failed to load users" }),
+      ),
+    ).toBe("Failed to load users");
   });
 });
 
@@ -240,19 +260,27 @@ describe("selectActiveFilterCount", () => {
   });
 
   it("counts searchQuery as one filter", () => {
-    expect(selectActiveFilterCount(makeState({ searchQuery: "alice" }))).toBe(1);
+    expect(selectActiveFilterCount(makeState({ searchQuery: "alice" }))).toBe(
+      1,
+    );
   });
 
   it("counts roleFilter when not all", () => {
-    expect(selectActiveFilterCount(makeState({ roleFilter: "admin" as never }))).toBe(1);
+    expect(
+      selectActiveFilterCount(makeState({ roleFilter: "admin" as never })),
+    ).toBe(1);
   });
 
   it("counts presenceFilter when not all", () => {
-    expect(selectActiveFilterCount(makeState({ presenceFilter: "online" as never }))).toBe(1);
+    expect(
+      selectActiveFilterCount(makeState({ presenceFilter: "online" as never })),
+    ).toBe(1);
   });
 
   it("counts departmentFilter when not all", () => {
-    expect(selectActiveFilterCount(makeState({ departmentFilter: "engineering" }))).toBe(1);
+    expect(
+      selectActiveFilterCount(makeState({ departmentFilter: "engineering" })),
+    ).toBe(1);
   });
 
   it("counts multiple active filters correctly", () => {

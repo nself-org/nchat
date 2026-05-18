@@ -125,9 +125,9 @@ describe("selectIsDataLoaded", () => {
   });
 
   it("returns true when dashboardData is set", () => {
-    expect(
-      selectIsDataLoaded(makeState({ dashboardData: {} as never })),
-    ).toBe(true);
+    expect(selectIsDataLoaded(makeState({ dashboardData: {} as never }))).toBe(
+      true,
+    );
   });
 });
 

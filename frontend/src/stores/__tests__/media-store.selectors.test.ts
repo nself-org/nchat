@@ -407,7 +407,9 @@ describe("selectMediaContext", () => {
 
 describe("selectMediaByType", () => {
   it("returns empty array when no items match the type", () => {
-    const state = makeState({ items: [makeItem({ id: "i1", fileType: "image" })] });
+    const state = makeState({
+      items: [makeItem({ id: "i1", fileType: "image" })],
+    });
     const selector = selectMediaByType("video" as never);
     expect(selector(state)).toHaveLength(0);
   });

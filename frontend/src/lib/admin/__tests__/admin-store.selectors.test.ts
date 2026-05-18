@@ -134,7 +134,11 @@ describe("selectStats", () => {
   });
 
   it("returns the stats object when set", () => {
-    const stats: AdminStats = { ...defaultStats, totalUsers: 42, pendingReports: 5 };
+    const stats: AdminStats = {
+      ...defaultStats,
+      totalUsers: 42,
+      pendingReports: 5,
+    };
     expect(selectStats(makeState({ stats }))).toBe(stats);
   });
 });

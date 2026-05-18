@@ -21,7 +21,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeState(overrides?: Partial<Record<string, unknown>>): ComplianceStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): ComplianceStore {
   const defaultState = {
     retentionPolicies: [],
     autoDeleteConfig: null,
@@ -57,8 +59,12 @@ describe("selectRetentionPolicies", () => {
   });
 
   it("returns the retentionPolicies array", () => {
-    const retentionPolicies = [{ id: "rp1", name: "30 day", enabled: true } as never];
-    expect(selectRetentionPolicies(makeState({ retentionPolicies }))).toBe(retentionPolicies);
+    const retentionPolicies = [
+      { id: "rp1", name: "30 day", enabled: true } as never,
+    ];
+    expect(selectRetentionPolicies(makeState({ retentionPolicies }))).toBe(
+      retentionPolicies,
+    );
   });
 });
 
@@ -83,7 +89,9 @@ describe("selectEnabledPolicies", () => {
   });
 
   it("returns empty array when no policies are enabled", () => {
-    const retentionPolicies = [{ id: "rp1", name: "30 day", enabled: false } as never];
+    const retentionPolicies = [
+      { id: "rp1", name: "30 day", enabled: false } as never,
+    ];
     expect(selectEnabledPolicies(makeState({ retentionPolicies }))).toEqual([]);
   });
 });
@@ -105,7 +113,9 @@ describe("selectActiveLegalHolds", () => {
     ];
     const result = selectActiveLegalHolds(makeState({ legalHolds }));
     expect(result).toHaveLength(2);
-    expect(result.every((h: { status: string }) => h.status === "active")).toBe(true);
+    expect(result.every((h: { status: string }) => h.status === "active")).toBe(
+      true,
+    );
   });
 });
 
@@ -133,7 +143,9 @@ describe("selectPendingExportRequests", () => {
       { id: "er1", status: "completed" } as never,
       { id: "er2", status: "failed" } as never,
     ];
-    expect(selectPendingExportRequests(makeState({ exportRequests }))).toHaveLength(0);
+    expect(
+      selectPendingExportRequests(makeState({ exportRequests })),
+    ).toHaveLength(0);
   });
 });
 
@@ -154,13 +166,17 @@ describe("selectPendingDeletionRequests", () => {
       { id: "dr4", status: "processing" } as never,
       { id: "dr5", status: "completed" } as never,
     ];
-    const result = selectPendingDeletionRequests(makeState({ deletionRequests }));
+    const result = selectPendingDeletionRequests(
+      makeState({ deletionRequests }),
+    );
     expect(result).toHaveLength(4);
   });
 
   it("excludes completed requests", () => {
     const deletionRequests = [{ id: "dr1", status: "completed" } as never];
-    expect(selectPendingDeletionRequests(makeState({ deletionRequests }))).toHaveLength(0);
+    expect(
+      selectPendingDeletionRequests(makeState({ deletionRequests })),
+    ).toHaveLength(0);
   });
 });
 
@@ -181,7 +197,9 @@ describe("selectGrantedConsents", () => {
     ];
     const result = selectGrantedConsents(makeState({ userConsents }));
     expect(result).toHaveLength(2);
-    expect(result.every((c: { status: string }) => c.status === "granted")).toBe(true);
+    expect(
+      result.every((c: { status: string }) => c.status === "granted"),
+    ).toBe(true);
   });
 });
 
@@ -286,7 +304,9 @@ describe("selectComplianceStats", () => {
       { id: "dr1", status: "pending" } as never,
       { id: "dr2", status: "approved" } as never,
     ];
-    const result = selectComplianceStats(makeState({ exportRequests, deletionRequests }));
+    const result = selectComplianceStats(
+      makeState({ exportRequests, deletionRequests }),
+    );
     expect(result.pendingExports).toBe(1);
     expect(result.pendingDeletions).toBe(1);
   });

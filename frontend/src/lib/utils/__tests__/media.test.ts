@@ -209,7 +209,9 @@ describe("getMediaType", () => {
   });
 
   it("returns 'other' for application/zip", () => {
-    expect(getMediaType(makeFile("archive.zip", "application/zip"))).toBe("other");
+    expect(getMediaType(makeFile("archive.zip", "application/zip"))).toBe(
+      "other",
+    );
   });
 
   it("image takes priority over other checks (type-startsWith order preserved)", () => {
@@ -249,7 +251,13 @@ describe("calculateDisplayDimensions", () => {
     });
 
     it("uses default mode (contain) when mode is omitted", () => {
-      const explicit = calculateDisplayDimensions(800, 400, 400, 400, "contain");
+      const explicit = calculateDisplayDimensions(
+        800,
+        400,
+        400,
+        400,
+        "contain",
+      );
       const defaulted = calculateDisplayDimensions(800, 400, 400, 400);
       expect(defaulted).toEqual(explicit);
     });
@@ -262,14 +270,26 @@ describe("calculateDisplayDimensions", () => {
     });
 
     it("16:9 image in 4:3 container — wide image → fit width", () => {
-      const result = calculateDisplayDimensions(1920, 1080, 800, 600, "contain");
+      const result = calculateDisplayDimensions(
+        1920,
+        1080,
+        800,
+        600,
+        "contain",
+      );
       // aspectRatio = 1920/1080 ≈ 1.778 > containerAspect = 800/600 ≈ 1.333 → fit width
       expect(result.width).toBe(800);
       expect(result.height).toBe(Math.round(800 / (1920 / 1080)));
     });
 
     it("4:3 image in 16:9 container — narrower → fit height", () => {
-      const result = calculateDisplayDimensions(800, 600, 1920, 1080, "contain");
+      const result = calculateDisplayDimensions(
+        800,
+        600,
+        1920,
+        1080,
+        "contain",
+      );
       // aspectRatio ≈ 1.333 < containerAspect ≈ 1.778 → fit height
       expect(result.height).toBe(1080);
       expect(result.width).toBe(Math.round(1080 * (800 / 600)));
@@ -317,7 +337,13 @@ describe("calculateDisplayDimensions", () => {
     });
 
     it("square image in square container — same in both modes", () => {
-      const containR = calculateDisplayDimensions(500, 500, 300, 300, "contain");
+      const containR = calculateDisplayDimensions(
+        500,
+        500,
+        300,
+        300,
+        "contain",
+      );
       const coverR = calculateDisplayDimensions(500, 500, 300, 300, "cover");
       expect(containR).toEqual(coverR);
     });
@@ -355,7 +381,13 @@ describe("calculateDisplayDimensions", () => {
     });
 
     it("returns plain numbers (not NaN, not Infinity)", () => {
-      const result = calculateDisplayDimensions(1920, 1080, 1280, 720, "contain");
+      const result = calculateDisplayDimensions(
+        1920,
+        1080,
+        1280,
+        720,
+        "contain",
+      );
       expect(isNaN(result.width)).toBe(false);
       expect(isNaN(result.height)).toBe(false);
       expect(isFinite(result.width)).toBe(true);

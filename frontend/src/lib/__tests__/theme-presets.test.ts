@@ -9,7 +9,11 @@
  * the exported themePresets map can be consumed safely at runtime.
  */
 
-import { themePresets, type ThemePreset, type ThemeColors } from "../theme-presets";
+import {
+  themePresets,
+  type ThemePreset,
+  type ThemeColors,
+} from "../theme-presets";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -71,8 +75,14 @@ const COLOR_FIELDS: Array<keyof ThemeColors> = [
 function expectValidThemeColors(colors: ThemeColors, context: string) {
   for (const field of COLOR_FIELDS) {
     const value = colors[field];
-    expect(typeof value).toBe("string", `${context}.${field} should be a string`);
-    expect((value as string).length).toBeGreaterThan(0, `${context}.${field} should not be empty`);
+    expect(typeof value).toBe(
+      "string",
+      `${context}.${field} should be a string`,
+    );
+    expect((value as string).length).toBeGreaterThan(
+      0,
+      `${context}.${field} should not be empty`,
+    );
   }
 }
 

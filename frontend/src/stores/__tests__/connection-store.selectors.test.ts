@@ -5,7 +5,10 @@
  * Tests construct minimal plain-object state and call selectors directly.
  */
 
-import type { ConnectionStore, ConnectionStoreState } from "../connection-store";
+import type {
+  ConnectionStore,
+  ConnectionStoreState,
+} from "../connection-store";
 import type {
   ConnectionInfo,
   SocketConnectionState,
@@ -61,7 +64,9 @@ const defaultRetry: RetryState = {
   shouldRetry: true,
 };
 
-function makeState(overrides?: Partial<Record<string, unknown>>): ConnectionStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): ConnectionStore {
   const defaultState: ConnectionStoreState = {
     network: defaultNetwork,
     socket: defaultSocket,
@@ -91,7 +96,11 @@ function makeState(overrides?: Partial<Record<string, unknown>>): ConnectionStor
     recordDisconnection: () => undefined,
     reset: () => undefined,
   };
-  return { ...defaultState, ...stubs, ...overrides } as unknown as ConnectionStore;
+  return {
+    ...defaultState,
+    ...stubs,
+    ...overrides,
+  } as unknown as ConnectionStore;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,7 +115,11 @@ describe("selectNetworkInfo", () => {
   });
 
   it("returns updated network info", () => {
-    const network: ConnectionInfo = { ...defaultNetwork, state: "offline", quality: "poor" };
+    const network: ConnectionInfo = {
+      ...defaultNetwork,
+      state: "offline",
+      quality: "poor",
+    };
     expect(selectNetworkInfo(makeState({ network }))).toBe(network);
   });
 });
@@ -142,13 +155,15 @@ describe("selectOverallState", () => {
   });
 
   it("returns the current overall state", () => {
-    expect(selectOverallState(makeState({ overallState: "online" }))).toBe("online");
+    expect(selectOverallState(makeState({ overallState: "online" }))).toBe(
+      "online",
+    );
   });
 
   it("returns reconnecting when set", () => {
-    expect(selectOverallState(makeState({ overallState: "reconnecting" }))).toBe(
-      "reconnecting",
-    );
+    expect(
+      selectOverallState(makeState({ overallState: "reconnecting" })),
+    ).toBe("reconnecting");
   });
 });
 
@@ -162,7 +177,9 @@ describe("selectCanSendMessages", () => {
   });
 
   it("returns true when can send messages", () => {
-    expect(selectCanSendMessages(makeState({ canSendMessages: true }))).toBe(true);
+    expect(selectCanSendMessages(makeState({ canSendMessages: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -176,7 +193,9 @@ describe("selectShouldShowOffline", () => {
   });
 
   it("returns true when offline should be shown", () => {
-    expect(selectShouldShowOffline(makeState({ shouldShowOffline: true }))).toBe(true);
+    expect(
+      selectShouldShowOffline(makeState({ shouldShowOffline: true })),
+    ).toBe(true);
   });
 });
 
@@ -192,7 +211,11 @@ describe("selectRetryState", () => {
   });
 
   it("returns updated retry state", () => {
-    const retry: RetryState = { ...defaultRetry, attempt: 3, shouldRetry: false };
+    const retry: RetryState = {
+      ...defaultRetry,
+      attempt: 3,
+      shouldRetry: false,
+    };
     expect(selectRetryState(makeState({ retry }))).toBe(retry);
   });
 });
@@ -247,7 +270,9 @@ describe("selectIsOnline", () => {
   });
 
   it("returns false when overall state is reconnecting", () => {
-    expect(selectIsOnline(makeState({ overallState: "reconnecting" }))).toBe(false);
+    expect(selectIsOnline(makeState({ overallState: "reconnecting" }))).toBe(
+      false,
+    );
   });
 });
 
@@ -257,9 +282,7 @@ describe("selectIsOnline", () => {
 
 describe("selectIsOffline", () => {
   it("returns false when overall state is online", () => {
-    expect(
-      selectIsOffline(makeState({ overallState: "online" })),
-    ).toBe(false);
+    expect(selectIsOffline(makeState({ overallState: "online" }))).toBe(false);
   });
 
   it("returns true when overall state is offline", () => {
@@ -284,13 +307,16 @@ describe("selectIsReconnecting", () => {
   });
 
   it("returns true when overall state is reconnecting", () => {
-    expect(selectIsReconnecting(makeState({ overallState: "reconnecting" }))).toBe(
-      true,
-    );
+    expect(
+      selectIsReconnecting(makeState({ overallState: "reconnecting" })),
+    ).toBe(true);
   });
 
   it("returns true when socket has reconnect attempts", () => {
-    const socket: SocketConnectionState = { ...defaultSocket, reconnectAttempts: 2 };
+    const socket: SocketConnectionState = {
+      ...defaultSocket,
+      reconnectAttempts: 2,
+    };
     expect(selectIsReconnecting(makeState({ socket }))).toBe(true);
   });
 });
@@ -305,7 +331,10 @@ describe("selectReconnectAttempts", () => {
   });
 
   it("returns the current reconnect attempt count", () => {
-    const socket: SocketConnectionState = { ...defaultSocket, reconnectAttempts: 5 };
+    const socket: SocketConnectionState = {
+      ...defaultSocket,
+      reconnectAttempts: 5,
+    };
     expect(selectReconnectAttempts(makeState({ socket }))).toBe(5);
   });
 });
@@ -339,7 +368,10 @@ describe("selectConnectionStats", () => {
   });
 
   it("returns updated stats when disconnections have occurred", () => {
-    const socket: SocketConnectionState = { ...defaultSocket, reconnectAttempts: 3 };
+    const socket: SocketConnectionState = {
+      ...defaultSocket,
+      reconnectAttempts: 3,
+    };
     const result = selectConnectionStats(
       makeState({
         socket,

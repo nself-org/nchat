@@ -163,8 +163,13 @@ describe("selectFilters", () => {
   });
 
   it("returns the filters object", () => {
-    const filters = { category: ["security" as never], severity: ["error" as never] };
-    expect(selectFilters(makeState({ filters: filters as never }))).toBe(filters);
+    const filters = {
+      category: ["security" as never],
+      severity: ["error" as never],
+    };
+    expect(selectFilters(makeState({ filters: filters as never }))).toBe(
+      filters,
+    );
   });
 });
 
@@ -198,7 +203,11 @@ describe("selectPagination", () => {
   });
 
   it("returns custom pagination", () => {
-    const pagination = makePagination({ page: 3, totalCount: 200, totalPages: 4 });
+    const pagination = makePagination({
+      page: 3,
+      totalCount: 200,
+      totalPages: 4,
+    });
     expect(selectPagination(makeState({ pagination }))).toBe(pagination);
   });
 });

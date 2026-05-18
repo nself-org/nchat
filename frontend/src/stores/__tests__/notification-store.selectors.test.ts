@@ -53,7 +53,9 @@ const defaultUnreadCounts: UnreadCounts = {
   byChannel: {},
 };
 
-function makeState(overrides?: Partial<Record<string, unknown>>): NotificationStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): NotificationStore {
   const defaultState: NotificationState = {
     notifications: [],
     isLoading: false,
@@ -96,7 +98,11 @@ function makeState(overrides?: Partial<Record<string, unknown>>): NotificationSt
     getUnreadNotifications: () => [],
     reset: () => undefined,
   };
-  return { ...defaultState, ...stubs, ...overrides } as unknown as NotificationStore;
+  return {
+    ...defaultState,
+    ...stubs,
+    ...overrides,
+  } as unknown as NotificationStore;
 }
 
 // ---------------------------------------------------------------------------
@@ -205,9 +211,9 @@ describe("selectNotificationPreferences", () => {
 
   it("returns updated preferences when overridden", () => {
     const preferences = { ...defaultPreferences, desktopEnabled: false };
-    expect(
-      selectNotificationPreferences(makeState({ preferences })),
-    ).toBe(preferences);
+    expect(selectNotificationPreferences(makeState({ preferences }))).toBe(
+      preferences,
+    );
   });
 });
 

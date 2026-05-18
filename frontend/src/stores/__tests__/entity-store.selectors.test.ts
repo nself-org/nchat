@@ -201,7 +201,9 @@ describe("selectRecentEntities", () => {
     ]);
     // e3 not in entities — should be filtered out
     const recentEntityIds = ["e2", "e1", "e3"];
-    const result = selectRecentEntities(makeState({ entities, recentEntityIds }));
+    const result = selectRecentEntities(
+      makeState({ entities, recentEntityIds }),
+    );
     expect(result).toHaveLength(2);
     expect(result[0]).toBe(e2);
     expect(result[1]).toBe(e1);

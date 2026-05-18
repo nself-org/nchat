@@ -32,7 +32,9 @@ function makeStep(
   };
 }
 
-function makeState(overrides?: Partial<Record<string, unknown>>): WhiteLabelStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): WhiteLabelStore {
   const steps = [
     makeStep("app-info", { skippable: false }),
     makeStep("logo", { skippable: true }),

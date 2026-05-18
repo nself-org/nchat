@@ -231,9 +231,9 @@ describe("selectIsConnected", () => {
     expect(
       selectIsConnected(makeState({ connectionStatus: "reconnecting" })),
     ).toBe(false);
-    expect(
-      selectIsConnected(makeState({ connectionStatus: "error" })),
-    ).toBe(false);
+    expect(selectIsConnected(makeState({ connectionStatus: "error" }))).toBe(
+      false,
+    );
   });
 });
 
@@ -336,9 +336,9 @@ describe("selectHasError", () => {
   });
 
   it("returns true when there is an unrecoverable error", () => {
-    expect(
-      selectHasError(makeState({ hasUnrecoverableError: true })),
-    ).toBe(true);
+    expect(selectHasError(makeState({ hasUnrecoverableError: true }))).toBe(
+      true,
+    );
   });
 });
 

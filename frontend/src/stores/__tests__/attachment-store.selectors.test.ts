@@ -231,7 +231,11 @@ describe("selectFailedUploads", () => {
   });
 
   it("returns only failed uploads", () => {
-    const u1 = makeUpload({ id: "u1", status: "failed", error: "Network error" });
+    const u1 = makeUpload({
+      id: "u1",
+      status: "failed",
+      error: "Network error",
+    });
     const u2 = makeUpload({ id: "u2", status: "completed" });
     const uploads = new Map([
       ["u1", u1],
@@ -317,20 +321,40 @@ describe("selectTotalUploadProgress", () => {
   });
 
   it("returns 0 when pending uploads have no uploaded bytes", () => {
-    const u1 = makeUpload({ id: "u1", status: "uploading", fileSize: 1000, uploadedBytes: 0 });
+    const u1 = makeUpload({
+      id: "u1",
+      status: "uploading",
+      fileSize: 1000,
+      uploadedBytes: 0,
+    });
     const uploads = new Map([["u1", u1]]);
     expect(selectTotalUploadProgress(makeState({ uploads }))).toBe(0);
   });
 
   it("returns 50 when half of bytes have been uploaded", () => {
-    const u1 = makeUpload({ id: "u1", status: "uploading", fileSize: 1000, uploadedBytes: 500 });
+    const u1 = makeUpload({
+      id: "u1",
+      status: "uploading",
+      fileSize: 1000,
+      uploadedBytes: 500,
+    });
     const uploads = new Map([["u1", u1]]);
     expect(selectTotalUploadProgress(makeState({ uploads }))).toBe(50);
   });
 
   it("returns correct progress across multiple uploads", () => {
-    const u1 = makeUpload({ id: "u1", status: "uploading", fileSize: 1000, uploadedBytes: 1000 });
-    const u2 = makeUpload({ id: "u2", status: "pending", fileSize: 1000, uploadedBytes: 0 });
+    const u1 = makeUpload({
+      id: "u1",
+      status: "uploading",
+      fileSize: 1000,
+      uploadedBytes: 1000,
+    });
+    const u2 = makeUpload({
+      id: "u2",
+      status: "pending",
+      fileSize: 1000,
+      uploadedBytes: 0,
+    });
     const uploads = new Map([
       ["u1", u1],
       ["u2", u2],

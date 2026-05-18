@@ -29,9 +29,7 @@ import {
   selectMutedChannelCount,
 } from "../notification-settings-store";
 import type { NotificationSettingsStore } from "../notification-settings-store";
-import {
-  DEFAULT_NOTIFICATION_PREFERENCES,
-} from "@/lib/notifications/notification-types";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/notifications/notification-types";
 
 // ---------------------------------------------------------------------------
 // Minimal state factory
@@ -87,7 +85,10 @@ describe("selectPreferences", () => {
 
   it("reflects custom preferences", () => {
     const state = makeState({
-      preferences: { ...DEFAULT_NOTIFICATION_PREFERENCES, globalEnabled: false },
+      preferences: {
+        ...DEFAULT_NOTIFICATION_PREFERENCES,
+        globalEnabled: false,
+      },
     });
     expect(selectPreferences(state).globalEnabled).toBe(false);
   });
@@ -105,7 +106,10 @@ describe("selectGlobalEnabled", () => {
 
   it("returns false when globalEnabled is false", () => {
     const state = makeState({
-      preferences: { ...DEFAULT_NOTIFICATION_PREFERENCES, globalEnabled: false },
+      preferences: {
+        ...DEFAULT_NOTIFICATION_PREFERENCES,
+        globalEnabled: false,
+      },
     });
     expect(selectGlobalEnabled(state)).toBe(false);
   });
@@ -125,7 +129,10 @@ describe("selectDesktopSettings", () => {
     const state = makeState({
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
-        desktop: { ...DEFAULT_NOTIFICATION_PREFERENCES.desktop, enabled: false },
+        desktop: {
+          ...DEFAULT_NOTIFICATION_PREFERENCES.desktop,
+          enabled: false,
+        },
       },
     });
     expect(selectDesktopSettings(state).enabled).toBe(false);
@@ -236,7 +243,17 @@ describe("selectKeywords", () => {
   });
 
   it("returns keywords array from preferences", () => {
-    const kw = { id: "k1", keyword: "urgent", enabled: true, caseSensitive: false, wholeWord: false, color: "#f00", sound: "default", desktopNotification: true, mobileNotification: true };
+    const kw = {
+      id: "k1",
+      keyword: "urgent",
+      enabled: true,
+      caseSensitive: false,
+      wholeWord: false,
+      color: "#f00",
+      sound: "default",
+      desktopNotification: true,
+      mobileNotification: true,
+    };
     const state = makeState({
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
@@ -258,7 +275,15 @@ describe("selectChannelSettings", () => {
   });
 
   it("returns channelSettings from preferences", () => {
-    const cs = { level: "all" as const, muted: false, muteUntil: null, desktop: true, mobile: true, email: false, sound: true };
+    const cs = {
+      level: "all" as const,
+      muted: false,
+      muteUntil: null,
+      desktop: true,
+      mobile: true,
+      email: false,
+      sound: true,
+    };
     const state = makeState({
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
@@ -307,7 +332,9 @@ describe("selectError", () => {
   });
 
   it("returns error string when set", () => {
-    expect(selectError(makeState({ error: "network failure" }))).toBe("network failure");
+    expect(selectError(makeState({ error: "network failure" }))).toBe(
+      "network failure",
+    );
   });
 });
 
@@ -321,7 +348,9 @@ describe("selectActiveSection", () => {
   });
 
   it("reflects a custom active section", () => {
-    expect(selectActiveSection(makeState({ activeSection: "desktop" }))).toBe("desktop");
+    expect(selectActiveSection(makeState({ activeSection: "desktop" }))).toBe(
+      "desktop",
+    );
   });
 });
 
@@ -335,7 +364,9 @@ describe("selectIsSettingsOpen", () => {
   });
 
   it("returns true when settings open", () => {
-    expect(selectIsSettingsOpen(makeState({ isSettingsOpen: true }))).toBe(true);
+    expect(selectIsSettingsOpen(makeState({ isSettingsOpen: true }))).toBe(
+      true,
+    );
   });
 });
 
@@ -486,8 +517,28 @@ describe("selectEnabledKeywords", () => {
   });
 
   it("returns only enabled keywords", () => {
-    const kw1 = { id: "k1", keyword: "hi", enabled: true, caseSensitive: false, wholeWord: false, color: "#0f0", sound: "default", desktopNotification: true, mobileNotification: true };
-    const kw2 = { id: "k2", keyword: "bye", enabled: false, caseSensitive: false, wholeWord: false, color: "#f00", sound: "default", desktopNotification: false, mobileNotification: false };
+    const kw1 = {
+      id: "k1",
+      keyword: "hi",
+      enabled: true,
+      caseSensitive: false,
+      wholeWord: false,
+      color: "#0f0",
+      sound: "default",
+      desktopNotification: true,
+      mobileNotification: true,
+    };
+    const kw2 = {
+      id: "k2",
+      keyword: "bye",
+      enabled: false,
+      caseSensitive: false,
+      wholeWord: false,
+      color: "#f00",
+      sound: "default",
+      desktopNotification: false,
+      mobileNotification: false,
+    };
     const state = makeState({
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
@@ -514,8 +565,24 @@ describe("selectMutedChannelCount", () => {
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
         channelSettings: {
-          ch1: { level: "nothing" as const, muted: true, muteUntil: null, desktop: false, mobile: false, email: false, sound: false },
-          ch2: { level: "all" as const, muted: false, muteUntil: null, desktop: true, mobile: true, email: false, sound: true },
+          ch1: {
+            level: "nothing" as const,
+            muted: true,
+            muteUntil: null,
+            desktop: false,
+            mobile: false,
+            email: false,
+            sound: false,
+          },
+          ch2: {
+            level: "all" as const,
+            muted: false,
+            muteUntil: null,
+            desktop: true,
+            mobile: true,
+            email: false,
+            sound: true,
+          },
         },
       },
     });
@@ -529,8 +596,24 @@ describe("selectMutedChannelCount", () => {
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
         channelSettings: {
-          ch1: { level: "all" as const, muted: true, muteUntil: future, desktop: false, mobile: false, email: false, sound: false },
-          ch2: { level: "all" as const, muted: false, muteUntil: past, desktop: true, mobile: true, email: false, sound: true },
+          ch1: {
+            level: "all" as const,
+            muted: true,
+            muteUntil: future,
+            desktop: false,
+            mobile: false,
+            email: false,
+            sound: false,
+          },
+          ch2: {
+            level: "all" as const,
+            muted: false,
+            muteUntil: past,
+            desktop: true,
+            mobile: true,
+            email: false,
+            sound: true,
+          },
         },
       },
     });
@@ -543,9 +626,33 @@ describe("selectMutedChannelCount", () => {
       preferences: {
         ...DEFAULT_NOTIFICATION_PREFERENCES,
         channelSettings: {
-          ch1: { level: "nothing" as const, muted: true, muteUntil: null, desktop: false, mobile: false, email: false, sound: false },
-          ch2: { level: "all" as const, muted: true, muteUntil: future, desktop: false, mobile: false, email: false, sound: false },
-          ch3: { level: "all" as const, muted: false, muteUntil: null, desktop: true, mobile: true, email: false, sound: true },
+          ch1: {
+            level: "nothing" as const,
+            muted: true,
+            muteUntil: null,
+            desktop: false,
+            mobile: false,
+            email: false,
+            sound: false,
+          },
+          ch2: {
+            level: "all" as const,
+            muted: true,
+            muteUntil: future,
+            desktop: false,
+            mobile: false,
+            email: false,
+            sound: false,
+          },
+          ch3: {
+            level: "all" as const,
+            muted: false,
+            muteUntil: null,
+            desktop: true,
+            mobile: true,
+            email: false,
+            sound: true,
+          },
         },
       },
     });

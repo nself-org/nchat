@@ -120,7 +120,9 @@ describe("selectInstalledPacks", () => {
 
   it("returns the installedPacks array", () => {
     const installedPacks = [makeInstalledPack()];
-    expect(selectInstalledPacks(makeState({ installedPacks }))).toBe(installedPacks);
+    expect(selectInstalledPacks(makeState({ installedPacks }))).toBe(
+      installedPacks,
+    );
   });
 });
 
@@ -135,7 +137,9 @@ describe("selectRecentStickers", () => {
 
   it("returns the recentStickers array", () => {
     const recentStickers = [makeSticker()];
-    expect(selectRecentStickers(makeState({ recentStickers }))).toBe(recentStickers);
+    expect(selectRecentStickers(makeState({ recentStickers }))).toBe(
+      recentStickers,
+    );
   });
 });
 
@@ -150,7 +154,9 @@ describe("selectFavoriteStickers", () => {
 
   it("returns the favoriteStickers array", () => {
     const favoriteStickers = [makeSticker({ sticker_id: "fav1" })];
-    expect(selectFavoriteStickers(makeState({ favoriteStickers }))).toBe(favoriteStickers);
+    expect(selectFavoriteStickers(makeState({ favoriteStickers }))).toBe(
+      favoriteStickers,
+    );
   });
 });
 
@@ -165,7 +171,9 @@ describe("selectAvailablePacks", () => {
 
   it("returns the availablePacks array", () => {
     const availablePacks = [makeAvailablePack()];
-    expect(selectAvailablePacks(makeState({ availablePacks }))).toBe(availablePacks);
+    expect(selectAvailablePacks(makeState({ availablePacks }))).toBe(
+      availablePacks,
+    );
   });
 });
 
@@ -222,7 +230,9 @@ describe("selectSearchResults", () => {
 
   it("returns the search results array", () => {
     const searchResults = [makeSticker({ id: "result1" })];
-    expect(selectSearchResults(makeState({ searchResults }))).toBe(searchResults);
+    expect(selectSearchResults(makeState({ searchResults }))).toBe(
+      searchResults,
+    );
   });
 });
 
@@ -237,7 +247,9 @@ describe("selectPreviewSticker", () => {
 
   it("returns the preview sticker when set", () => {
     const sticker = makeSticker({ id: "preview1" });
-    expect(selectPreviewSticker(makeState({ previewSticker: sticker }))).toBe(sticker);
+    expect(selectPreviewSticker(makeState({ previewSticker: sticker }))).toBe(
+      sticker,
+    );
   });
 });
 
@@ -252,7 +264,9 @@ describe("selectActivePackStickers", () => {
 
   it("returns empty array when activePackId has no cached stickers", () => {
     expect(
-      selectActivePackStickers(makeState({ activePackId: "p1", cachedStickers: {} })),
+      selectActivePackStickers(
+        makeState({ activePackId: "p1", cachedStickers: {} }),
+      ),
     ).toEqual([]);
   });
 
@@ -302,7 +316,9 @@ describe("selectNotInstalledPacks", () => {
       makeAvailablePack({ id: "p3" }),
     ];
     const installedPacks = [makeInstalledPack({ pack_id: "p1" })];
-    const result = selectNotInstalledPacks(makeState({ availablePacks, installedPacks }));
+    const result = selectNotInstalledPacks(
+      makeState({ availablePacks, installedPacks }),
+    );
     expect(result).toHaveLength(2);
     expect(result.every((p: { id: string }) => p.id !== "p1")).toBe(true);
   });
@@ -310,7 +326,9 @@ describe("selectNotInstalledPacks", () => {
   it("returns empty array when all available packs are installed", () => {
     const availablePacks = [makeAvailablePack({ id: "p1" })];
     const installedPacks = [makeInstalledPack({ pack_id: "p1" })];
-    const result = selectNotInstalledPacks(makeState({ availablePacks, installedPacks }));
+    const result = selectNotInstalledPacks(
+      makeState({ availablePacks, installedPacks }),
+    );
     expect(result).toHaveLength(0);
   });
 });

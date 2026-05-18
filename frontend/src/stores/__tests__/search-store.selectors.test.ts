@@ -34,7 +34,9 @@ const defaultFilters: SearchFilters = {
   is: [],
 };
 
-function makeMessageResult(overrides?: Partial<MessageSearchResult>): MessageSearchResult {
+function makeMessageResult(
+  overrides?: Partial<MessageSearchResult>,
+): MessageSearchResult {
   return {
     id: "r1",
     type: "message",
@@ -56,7 +58,9 @@ function makeMessageResult(overrides?: Partial<MessageSearchResult>): MessageSea
   };
 }
 
-function makeFileResult(overrides?: Partial<FileSearchResult>): FileSearchResult {
+function makeFileResult(
+  overrides?: Partial<FileSearchResult>,
+): FileSearchResult {
   return {
     id: "r2",
     type: "file",
@@ -76,7 +80,9 @@ function makeFileResult(overrides?: Partial<FileSearchResult>): FileSearchResult
   };
 }
 
-function makeUserResult(overrides?: Partial<UserSearchResult>): UserSearchResult {
+function makeUserResult(
+  overrides?: Partial<UserSearchResult>,
+): UserSearchResult {
   return {
     id: "r3",
     type: "user",
@@ -94,7 +100,9 @@ function makeUserResult(overrides?: Partial<UserSearchResult>): UserSearchResult
   };
 }
 
-function makeChannelResult(overrides?: Partial<ChannelSearchResult>): ChannelSearchResult {
+function makeChannelResult(
+  overrides?: Partial<ChannelSearchResult>,
+): ChannelSearchResult {
   return {
     id: "r4",
     type: "channel",
@@ -207,7 +215,10 @@ describe("selectHasActiveFilters", () => {
   });
 
   it("returns true when dateRange.from is set", () => {
-    const filters = { ...defaultFilters, dateRange: { from: new Date(), to: null } };
+    const filters = {
+      ...defaultFilters,
+      dateRange: { from: new Date(), to: null },
+    };
     expect(selectHasActiveFilters(makeState({ filters }))).toBe(true);
   });
 
@@ -269,7 +280,9 @@ describe("selectFilteredResults", () => {
     const msg = makeMessageResult();
     const file = makeFileResult();
     const results = [msg, file];
-    const filtered = selectFilteredResults(makeState({ results, activeTab: "messages" }));
+    const filtered = selectFilteredResults(
+      makeState({ results, activeTab: "messages" }),
+    );
     expect(filtered).toHaveLength(1);
     expect(filtered[0]).toBe(msg);
   });
@@ -278,7 +291,9 @@ describe("selectFilteredResults", () => {
     const msg = makeMessageResult();
     const file = makeFileResult();
     const results = [msg, file];
-    const filtered = selectFilteredResults(makeState({ results, activeTab: "files" }));
+    const filtered = selectFilteredResults(
+      makeState({ results, activeTab: "files" }),
+    );
     expect(filtered).toHaveLength(1);
     expect(filtered[0]).toBe(file);
   });
@@ -287,7 +302,9 @@ describe("selectFilteredResults", () => {
     const user = makeUserResult();
     const msg = makeMessageResult();
     const results = [user, msg];
-    const filtered = selectFilteredResults(makeState({ results, activeTab: "people" }));
+    const filtered = selectFilteredResults(
+      makeState({ results, activeTab: "people" }),
+    );
     expect(filtered).toHaveLength(1);
     expect(filtered[0]).toBe(user);
   });
@@ -296,7 +313,9 @@ describe("selectFilteredResults", () => {
     const ch = makeChannelResult();
     const msg = makeMessageResult();
     const results = [ch, msg];
-    const filtered = selectFilteredResults(makeState({ results, activeTab: "channels" }));
+    const filtered = selectFilteredResults(
+      makeState({ results, activeTab: "channels" }),
+    );
     expect(filtered).toHaveLength(1);
     expect(filtered[0]).toBe(ch);
   });

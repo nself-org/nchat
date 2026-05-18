@@ -82,7 +82,10 @@ describe("selectMentions", () => {
   it("returns array of mention values from the map", () => {
     const m1 = makeMention({ id: "m1" });
     const m2 = makeMention({ id: "m2" });
-    const mentions = new Map([["m1", m1], ["m2", m2]]);
+    const mentions = new Map([
+      ["m1", m1],
+      ["m2", m2],
+    ]);
     const result = selectMentions(makeState({ mentions }));
     expect(result).toHaveLength(2);
   });

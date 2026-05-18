@@ -93,7 +93,9 @@ describe("selectCurrentSession", () => {
 
   it("returns the current session when set", () => {
     const currentSession = makeSession({ isCurrent: true });
-    expect(selectCurrentSession(makeState({ currentSession }))).toBe(currentSession);
+    expect(selectCurrentSession(makeState({ currentSession }))).toBe(
+      currentSession,
+    );
   });
 });
 
@@ -114,7 +116,9 @@ describe("selectOtherSessions", () => {
     ];
     const result = selectOtherSessions(makeState({ sessions }));
     expect(result).toHaveLength(2);
-    expect(result.every((s: { isCurrent: boolean }) => !s.isCurrent)).toBe(true);
+    expect(result.every((s: { isCurrent: boolean }) => !s.isCurrent)).toBe(
+      true,
+    );
   });
 
   it("returns all sessions when none is current", () => {

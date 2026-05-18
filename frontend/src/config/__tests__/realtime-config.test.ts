@@ -492,8 +492,14 @@ describe("REALTIME_EVENTS", () => {
 
   it("all event values are non-empty strings", () => {
     for (const [key, value] of Object.entries(REALTIME_EVENTS)) {
-      expect(typeof value).toBe("string", `REALTIME_EVENTS.${key} should be a string`);
-      expect((value as string).length).toBeGreaterThan(0, `REALTIME_EVENTS.${key} should not be empty`);
+      expect(typeof value).toBe(
+        "string",
+        `REALTIME_EVENTS.${key} should be a string`,
+      );
+      expect((value as string).length).toBeGreaterThan(
+        0,
+        `REALTIME_EVENTS.${key} should not be empty`,
+      );
     }
   });
 });

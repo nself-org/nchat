@@ -64,7 +64,8 @@ describe("FEATURE_FLAGS.messaging", () => {
   it("has deletion: true", () => expect(messaging.deletion).toBe(true));
   it("has forwarding: true", () => expect(messaging.forwarding).toBe(true));
   it("has scheduling: false", () => expect(messaging.scheduling).toBe(false));
-  it("has disappearing: false", () => expect(messaging.disappearing).toBe(false));
+  it("has disappearing: false", () =>
+    expect(messaging.disappearing).toBe(false));
 
   it("has exactly 9 fields", () => {
     expect(Object.keys(messaging)).toHaveLength(9);
@@ -78,17 +79,25 @@ describe("FEATURE_FLAGS.messaging", () => {
 describe("FEATURE_FLAGS.voice", () => {
   const { voice } = FEATURE_FLAGS;
 
-  it("has enabled property", () => expect(typeof voice.enabled).toBe("boolean"));
+  it("has enabled property", () =>
+    expect(typeof voice.enabled).toBe("boolean"));
   it("has calls property", () => expect(typeof voice.calls).toBe("boolean"));
-  it("has voiceMessages property", () => expect(typeof voice.voiceMessages).toBe("boolean"));
-  it("has voiceChannels property", () => expect(typeof voice.voiceChannels).toBe("boolean"));
+  it("has voiceMessages property", () =>
+    expect(typeof voice.voiceMessages).toBe("boolean"));
+  it("has voiceChannels property", () =>
+    expect(typeof voice.voiceChannels).toBe("boolean"));
 
   it("has exactly 4 fields", () => {
     expect(Object.keys(voice)).toHaveLength(4);
   });
 
   it("all voice flags are consistent (all true or all false — driven by single env)", () => {
-    const values = [voice.enabled, voice.calls, voice.voiceMessages, voice.voiceChannels];
+    const values = [
+      voice.enabled,
+      voice.calls,
+      voice.voiceMessages,
+      voice.voiceChannels,
+    ];
     const allTrue = values.every(Boolean);
     const allFalse = values.every((v) => !v);
     expect(allTrue || allFalse).toBe(true);
@@ -102,9 +111,11 @@ describe("FEATURE_FLAGS.voice", () => {
 describe("FEATURE_FLAGS.video", () => {
   const { video } = FEATURE_FLAGS;
 
-  it("has enabled property", () => expect(typeof video.enabled).toBe("boolean"));
+  it("has enabled property", () =>
+    expect(typeof video.enabled).toBe("boolean"));
   it("has calls property", () => expect(typeof video.calls).toBe("boolean"));
-  it("has screenShare property", () => expect(typeof video.screenShare).toBe("boolean"));
+  it("has screenShare property", () =>
+    expect(typeof video.screenShare).toBe("boolean"));
 
   it("has exactly 3 fields", () => {
     expect(Object.keys(video)).toHaveLength(3);
@@ -120,7 +131,8 @@ describe("FEATURE_FLAGS.channels", () => {
 
   it("has public: true", () => expect(channels.public).toBe(true));
   it("has private: true", () => expect(channels.private).toBe(true));
-  it("has directMessages: true", () => expect(channels.directMessages).toBe(true));
+  it("has directMessages: true", () =>
+    expect(channels.directMessages).toBe(true));
   it("has groupDms: true", () => expect(channels.groupDms).toBe(true));
   it("has categories: true", () => expect(channels.categories).toBe(true));
   it("has threads: true", () => expect(channels.threads).toBe(true));
@@ -175,11 +187,14 @@ describe("FEATURE_FLAGS.media", () => {
 describe("FEATURE_FLAGS.security", () => {
   const { security } = FEATURE_FLAGS;
 
-  it("has e2eEncryption: false", () => expect(security.e2eEncryption).toBe(false));
-  it("has biometricLock: false", () => expect(security.biometricLock).toBe(false));
+  it("has e2eEncryption: false", () =>
+    expect(security.e2eEncryption).toBe(false));
+  it("has biometricLock: false", () =>
+    expect(security.biometricLock).toBe(false));
   it("has pinLock: false", () => expect(security.pinLock).toBe(false));
   it("has twoFactor: true", () => expect(security.twoFactor).toBe(true));
-  it("has sessionManagement: true", () => expect(security.sessionManagement).toBe(true));
+  it("has sessionManagement: true", () =>
+    expect(security.sessionManagement).toBe(true));
   it("has sso as boolean", () => expect(typeof security.sso).toBe("boolean"));
 
   it("has exactly 6 fields", () => {
@@ -195,9 +210,12 @@ describe("FEATURE_FLAGS.integrations", () => {
   const { integrations } = FEATURE_FLAGS;
 
   it("has webhooks: true", () => expect(integrations.webhooks).toBe(true));
-  it("has bots as boolean", () => expect(typeof integrations.bots).toBe("boolean"));
-  it("has slackImport: false", () => expect(integrations.slackImport).toBe(false));
-  it("has externalApps: false", () => expect(integrations.externalApps).toBe(false));
+  it("has bots as boolean", () =>
+    expect(typeof integrations.bots).toBe("boolean"));
+  it("has slackImport: false", () =>
+    expect(integrations.slackImport).toBe(false));
+  it("has externalApps: false", () =>
+    expect(integrations.externalApps).toBe(false));
 
   it("has exactly 4 fields", () => {
     expect(Object.keys(integrations)).toHaveLength(4);
@@ -212,7 +230,8 @@ describe("FEATURE_FLAGS.payments", () => {
   const { payments } = FEATURE_FLAGS;
 
   it("has enabled: false", () => expect(payments.enabled).toBe(false));
-  it("has subscriptions: false", () => expect(payments.subscriptions).toBe(false));
+  it("has subscriptions: false", () =>
+    expect(payments.subscriptions).toBe(false));
   it("has crypto: false", () => expect(payments.crypto).toBe(false));
   it("has tokenGating: false", () => expect(payments.tokenGating).toBe(false));
 
@@ -231,7 +250,8 @@ describe("FEATURE_FLAGS.admin", () => {
   it("has dashboard: true", () => expect(admin.dashboard).toBe(true));
   it("has analytics: false", () => expect(admin.analytics).toBe(false));
   it("has auditLog: true", () => expect(admin.auditLog).toBe(true));
-  it("has moderationPanel as boolean", () => expect(typeof admin.moderationPanel).toBe("boolean"));
+  it("has moderationPanel as boolean", () =>
+    expect(typeof admin.moderationPanel).toBe("boolean"));
   it("has userManagement: true", () => expect(admin.userManagement).toBe(true));
   it("has roleManagement: true", () => expect(admin.roleManagement).toBe(true));
 
@@ -247,9 +267,12 @@ describe("FEATURE_FLAGS.admin", () => {
 describe("FEATURE_FLAGS.realtime", () => {
   const { realtime } = FEATURE_FLAGS;
 
-  it("has enabled as boolean", () => expect(typeof realtime.enabled).toBe("boolean"));
-  it("has presence as boolean", () => expect(typeof realtime.presence).toBe("boolean"));
-  it("has typing as boolean", () => expect(typeof realtime.typing).toBe("boolean"));
+  it("has enabled as boolean", () =>
+    expect(typeof realtime.enabled).toBe("boolean"));
+  it("has presence as boolean", () =>
+    expect(typeof realtime.presence).toBe("boolean"));
+  it("has typing as boolean", () =>
+    expect(typeof realtime.typing).toBe("boolean"));
 
   it("has exactly 3 fields", () => {
     expect(Object.keys(realtime)).toHaveLength(3);
@@ -263,9 +286,12 @@ describe("FEATURE_FLAGS.realtime", () => {
 describe("FEATURE_FLAGS.recording", () => {
   const { recording } = FEATURE_FLAGS;
 
-  it("has enabled as boolean", () => expect(typeof recording.enabled).toBe("boolean"));
-  it("has calls as boolean", () => expect(typeof recording.calls).toBe("boolean"));
-  it("has screenShares as boolean", () => expect(typeof recording.screenShares).toBe("boolean"));
+  it("has enabled as boolean", () =>
+    expect(typeof recording.enabled).toBe("boolean"));
+  it("has calls as boolean", () =>
+    expect(typeof recording.calls).toBe("boolean"));
+  it("has screenShares as boolean", () =>
+    expect(typeof recording.screenShares).toBe("boolean"));
 
   it("has exactly 3 fields", () => {
     expect(Object.keys(recording)).toHaveLength(3);
@@ -290,9 +316,15 @@ describe("DEFAULT_FEATURE_FLAGS", () => {
   });
 
   it("has the same messaging values as FEATURE_FLAGS", () => {
-    expect(DEFAULT_FEATURE_FLAGS.messaging.enabled).toBe(FEATURE_FLAGS.messaging.enabled);
-    expect(DEFAULT_FEATURE_FLAGS.messaging.threads).toBe(FEATURE_FLAGS.messaging.threads);
-    expect(DEFAULT_FEATURE_FLAGS.messaging.reactions).toBe(FEATURE_FLAGS.messaging.reactions);
+    expect(DEFAULT_FEATURE_FLAGS.messaging.enabled).toBe(
+      FEATURE_FLAGS.messaging.enabled,
+    );
+    expect(DEFAULT_FEATURE_FLAGS.messaging.threads).toBe(
+      FEATURE_FLAGS.messaging.threads,
+    );
+    expect(DEFAULT_FEATURE_FLAGS.messaging.reactions).toBe(
+      FEATURE_FLAGS.messaging.reactions,
+    );
   });
 });
 
@@ -448,7 +480,8 @@ describe("all flag values are typed correctly", () => {
     for (const [catKey, catValue] of Object.entries(FEATURE_FLAGS)) {
       for (const [flagKey, flagValue] of Object.entries(catValue as object)) {
         if (flagKey !== "allowedTypes" && flagKey !== "maxFileSize") {
-          expect(typeof flagValue).toBe("boolean",
+          expect(typeof flagValue).toBe(
+            "boolean",
             `Expected FEATURE_FLAGS.${catKey}.${flagKey} to be a boolean`,
           );
         }

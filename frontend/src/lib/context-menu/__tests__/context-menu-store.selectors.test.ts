@@ -23,7 +23,9 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeState(overrides?: Partial<Record<string, unknown>>): ContextMenuStore {
+function makeState(
+  overrides?: Partial<Record<string, unknown>>,
+): ContextMenuStore {
   const defaultState = {
     isOpen: false,
     menuType: null,
@@ -115,7 +117,11 @@ describe("selectMessageTarget", () => {
   });
 
   it("returns the message target when type is message", () => {
-    const target = { type: "message", messageId: "m1", channelId: "c1" } as never;
+    const target = {
+      type: "message",
+      messageId: "m1",
+      channelId: "c1",
+    } as never;
     const result = selectMessageTarget(makeState({ target }));
     expect(result).toBe(target);
   });
@@ -136,7 +142,11 @@ describe("selectChannelTarget", () => {
   });
 
   it("returns the channel target when type is channel", () => {
-    const target = { type: "channel", channelId: "c1", name: "general" } as never;
+    const target = {
+      type: "channel",
+      channelId: "c1",
+      name: "general",
+    } as never;
     expect(selectChannelTarget(makeState({ target }))).toBe(target);
   });
 
@@ -216,8 +226,8 @@ describe("selectActiveSubmenu", () => {
   });
 
   it("returns the active submenu id when set", () => {
-    expect(
-      selectActiveSubmenu(makeState({ activeSubmenu: "reactions" })),
-    ).toBe("reactions");
+    expect(selectActiveSubmenu(makeState({ activeSubmenu: "reactions" }))).toBe(
+      "reactions",
+    );
   });
 });

@@ -54,7 +54,9 @@ describe("selectRecentGifs", () => {
   });
 
   it("returns the recentGifs array", () => {
-    const recentGifs = [{ id: "g1", url: "https://example.com/g1.gif" } as never];
+    const recentGifs = [
+      { id: "g1", url: "https://example.com/g1.gif" } as never,
+    ];
     expect(selectRecentGifs(makeState({ recentGifs }))).toBe(recentGifs);
   });
 });
@@ -69,7 +71,9 @@ describe("selectFavoriteGifs", () => {
   });
 
   it("returns the favoriteGifs array", () => {
-    const favoriteGifs = [{ id: "g2", url: "https://example.com/g2.gif" } as never];
+    const favoriteGifs = [
+      { id: "g2", url: "https://example.com/g2.gif" } as never,
+    ];
     expect(selectFavoriteGifs(makeState({ favoriteGifs }))).toBe(favoriteGifs);
   });
 });
@@ -85,7 +89,9 @@ describe("selectSearchHistory", () => {
 
   it("returns the searchHistory array", () => {
     const searchHistory = [{ query: "cats", searchedAt: 1234567890 } as never];
-    expect(selectSearchHistory(makeState({ searchHistory }))).toBe(searchHistory);
+    expect(selectSearchHistory(makeState({ searchHistory }))).toBe(
+      searchHistory,
+    );
   });
 });
 
@@ -103,7 +109,10 @@ describe("selectPickerState", () => {
   });
 
   it("returns updated picker state", () => {
-    const picker = makePickerState({ isOpen: true, activeTab: "favorites" as const });
+    const picker = makePickerState({
+      isOpen: true,
+      activeTab: "favorites" as const,
+    });
     const result = selectPickerState(makeState({ picker }));
     expect(result.isOpen).toBe(true);
     expect(result.activeTab).toBe("favorites");

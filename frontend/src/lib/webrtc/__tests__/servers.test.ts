@@ -69,7 +69,9 @@ describe("DEFAULT_STUN_SERVERS", () => {
 
   it("all urls are Google STUN servers", () => {
     for (const server of DEFAULT_STUN_SERVERS) {
-      expect(server.urls as string).toMatch(/stun\.l\.google\.com|stun\d\.l\.google\.com/);
+      expect(server.urls as string).toMatch(
+        /stun\.l\.google\.com|stun\d\.l\.google\.com/,
+      );
     }
   });
 
@@ -185,7 +187,8 @@ describe("getTurnServerFromEnv", () => {
   });
 
   it("includes the urls field equal to the env var", () => {
-    process.env.NEXT_PUBLIC_TURN_SERVER_URL = "turn:my.turn.host:443?transport=tcp";
+    process.env.NEXT_PUBLIC_TURN_SERVER_URL =
+      "turn:my.turn.host:443?transport=tcp";
     const result = getTurnServerFromEnv();
     expect(result!.urls).toBe("turn:my.turn.host:443?transport=tcp");
   });
@@ -228,7 +231,8 @@ describe("getAdditionalTurnServers", () => {
   });
 
   it("applies credentials to each additional server when set", () => {
-    process.env.NEXT_PUBLIC_TURN_ADDITIONAL_URLS = "turn:a.example.com:3478,turn:b.example.com:3478";
+    process.env.NEXT_PUBLIC_TURN_ADDITIONAL_URLS =
+      "turn:a.example.com:3478,turn:b.example.com:3478";
     process.env.NEXT_PUBLIC_TURN_USERNAME = "user1";
     process.env.NEXT_PUBLIC_TURN_CREDENTIAL = "pass1";
     const result = getAdditionalTurnServers();
@@ -334,7 +338,8 @@ describe("getIceServerConfig", () => {
   });
 
   it("turnServers includes additional TURN servers from env", () => {
-    process.env.NEXT_PUBLIC_TURN_ADDITIONAL_URLS = "turn:a.example.com:3478,turn:b.example.com:3478";
+    process.env.NEXT_PUBLIC_TURN_ADDITIONAL_URLS =
+      "turn:a.example.com:3478,turn:b.example.com:3478";
     const config = getIceServerConfig();
     expect(config.turnServers).toHaveLength(2);
   });
@@ -396,17 +401,23 @@ describe("buildRTCConfiguration", () => {
   });
 
   it("respects options.iceTransportPolicy override", () => {
-    const config = buildRTCConfiguration(undefined, { iceTransportPolicy: "relay" });
+    const config = buildRTCConfiguration(undefined, {
+      iceTransportPolicy: "relay",
+    });
     expect(config.iceTransportPolicy).toBe("relay");
   });
 
   it("respects options.bundlePolicy override", () => {
-    const config = buildRTCConfiguration(undefined, { bundlePolicy: "balanced" });
+    const config = buildRTCConfiguration(undefined, {
+      bundlePolicy: "balanced",
+    });
     expect(config.bundlePolicy).toBe("balanced");
   });
 
   it("respects options.iceCandidatePoolSize override", () => {
-    const config = buildRTCConfiguration(undefined, { iceCandidatePoolSize: 5 });
+    const config = buildRTCConfiguration(undefined, {
+      iceCandidatePoolSize: 5,
+    });
     expect(config.iceCandidatePoolSize).toBe(5);
   });
 
@@ -441,11 +452,15 @@ describe("isValidServerUrl", () => {
   });
 
   it("accepts turn with udp transport", () => {
-    expect(isValidServerUrl("turn:turn.example.com:3478?transport=udp")).toBe(true);
+    expect(isValidServerUrl("turn:turn.example.com:3478?transport=udp")).toBe(
+      true,
+    );
   });
 
   it("accepts turn with tcp transport", () => {
-    expect(isValidServerUrl("turn:turn.example.com:3478?transport=tcp")).toBe(true);
+    expect(isValidServerUrl("turn:turn.example.com:3478?transport=tcp")).toBe(
+      true,
+    );
   });
 
   // Invalid URLs
@@ -470,7 +485,9 @@ describe("isValidServerUrl", () => {
   });
 
   it("rejects turn with invalid transport value", () => {
-    expect(isValidServerUrl("turn:example.com:3478?transport=sctp")).toBe(false);
+    expect(isValidServerUrl("turn:example.com:3478?transport=sctp")).toBe(
+      false,
+    );
   });
 
   it("rejects arbitrary string", () => {
@@ -503,13 +520,17 @@ describe("validateIceServer", () => {
   it("returns valid:false for a TURN server without credentials", () => {
     const result = validateIceServer({ urls: "turn:turn.example.com:3478" });
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain("TURN servers require username and credential");
+    expect(result.errors).toContain(
+      "TURN servers require username and credential",
+    );
   });
 
   it("returns valid:false for an invalid URL", () => {
     const result = validateIceServer({ urls: "http://example.com" });
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.includes("Invalid ICE server URL"))).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes("Invalid ICE server URL")),
+    ).toBe(true);
   });
 
   it("handles array of valid URLs", () => {
@@ -525,7 +546,9 @@ describe("validateIceServer", () => {
       urls: ["stun:stun.l.google.com:19302", "bad-url"],
     });
     expect(result.valid).toBe(false);
-    expect(result.errors.some((e) => e.includes("Invalid ICE server URL: bad-url"))).toBe(true);
+    expect(
+      result.errors.some((e) => e.includes("Invalid ICE server URL: bad-url")),
+    ).toBe(true);
   });
 
   it("returns {valid, errors} shape", () => {
@@ -566,17 +589,16 @@ describe("validateIceServers", () => {
   });
 
   it("valid is false when ALL servers are invalid", () => {
-    const servers = [
-      { urls: "bad-url-1" },
-      { urls: "bad-url-2" },
-    ];
+    const servers = [{ urls: "bad-url-1" }, { urls: "bad-url-2" }];
     const result = validateIceServers(servers);
     expect(result.valid).toBe(false);
     expect(result.validServers).toHaveLength(0);
   });
 
   it("returns {valid, errors, validServers} shape", () => {
-    const result = validateIceServers([{ urls: "stun:stun.l.google.com:19302" }]);
+    const result = validateIceServers([
+      { urls: "stun:stun.l.google.com:19302" },
+    ]);
     expect(result).toHaveProperty("valid");
     expect(result).toHaveProperty("errors");
     expect(result).toHaveProperty("validServers");
