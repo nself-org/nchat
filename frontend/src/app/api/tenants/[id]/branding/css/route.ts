@@ -14,7 +14,7 @@ import {
   AuthenticatedRequest,
   RouteContext,
 } from '@/lib/api/middleware'
-import csstree from 'css-tree'
+import * as csstree from 'css-tree'
 
 export const dynamic = 'force-dynamic'
 
