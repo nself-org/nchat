@@ -6,6 +6,28 @@
  */
 
 import { createNhostClient } from '@nhost/nhost-js'
+import type { HasuraAuthClient } from '@nhost/hasura-auth-js'
+
+// Typed response shape for nhost.graphql.request — consistent across graphql-js peer versions.
+// Uses `any` for the data field to preserve the permissive typing that the existing API routes
+// rely on when accessing GraphQL response properties (e.g. data.nchat_calls_by_pk).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type NhostGraphqlResponse<T = any> =
+  | { data: T; error: null }
+  | { data: null; error: { message: string }[] | { message: string } }
+
+// Typed nhost server client with explicit auth and graphql surfaces to avoid
+// TypeScript resolving to incorrect peer-dependency types in CI
+export interface NhostServerClient {
+  auth: HasuraAuthClient
+  graphql: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    request<T = any>(
+      document: string,
+      variables?: Record<string, unknown>
+    ): Promise<NhostGraphqlResponse<T>>
+  }
+}
 
 // Create nhost client with proper configuration for self-hosted backend
 // Note: We're using @nhost/nhost-js instead of @nhost/nextjs to avoid React context issues
@@ -23,4 +45,4 @@ export const nhost = createNhostClient({
   devTools: process.env.NODE_ENV === 'development',
   autoSignIn: false, // Don't auto sign in - let user control it
   autoRefreshToken: true, // Auto refresh tokens when expired
-})
+}) as unknown as NhostServerClient
