@@ -67,7 +67,9 @@ jobs:
           NODE_ENV: 'production'
 
       - name: Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 60000
+        # 180 s timeout — slow CI runners (ubuntu-latest) can take 2+ minutes to start
+        # Next.js production builds. 60 s was consistently timing out.
+        run: npx wait-on http://localhost:3000 --timeout 180000
 
       - name: Run Lighthouse CI
         run: pnpm lighthouse

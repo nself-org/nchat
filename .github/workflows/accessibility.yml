@@ -149,9 +149,13 @@ jobs:
         # never connects to a real Hasura instance during Lighthouse tests.
 
       - name: Start application
-        run: |
-          PORT=3000 pnpm start &
-          sleep 10
+        run: PORT=3000 pnpm start &
+
+      - name: Wait for server
+        # sleep 10 was insufficient — Next.js production server can take 60-90 s on
+        # ubuntu-latest. Use wait-on with a 120 s cap so the job fails fast if the
+        # server never starts rather than hanging until the 20-minute job timeout.
+        run: npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12

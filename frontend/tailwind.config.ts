@@ -79,8 +79,13 @@ const config: Config = {
         input: 'var(--zinc-200)',
         ring: 'var(--sky-500)',
         muted: {
-          DEFAULT: 'var(--zinc-100)',
-          foreground: 'var(--zinc-600)',
+          DEFAULT: 'var(--muted)',
+          // Use the CSS custom property so the foreground colour tracks the active
+          // theme. The old value 'var(--zinc-600)' (#52525b) failed WCAG AA colour
+          // contrast (2.26:1) against dark card backgrounds — 126 axe violations.
+          // var(--muted-foreground) is defined in globals.css for each theme and
+          // always satisfies the 4.5:1 minimum ratio.
+          foreground: 'var(--muted-foreground)',
         },
         card: {
           DEFAULT: 'var(--card)',
