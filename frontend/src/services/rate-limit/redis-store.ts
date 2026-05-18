@@ -335,6 +335,7 @@ export class RedisRateLimitStore implements RateLimitStore {
         } catch (error: any) {
           // Script might not be loaded (NOSCRIPT error), fallback to EVAL
           if (error.message?.includes("NOSCRIPT")) {
+            // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
             result = (await client.eval(
               SLIDING_WINDOW_SCRIPT,
               1,
@@ -349,6 +350,7 @@ export class RedisRateLimitStore implements RateLimitStore {
           }
         }
       } else {
+        // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
         result = (await client.eval(
           SLIDING_WINDOW_SCRIPT,
           1,
@@ -418,6 +420,7 @@ export class RedisRateLimitStore implements RateLimitStore {
           )) as [number, number, number, number];
         } catch (error: any) {
           if (error.message?.includes("NOSCRIPT")) {
+            // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
             result = (await client.eval(
               STATUS_SCRIPT,
               1,
@@ -431,6 +434,7 @@ export class RedisRateLimitStore implements RateLimitStore {
           }
         }
       } else {
+        // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
         result = (await client.eval(
           STATUS_SCRIPT,
           1,
@@ -492,12 +496,14 @@ export class RedisRateLimitStore implements RateLimitStore {
           await client.evalsha(scriptSha, 1, fullKey, amount.toString());
         } catch (error: any) {
           if (error.message?.includes("NOSCRIPT")) {
+            // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
             await client.eval(DECREMENT_SCRIPT, 1, fullKey, amount.toString());
           } else {
             throw error;
           }
         }
       } else {
+        // sast-ignore: EVAL_USAGE -- client.eval() calls a pre-loaded Redis Lua script, not arbitrary user input
         await client.eval(DECREMENT_SCRIPT, 1, fullKey, amount.toString());
       }
     } catch (error) {

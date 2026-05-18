@@ -653,6 +653,7 @@ export const landingThemeTemplates = {
 
 // Auth provider descriptions
 export const authProviderDescriptions = {
+  // sast-ignore: HARDCODED_CREDENTIAL -- these are UI description strings for auth providers, not credential values
   emailPassword: "Traditional email and password authentication",
   magicLinks: "Passwordless login via email links",
   google: "Sign in with Google accounts",

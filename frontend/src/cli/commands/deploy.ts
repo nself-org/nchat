@@ -36,7 +36,7 @@ export const deployCommands = {
     // Validate tag to alphanumeric/dash/dot only to prevent injection
     const tag = (options.tag || "latest").replace(/[^a-zA-Z0-9._-]/g, "");
 
-    // shell: false (default) prevents command injection — args passed as array
+    // sast-ignore: COMMAND_INJECTION -- shell:false (default), tag is sanitized to alphanumeric/dash/dot only; args passed as array, not shell string
     const child = spawn("docker", ["build", "-t", `nchat:${tag}`, "."], {
       stdio: "inherit",
     });

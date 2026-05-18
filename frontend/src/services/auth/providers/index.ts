@@ -113,8 +113,8 @@ export const providerDescriptions: Record<AuthProviderId, string> = {
 };
 
 // Feature flags mapping to provider IDs
-// sast-ignore: HARDCODED_CREDENTIAL -- these are auth provider identifier strings, not credential values
 export const featureFlagToProvider: Record<string, AuthProviderId> = {
+  // sast-ignore: HARDCODED_CREDENTIAL -- these are auth provider identifier strings, not credential values
   emailPassword: "email-password",
   magicLinks: "magic-link",
   google: "google",

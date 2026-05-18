@@ -245,8 +245,8 @@ export const CodeBlock = memo(function CodeBlock({
                   highlightedCode={highlightedCode}
                 />
               ) : (
-                // sast-ignore: XSS -- highlightedCode is the output of highlight.js syntax highlighter which escapes all user content
                 <div
+                  // sast-ignore: XSS -- highlightedCode is the output of highlight.js syntax highlighter which escapes all user content
                   dangerouslySetInnerHTML={{ __html: highlightedCode }}
                   className="hljs"
                 />

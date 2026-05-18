@@ -193,9 +193,9 @@ export function CodeBlock({
                     {index + 1}
                   </span>
                 )}
-                {/* // sast-ignore: XSS -- line is from highlight.js syntax highlighter which escapes user content */}
                 <span
                   className="flex-1"
+                  // sast-ignore: XSS -- line is from highlight.js syntax highlighter which escapes user content
                   dangerouslySetInnerHTML={{ __html: line || "&nbsp;" }}
                 />
               </div>

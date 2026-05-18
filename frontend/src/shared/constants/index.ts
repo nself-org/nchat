@@ -139,6 +139,7 @@ export const ERROR_CODES = {
 
 // Storage keys
 export const STORAGE_KEYS = {
+  // sast-ignore: HARDCODED_CREDENTIAL -- these are localStorage key name strings, not credential values
   AUTH_TOKEN: "@nchat/auth_token",
   REFRESH_TOKEN: "@nchat/refresh_token",
   USER: "@nchat/user",
